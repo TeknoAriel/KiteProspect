@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import type { LeadFormState } from "./actions";
 import { submitLeadForm } from "./actions";
@@ -26,9 +27,13 @@ function SubmitButton() {
 type Props = {
   accountSlug: string;
   enabled: boolean;
+  /** Canal Prisma: `form` en `/lead`, `web_widget` en `/embed/lead` (widget iframe). */
+  channel?: "form" | "web_widget";
+  /** Texto breve encima del formulario (p. ej. embed sin branding extra). */
+  intro?: ReactNode;
 };
 
-export function LeadForm({ accountSlug, enabled }: Props) {
+export function LeadForm({ accountSlug, enabled, channel = "form", intro }: Props) {
   const [state, formAction] = useFormState(submitLeadForm, initialState);
 
   if (!enabled) {
@@ -42,6 +47,7 @@ export function LeadForm({ accountSlug, enabled }: Props) {
 
   return (
     <form action={formAction} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+      {intro}
       {/* Honeypot: debe quedar vacío */}
       <input
         type="text"
@@ -58,6 +64,7 @@ export function LeadForm({ accountSlug, enabled }: Props) {
         }}
       />
       <input type="hidden" name="accountSlug" value={accountSlug} />
+      <input type="hidden" name="channel" value={channel} />
 
       <label>
         Nombre

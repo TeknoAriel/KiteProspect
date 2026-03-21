@@ -42,6 +42,7 @@ export async function submitLeadForm(
   const phone = String(formData.get("phone") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
   const message = String(formData.get("message") ?? "").trim();
+  const channelRaw = String(formData.get("channel") ?? "").trim();
 
   const result = await createLeadCapture({
     accountSlug: accountSlug || undefined,
@@ -49,7 +50,7 @@ export async function submitLeadForm(
     phone: phone || undefined,
     name: name || undefined,
     message: message || undefined,
-    channel: "form",
+    channel: channelRaw || undefined,
     source: "public_form",
   });
 

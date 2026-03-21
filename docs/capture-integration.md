@@ -1,6 +1,6 @@
 # Integración: captura de leads
 
-Hay dos caminos: **formulario en esta misma app** (`/lead`) o **HTTP** hacia `POST /api/contacts/create`.
+Hay tres caminos principales: **formulario en esta misma app** (`/lead`), **widget por iframe** (`kite-lead-widget.js` → `/embed/lead`), o **HTTP** hacia `POST /api/contacts/create`.
 
 ## 1. Formulario público en Kite (`/lead`)
 
@@ -11,7 +11,33 @@ Hay dos caminos: **formulario en esta misma app** (`/lead`) o **HTTP** hacia `PO
 
 En producción, valora desactivar el formulario (`ENABLE_PUBLIC_LEAD_FORM` sin definir o distinto de `true`) si no lo usas.
 
-## 2. API HTTP `POST /api/contacts/create`
+## 2. Widget embebible (iframe, sin secreto en el sitio del cliente)
+
+- **Requisito:** `ENABLE_PUBLIC_LEAD_FORM=true` (mismo que `/lead`).
+- **Página interna:** `/embed/lead?slug=demo` — formulario compacto; conversaciones con canal **`web_widget`**.
+- **Script:** sirve desde tu despliegue, p. ej. `https://TU-DOMINIO/kite-lead-widget.js` (archivo en `public/`).
+
+Pega antes del `</body>` de la web del cliente (sustituye la URL por la de tu app en producción):
+
+```html
+<script
+  src="https://TU-DOMINIO/kite-lead-widget.js"
+  data-account-slug="demo"
+  async
+></script>
+```
+
+Atributos opcionales en el `<script>`:
+
+| Atributo | Descripción |
+|----------|-------------|
+| `data-account-slug` o `data-slug` | Slug de la cuenta (default `demo`). |
+| `data-target` | `id` del contenedor (default `kite-lead-widget-root`). Si no existe, se crea junto al script. |
+| `data-min-height` | Altura mínima del iframe en px (default `520`). |
+
+El script **no** debe alojarse en otro dominio distinto al de la app Kite: el origen del `src` determina dónde carga el iframe.
+
+## 3. API HTTP `POST /api/contacts/create`
 
 - **Cabecera:** `Authorization: Bearer <CAPTURE_API_SECRET>` o `X-Capture-Secret: <CAPTURE_API_SECRET>`.
 - **Cuerpo JSON mínimo:** `accountSlug`, y al menos `email` o `phone` (teléfono con **7–15 dígitos** si es el único identificador).
@@ -57,7 +83,7 @@ const res = await fetch(`${process.env.KITE_BASE_URL}/api/contacts/create`, {
 });
 ```
 
-## 3. Verificación
+## 4. Verificación
 
 Tras un envío correcto:
 
@@ -71,8 +97,10 @@ Tras un envío correcto:
 3. Email inválido o teléfono con menos de 7 dígitos (sin email) → `400`.
 4. Repetir muchas peticiones desde la misma IP → `429` (si se supera el límite configurado).
 5. `/lead` con `ENABLE_PUBLIC_LEAD_FORM=true`: envío válido → mensaje de éxito; honeypot relleno → sin error visible (idle).
+6. **S02:** `/embed/lead?slug=demo` carga en iframe desde otra pestaña o desde una página HTML que incluya el snippet del script; envío válido → contacto con canal `web_widget` en conversación.
 
 ## Referencias
 
 - `docs/decisions/slice-capture-api-hardening.md`
+- `docs/decisions/slice-s02-widget-embed.md`
 - `docs/manual-actions-required.md`

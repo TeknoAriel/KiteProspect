@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **S02** — Widget embebible (script + origen) |
+| **Sprint activo** | **S03** — Patrón landing + unificación |
 | **Inicio (ISO)** | (rellenar al arrancar) |
-| **Objetivo del sprint** | JS mínimo embebible + endpoint que reutiliza la misma creación de lead; doc en `docs/capture-integration.md`. |
+| **Objetivo del sprint** | Misma API/eventos que S01/S02; guía copy-paste para landings en `docs/capture-integration.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -59,7 +59,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas (agente salvo 👤) |
 |--------|---------|-----|---------------------------|
 | **S01** | Formulario público estable + hardening | F1-E5 | [x] Revisar `POST /api/contacts/create` y formulario `/lead` vs `docs/capture-integration.md`. [x] Validación central + rate limit por IP (memoria) + `429`/`400` JSON; `docs/decisions/slice-capture-api-hardening.md` actualizado. [x] Checklist manual en `docs/capture-integration.md`. |
-| **S02** | Widget embebible (script + origen) | F1-E6 | [ ] JS mínimo embebible + endpoint que reutiliza la misma creación de lead. [ ] Doc de snippet para el cliente en `docs/capture-integration.md`. |
+| **S02** | Widget embebible (script + origen) | F1-E6 | [x] `kite-lead-widget.js` + `/embed/lead` (iframe, canal `web_widget`); CSP `frame-ancestors *`. [x] Doc y decisión `docs/decisions/slice-s02-widget-embed.md`. |
 | **S03** | Patrón landing + unificación | F1-E7 | [ ] Misma API/eventos que S01/S02; guía “copy-paste” para landings. [ ] Sin nuevas entidades fuera de `PRODUCT_DEFINITION.md`. |
 
 **Bloqueos 👤:** ninguno para desarrollo; en producción solo variables ya listadas en checklists de Vercel.

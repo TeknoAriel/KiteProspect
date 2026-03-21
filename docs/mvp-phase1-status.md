@@ -109,7 +109,7 @@
 ## Pendiente para MVP completo
 
 ### Canales de captura (Fase 1 según PRODUCT_DEFINITION.md)
-- [ ] Widget web (script embebible)
+- [x] Widget web (`kite-lead-widget.js` + `/embed/lead` — ver `docs/capture-integration.md`)
 - [ ] Script para landings
 - [ ] Formularios (UI básica)
 - [ ] WhatsApp base (webhook + envío)
