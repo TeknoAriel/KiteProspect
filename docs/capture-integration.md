@@ -14,7 +14,9 @@ En producción, valora desactivar el formulario (`ENABLE_PUBLIC_LEAD_FORM` sin d
 ## 2. API HTTP `POST /api/contacts/create`
 
 - **Cabecera:** `Authorization: Bearer <CAPTURE_API_SECRET>` o `X-Capture-Secret: <CAPTURE_API_SECRET>`.
-- **Cuerpo JSON mínimo:** `accountSlug`, y al menos `email` o `phone`.
+- **Cuerpo JSON mínimo:** `accountSlug`, y al menos `email` o `phone` (teléfono con **7–15 dígitos** si es el único identificador).
+- **Errores comunes:** `400` (validación / JSON inválido), `401` (secreto incorrecto), `404` (slug/UUID de cuenta), `429` (demasiadas peticiones desde la misma IP; ver `Retry-After`), `503` (captura deshabilitada sin `CAPTURE_API_SECRET`).
+- **Límite de tasa (opcional):** `CAPTURE_RATE_LIMIT_MAX` y `CAPTURE_RATE_LIMIT_WINDOW_SEC` en el entorno (ver `.env.example`).
 
 ```bash
 curl -sS -X POST "https://tu-dominio.com/api/contacts/create" \
@@ -61,6 +63,14 @@ Tras un envío correcto:
 
 - En el panel: contacto en **Contactos** e hilo en **Inbox** (si aplica).
 - En **Auditoría** (admin): evento `lead_captured` con metadata `via` = `api_contacts_create` o `public_lead_form`.
+
+### Checklist manual (S01)
+
+1. `CAPTURE_API_SECRET` definido; `POST` con Bearer correcto → `200` y `contactId`.
+2. JSON mal formado → `400` con `JSON no válido`.
+3. Email inválido o teléfono con menos de 7 dígitos (sin email) → `400`.
+4. Repetir muchas peticiones desde la misma IP → `429` (si se supera el límite configurado).
+5. `/lead` con `ENABLE_PUBLIC_LEAD_FORM=true`: envío válido → mensaje de éxito; honeypot relleno → sin error visible (idle).
 
 ## Referencias
 

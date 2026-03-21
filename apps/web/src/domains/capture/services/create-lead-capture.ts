@@ -3,6 +3,7 @@
  * Usado por POST /api/contacts/create y por el formulario público /lead.
  */
 import { prisma } from "@kite-prospect/db";
+import { validateLeadCaptureFields } from "@/lib/capture-validation";
 import { recordAuditEvent } from "@/lib/audit";
 
 const ALLOWED_CHANNELS = new Set([
@@ -46,8 +47,14 @@ export async function createLeadCapture(
   const messageStr =
     typeof input.message === "string" ? input.message.trim() || undefined : undefined;
 
-  if (!emailStr && !phoneStr) {
-    return { ok: false, status: 400, error: "Se requiere al menos email o teléfono" };
+  const validationError = validateLeadCaptureFields({
+    email: emailStr,
+    phone: phoneStr,
+    name: nameStr,
+    message: messageStr,
+  });
+  if (validationError) {
+    return { ok: false, status: 400, error: validationError };
   }
 
   let accountId: string | undefined;

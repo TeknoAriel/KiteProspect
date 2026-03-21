@@ -61,21 +61,40 @@ export function LeadForm({ accountSlug, enabled }: Props) {
 
       <label>
         Nombre
-        <input name="name" type="text" style={{ display: "block", width: "100%", maxWidth: "400px" }} />
+        <input
+          name="name"
+          type="text"
+          maxLength={200}
+          autoComplete="name"
+          style={{ display: "block", width: "100%", maxWidth: "400px" }}
+        />
       </label>
       <label>
         Email
-        <input name="email" type="email" style={{ display: "block", width: "100%", maxWidth: "400px" }} />
+        <input
+          name="email"
+          type="email"
+          maxLength={254}
+          autoComplete="email"
+          style={{ display: "block", width: "100%", maxWidth: "400px" }}
+        />
       </label>
       <label>
         Teléfono
-        <input name="phone" type="tel" style={{ display: "block", width: "100%", maxWidth: "400px" }} />
+        <input
+          name="phone"
+          type="tel"
+          maxLength={40}
+          autoComplete="tel"
+          style={{ display: "block", width: "100%", maxWidth: "400px" }}
+        />
       </label>
       <label>
         Mensaje
         <textarea
           name="message"
           rows={4}
+          maxLength={8000}
           style={{ display: "block", width: "100%", maxWidth: "400px" }}
         />
       </label>

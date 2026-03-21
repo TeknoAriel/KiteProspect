@@ -16,7 +16,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
 | **Dashboard** | KPIs básicos + navegación. |
 | **Auditoría** | `recordAuditEvent` + evento `session_started` en login + evento de seed; UI admin (`/dashboard/audit`). |
-| **Captura (API)** | `POST /api/contacts/create` con `CAPTURE_API_SECRET` + `accountSlug` (o `accountId`), email o teléfono; evento `lead_captured`. |
+| **Captura (API)** | `POST /api/contacts/create` con `CAPTURE_API_SECRET` + `accountSlug` (o `accountId`), email o teléfono; validación de campos + rate limit por IP (memoria); evento `lead_captured`. |
 | **Captura (formulario)** | `/lead` opcional con `ENABLE_PUBLIC_LEAD_FORM=true`; misma lógica vía server action (auditoría `via: public_lead_form`). |
 
 ## Pendiente respecto a Fase 1 (producto)

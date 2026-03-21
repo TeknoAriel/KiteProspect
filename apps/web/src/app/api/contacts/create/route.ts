@@ -5,6 +5,8 @@
 import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createLeadCapture } from "@/domains/capture/services/create-lead-capture";
+import { getClientIpFromRequest } from "@/lib/client-ip";
+import { allowRateLimit, getCaptureRateLimitConfig } from "@/lib/rate-limit-memory";
 
 function verifyCaptureSecret(request: NextRequest): boolean {
   const secret = process.env.CAPTURE_API_SECRET?.trim();
@@ -47,11 +49,30 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const ip = getClientIpFromRequest(request);
+    if (!allowRateLimit(`capture-api:${ip}`)) {
+      const { windowMs } = getCaptureRateLimitConfig();
+      return NextResponse.json(
+        { error: "Demasiadas solicitudes. Intenta más tarde." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil(windowMs / 1000)),
+          },
+        },
+      );
+    }
+
     if (!verifyCaptureSecret(request)) {
       return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
-    const body = await request.json();
+    let body: Record<string, unknown>;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: "JSON no válido" }, { status: 400 });
+    }
     const {
       accountSlug,
       accountId: bodyAccountId,

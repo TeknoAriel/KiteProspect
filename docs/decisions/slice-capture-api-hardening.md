@@ -17,13 +17,20 @@ Existía un endpoint MVP que aceptaba `accountId` en el cuerpo **sin autenticaci
 - Página pública **`/lead`** con server action que llama al mismo núcleo (`createLeadCapture`) sin exponer el secreto HTTP.
 - Activación explícita: `ENABLE_PUBLIC_LEAD_FORM=true`; honeypot anti-bots básico.
 
-## No incluido (MVP)
+## Ampliación (Sprint S01)
 
-- Rate limiting, claves por cuenta en BD, rotación de secretos.
-- Widget o script embebido (solo API + doc de proxy).
+- **Validación de campos** centralizada en `apps/web/src/lib/capture-validation.ts`: email (regex MVP), teléfono (7–15 dígitos), longitudes máx. nombre/mensaje.
+- **Rate limiting por IP en memoria** (`rate-limit-memory.ts`): claves `capture-api:*` y `capture-form:*`; configurable con `CAPTURE_RATE_LIMIT_MAX` y `CAPTURE_RATE_LIMIT_WINDOW_SEC`. Freno suave en serverless (no global entre instancias); límite estricto con KV/Edge en el futuro.
+- **API:** JSON inválido → 400; exceso de tasa → 429 + `Retry-After`.
+
+## No incluido (post-S01)
+
+- Claves por cuenta en BD, rotación de secretos.
+- Widget o script embebible (Sprint S02+; hasta entonces solo API + doc de proxy).
 
 ## Referencias
 
+- `apps/web/src/lib/capture-validation.ts`, `apps/web/src/lib/rate-limit-memory.ts`, `apps/web/src/lib/client-ip.ts`
 - `apps/web/src/app/api/contacts/create/route.ts`
 - `apps/web/src/domains/capture/services/create-lead-capture.ts`
 - `apps/web/src/app/lead/*`

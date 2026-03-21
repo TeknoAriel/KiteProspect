@@ -1,6 +1,9 @@
 "use server";
 
+import { headers } from "next/headers";
 import { createLeadCapture } from "@/domains/capture/services/create-lead-capture";
+import { getClientIpFromHeaders } from "@/lib/client-ip";
+import { allowRateLimit, getCaptureRateLimitConfig } from "@/lib/rate-limit-memory";
 
 export type LeadFormState =
   | { status: "idle" }
@@ -22,6 +25,16 @@ export async function submitLeadForm(
   const honeypot = String(formData.get("website") ?? "").trim();
   if (honeypot.length > 0) {
     return { status: "idle" };
+  }
+
+  const h = headers();
+  const ip = getClientIpFromHeaders(h);
+  if (!allowRateLimit(`capture-form:${ip}`)) {
+    const { windowMs } = getCaptureRateLimitConfig();
+    return {
+      status: "error",
+      message: `Demasiadas solicitudes. Espera unos ${Math.ceil(windowMs / 1000)} segundos e intenta de nuevo.`,
+    };
   }
 
   const accountSlug = String(formData.get("accountSlug") ?? "").trim();
