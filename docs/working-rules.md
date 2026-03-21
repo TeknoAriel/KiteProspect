@@ -65,6 +65,15 @@ entonces:
 
 ---
 
+## Agente / implementación (sin pedir ejecución manual innecesaria)
+
+- El **asistente** debe **ejecutar** en el workspace lo que sea seguro: `npm run verify`, ediciones, commits cuando el usuario lo pida, y dejar el pipeline alineado.
+- **Migraciones y seed en Vercel** corren en **`npm run build:vercel`** (ver `docs/decisions/vercel-build-migrations-seed.md`); no pedir al humano que ejecute `db:migrate` en su PC salvo diagnóstico local.
+- **Política de errores y flujo:** **`docs/agent-workflow-and-errors.md`**.
+- Solo **credenciales** (Neon, Vercel, rotación) requieren intervención humana puntual; documentar en `docs/manual-actions-required.md` sin duplicar párrafos largos.
+
+---
+
 ## Referencias
 
 - `PRODUCT_DEFINITION.md` — source of truth de alcance.

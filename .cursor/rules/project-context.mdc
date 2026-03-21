@@ -46,6 +46,12 @@ No inventar features fuera de `PRODUCT_DEFINITION.md` sin actualizar ese archivo
 
 Raíz: `npm run dev`, `npm run db:*`.
 
+## Ejecución (agente, no el humano para lo rutinario)
+
+- El **agente ejecuta** en el repo `npm run verify`, cambios de código y deja documentación.
+- **Vercel** ejecuta `build:vercel` = migraciones + seed + build Next (ver `docs/decisions/vercel-build-migrations-seed.md`); el humano no debe correr `db:migrate` en su PC para que producción tenga tablas/demo.
+- **Política de errores:** `docs/agent-workflow-and-errors.md`.
+
 ## Dominios (`apps/web/src/domains/`)
 
 auth-tenancy, capture, conversations, crm-leads, properties, matching, followups, scoring, analytics, integrations, ai-orchestration.
