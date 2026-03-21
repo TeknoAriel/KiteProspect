@@ -32,6 +32,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null;
         }
 
+        const emailNorm = String(credentials.email ?? "")
+          .trim()
+          .toLowerCase();
+        if (!emailNorm) {
+          return null;
+        }
+
         const account = await prisma.account.findUnique({
           where: { slug },
         });
@@ -44,7 +51,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: {
             accountId_email: {
               accountId: account.id,
-              email: credentials.email as string,
+              email: emailNorm,
             },
           },
           include: {
@@ -57,7 +64,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         const isValid = await bcrypt.compare(
-          credentials.password as string,
+          String(credentials.password ?? ""),
           user.password,
         );
 
