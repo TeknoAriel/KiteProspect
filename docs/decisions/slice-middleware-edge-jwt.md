@@ -1,14 +1,17 @@
-# Decisión: middleware en Edge sin importar `auth` / bcrypt
+# Decisión: middleware y sesión (Auth.js v5)
 
-## Problema
+## Problema (intento con `getToken` solo)
 
-`middleware.ts` importaba `auth()` desde `@/lib/auth`, lo que arrastraba **bcrypt** y **jose** al bundle de Edge y generaba advertencias de build.
+Usar **`getToken`** de `@auth/core/jwt` en el middleware sin el pipeline de NextAuth hacía que, en producción, la sesión **no se reconociera** (JWT cifrado / cookies / salt distintos al decodificado manualmente) → redirección a `/login` tras un login válido.
 
-## Decisión
+## Decisión actual
 
-- El middleware solo valida sesión JWT y lee **`accountId`** del token.
-- Usar **`getToken`** de `@auth/core/jwt` con `AUTH_SECRET` (misma sesión que emite NextAuth).
-- No importar `@/lib/auth` en el middleware.
+- Usar el patrón oficial **`export default auth((req) => { ... })`** desde `@/lib/auth`.
+- La sesión se resuelve igual que en el resto de la app (petición interna coherente con cookies de Auth.js).
+
+## Nota
+
+El bundle del middleware puede volver a incluir dependencias pesadas y advertencias de Edge; prioridad: **login y dashboard funcionando**.
 
 ## Referencias
 

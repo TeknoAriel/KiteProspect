@@ -7,7 +7,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | Área | Qué hay |
 |------|---------|
 | **Multi-tenant** | Datos filtrados por `accountId` de sesión; login con **slug de cuenta** + email + contraseña. |
-| **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido en Edge con `getToken` (`@auth/core/jwt`, sin bcrypt en middleware). |
+| **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido con `auth()` en middleware (Auth.js v5). |
 | **Usuarios / asesores / cuentas** | Vistas de lectura en dashboard (`/dashboard/users`, `advisors`, `accounts`). |
 | **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
 | **Inbox** | Lista unificada de conversaciones activas (`/dashboard/inbox`). |
