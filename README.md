@@ -24,6 +24,7 @@ Plataforma **SaaS multi-tenant** de **prospección inmobiliaria asistida**.
 | [docs/accesos-y-configuracion-git-neon-vercel.md](./docs/accesos-y-configuracion-git-neon-vercel.md) | **GitHub, Neon, Vercel:** URLs y ajustes exactos del proyecto. |
 | [docs/flujo-completo-pantalla-a-pantalla.md](./docs/flujo-completo-pantalla-a-pantalla.md) | **Flujo alineado:** repos + Vercel + Neon + app, qué ejecuta la IA vs qué es secreto. |
 | [docs/agent-workflow-and-errors.md](./docs/agent-workflow-and-errors.md) | **Agente vs humano**, política de errores (P1001, login, build). |
+| [docs/execution-plan-sprints.md](./docs/execution-plan-sprints.md) | **Hitos, sprints y cola de trabajo** alineados al masterplan (autómata). |
 
 ## Inicio rápido
 

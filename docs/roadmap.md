@@ -86,3 +86,4 @@ Alineado con **PRODUCT_DEFINITION.md**. Los ítems son **épicas / entregables**
 - [product-rules.md](./product-rules.md)
 - [architecture.md](./architecture.md)
 - [manual-actions-required.md](./manual-actions-required.md)
+- [execution-plan-sprints.md](./execution-plan-sprints.md) — hitos, sprints y tareas para ejecución por etapas (agente)

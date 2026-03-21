@@ -78,5 +78,6 @@ entonces:
 
 - `PRODUCT_DEFINITION.md` — source of truth de alcance.
 - `docs/manual-actions-required.md` — checklist de acciones humanas.
+- `docs/execution-plan-sprints.md` — hitos, sprints y cola para el autómata (actualizar sprint activo al avanzar).
 - `docs/roadmap.md` — fases y backlog.
 - `docs/architecture.md` — estructura técnica del monorepo.

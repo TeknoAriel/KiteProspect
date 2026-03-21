@@ -66,3 +66,7 @@ auth-tenancy, capture, conversations, crm-leads, properties, matching, followups
 ## Acciones humanas
 
 `docs/manual-actions-required.md`
+
+## Plan de ejecución (sprints)
+
+Cola de hitos/sprints alineada al producto: **`docs/execution-plan-sprints.md`**. Al implementar, preferir el **sprint activo** indicado allí y actualizar el documento al cerrar tareas.
