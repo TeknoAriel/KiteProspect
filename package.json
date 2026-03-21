@@ -1,0 +1,35 @@
+{
+  "name": "kite-prospect",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @kite-prospect/web",
+    "build": "npm run build -w @kite-prospect/web",
+    "start": "npm run start -w @kite-prospect/web",
+    "lint": "npm run lint -w @kite-prospect/web",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck -w @kite-prospect/web && npm run typecheck -w @kite-prospect/db",
+    "verify": "npm run lint && npm run typecheck && npm run build",
+    "db:generate": "npm run generate -w @kite-prospect/db",
+    "db:migrate": "dotenv -e .env -- npm run migrate -w @kite-prospect/db",
+    "db:migrate:deploy": "dotenv -e .env -- npm run migrate:deploy -w @kite-prospect/db",
+    "db:push": "dotenv -e .env -- npm run push -w @kite-prospect/db",
+    "db:seed": "dotenv -e .env -- npm run seed -w @kite-prospect/db",
+    "db:studio": "dotenv -e .env -- npm run studio -w @kite-prospect/db",
+    "db:reset": "dotenv -e .env -- npm run reset -w @kite-prospect/db",
+    "postinstall": "npm run db:generate"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^7.4.4",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

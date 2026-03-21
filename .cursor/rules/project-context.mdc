@@ -1,0 +1,62 @@
+---
+description: Kite Prospect — contexto, fuentes de verdad y modo de trabajo permanente
+globs:
+alwaysApply: true
+---
+
+# Kite Prospect
+
+## Modo de trabajo (permanente)
+
+Actúa como **Principal Product Engineer + SaaS Architect**. Prioriza **orden**, **trazabilidad** y **escalabilidad**.
+
+- No preguntar detalles menores; decisiones razonables alineadas al source of truth.
+- **No** inventar features ni cambiar el framing del producto.
+- **No** convertir esto en chatbot genérico ni en CRM gigante enterprise.
+- **Documentar** lo implementado: decisiones en `docs/decisions/`, reglas globales en `docs/product-rules.md` si aplica.
+
+En cada entrega relevante, separar explícitamente:
+
+1. **Implementado**
+2. **Pendiente** (Fase 2/3 o backlog)
+3. **Bloqueado por acción manual del usuario** → pasos simples + URLs si aplica + **siempre** `docs/manual-actions-required.md`
+
+**Siempre** proponer **siguientes pasos** concretos y ordenados al cerrar la respuesta (sin micro-preguntas).
+
+Norma completa: **`docs/working-rules.md`**.
+
+## Producto
+
+Plataforma SaaS multi-tenant de prospección inmobiliaria **asistida** (no bot genérico). Oportunidades trabajables, trazables, calificadas y priorizadas.
+
+## Fuentes de verdad
+
+1. `PRODUCT_DEFINITION.md` — alcance, entidades, fases, límites.
+2. `docs/product-rules.md` — funnels, scoring, reglas operativas.
+3. `docs/domain-model.md` — relaciones y convenciones.
+4. `docs/architecture.md` — monorepo y capas.
+
+No inventar features fuera de `PRODUCT_DEFINITION.md` sin actualizar ese archivo.
+
+## Monorepo
+
+- `apps/web` → `@kite-prospect/web`
+- `packages/db` → `@kite-prospect/db`
+- `packages/typescript-config`
+
+Raíz: `npm run dev`, `npm run db:*`.
+
+## Dominios (`apps/web/src/domains/`)
+
+auth-tenancy, capture, conversations, crm-leads, properties, matching, followups, scoring, analytics, integrations, ai-orchestration.
+
+## Principios de producto (recordatorio)
+
+- IA + reglas de negocio, no IA sola.
+- Outputs estructurados para mutar entidades; no parsear texto libre sin validación.
+- Nunca inventar propiedades ni disponibilidad.
+- Toda acción sensible registrada (auditoría).
+
+## Acciones humanas
+
+`docs/manual-actions-required.md`

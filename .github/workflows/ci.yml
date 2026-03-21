@@ -1,0 +1,26 @@
+# Comprobaciones sin secretos: lint + typecheck + build.
+# Cada push/PR deja el repo verificable por humanos y por asistentes (npm run verify).
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Verify (lint + typecheck + build)
+        run: npm run verify
