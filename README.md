@@ -25,6 +25,8 @@ Plataforma **SaaS multi-tenant** de **prospección inmobiliaria asistida**.
 | [docs/flujo-completo-pantalla-a-pantalla.md](./docs/flujo-completo-pantalla-a-pantalla.md) | **Flujo alineado:** repos + Vercel + Neon + app, qué ejecuta la IA vs qué es secreto. |
 | [docs/agent-workflow-and-errors.md](./docs/agent-workflow-and-errors.md) | **Agente vs humano**, política de errores (P1001, login, build). |
 | [docs/execution-plan-sprints.md](./docs/execution-plan-sprints.md) | **Hitos, sprints y cola de trabajo** alineados al masterplan (autómata). |
+| [docs/capture-integration.md](./docs/capture-integration.md) | **Captura de leads:** formulario `/lead`, widget, API, landings. |
+| [docs/examples/README.md](./docs/examples/README.md) | **Ejemplos copy-paste** (HTML estático, proxy serverless). |
 
 ## Inicio rápido
 
