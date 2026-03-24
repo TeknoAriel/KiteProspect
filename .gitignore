@@ -36,3 +36,5 @@ yarn-error.log*
 # Tooling
 .turbo
 coverage
+.vercel/
+apps/web/.vercel/
