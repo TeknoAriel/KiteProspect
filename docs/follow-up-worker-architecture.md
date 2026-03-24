@@ -31,6 +31,16 @@ flowchart LR
 | Configurar cron en `vercel.json` o panel Vercel | Cron expression (p. ej. cada 5 min) |
 | Verificar que la URL del cron apunta al proyecto correcto | Vercel → Cron Jobs |
 
+## Prueba manual (desarrollo)
+
+Con la app en marcha y `CRON_SECRET` en `.env`:
+
+```bash
+curl -sS -H "Authorization: Bearer $CRON_SECRET" "http://localhost:3000/api/cron/follow-up-due"
+```
+
+Respuesta JSON: `sequencesExamined`, `attemptsCreated`, `skipped`.
+
 ## Evolución: BullMQ + Redis
 
 Cuando el volumen lo exija:

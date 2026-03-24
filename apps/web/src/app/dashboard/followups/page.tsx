@@ -153,7 +153,9 @@ export default async function FollowUpsPage() {
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          <strong>MVP:</strong> Vista de lectura. Ejecución automática de seguimientos en Fase 2 (BullMQ).
+          <strong>MVP:</strong> El cron <code>/api/cron/follow-up-due</code> procesa secuencias vencidas (ver{" "}
+          <code>docs/decisions/slice-s07-follow-up-cron.md</code>). Envío real email/WhatsApp en una fase
+          posterior.
         </p>
       </div>
     </div>

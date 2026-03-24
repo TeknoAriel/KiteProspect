@@ -6,7 +6,7 @@
  */
 export type ProcessDueFollowUpsInput = {
   /** Máximo de secuencias a evaluar en un tick (evita timeouts en serverless). */
-  batchLimit: number;
+  batchLimit?: number;
 };
 
 export type ProcessDueFollowUpsResult = {

@@ -14,7 +14,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
-| **Seguimiento (jobs)** | Diseño S06: cron + Postgres para MVP; BullMQ+Redis documentado como escalado (`docs/decisions/slice-s06-job-runner-followups.md`). Implementación S07 pendiente. |
+| **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`; `slice-s06` + `slice-s07`; envío real de canales pendiente. |
 | **Dashboard** | KPIs básicos + navegación. |
 | **Auditoría** | `recordAuditEvent` + evento `session_started` en login + evento de seed; UI admin (`/dashboard/audit`). |
 | **Captura (API)** | `POST /api/contacts/create` con `CAPTURE_API_SECRET` + `accountSlug` (o `accountId`), email o teléfono; validación de campos + rate limit por IP (memoria); evento `lead_captured`. |

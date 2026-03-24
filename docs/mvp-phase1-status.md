@@ -79,10 +79,11 @@
 - [x] Vista de planes de seguimiento
 - [x] Vista de secuencias activas
 - [x] Próximos intentos
+- [x] Cron `/api/cron/follow-up-due` + `processDueFollowUps` (intentos `queued`; sin envío real aún)
 
 **TODO Fase 2:**
-- Worker con BullMQ
-- Ejecución automática
+- Worker con BullMQ (escalado; ver `slice-s06`)
+- Envío real por canal
 - Pausar/reanudar
 - Notificaciones
 

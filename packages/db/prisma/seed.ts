@@ -114,7 +114,7 @@ async function main() {
     },
   });
 
-  await prisma.followUpPlan.create({
+  const followUpPlan = await prisma.followUpPlan.create({
     data: {
       accountId: account.id,
       name: "Seguimiento estándar (demo)",
@@ -122,10 +122,21 @@ async function main() {
       intensity: "low",
       maxAttempts: 3,
       sequence: [
-        { step: 0, delayHours: 24, channel: "email", objective: "confirmar interés" },
+        { step: 0, delayHours: 0, channel: "email", objective: "confirmar interés" },
         { step: 1, delayHours: 72, channel: "whatsapp", objective: "agendar llamada" },
       ],
       status: "active",
+    },
+  });
+
+  await prisma.followUpSequence.create({
+    data: {
+      contactId: contact.id,
+      followUpPlanId: followUpPlan.id,
+      status: "active",
+      currentStep: 0,
+      attempts: 0,
+      nextAttemptAt: new Date(),
     },
   });
 

@@ -55,6 +55,8 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 6. **Formulario `/lead` (opcional):** si quieres probar captura sin curl, pon `ENABLE_PUBLIC_LEAD_FORM=true` en `.env`. No sustituye a landings externas: para eso usa un proxy serverless (ver `docs/capture-integration.md`).
 
+7. **Cron de seguimientos:** define `CRON_SECRET` en `.env` (mismo patrón que `AUTH_SECRET`). Sin esto, `GET /api/cron/follow-up-due` responde **503**. Las pruebas manuales usan `Authorization: Bearer …`. En Vercel, el cron oficial envía `x-vercel-cron: 1` (ver `docs/decisions/slice-s07-follow-up-cron.md`).
+
 ---
 
 ### 3. Actualizar instalación tras el bootstrap monorepo (una sola vez)
