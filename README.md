@@ -29,6 +29,7 @@ Plataforma **SaaS multi-tenant** de **prospección inmobiliaria asistida**.
 | [docs/examples/README.md](./docs/examples/README.md) | **Ejemplos copy-paste** (HTML estático, proxy serverless). |
 | [docs/follow-up-worker-architecture.md](./docs/follow-up-worker-architecture.md) | **Seguimientos:** cron vs worker (BullMQ) y checklist. |
 | [docs/decisions/slice-s07-follow-up-cron.md](./docs/decisions/slice-s07-follow-up-cron.md) | Cron `/api/cron/follow-up-due` y variables. |
+| [docs/decisions/slice-s08-whatsapp-webhook.md](./docs/decisions/slice-s08-whatsapp-webhook.md) | Webhook WhatsApp (Meta) y variables. |
 
 ## Inicio rápido
 

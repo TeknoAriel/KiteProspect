@@ -57,6 +57,8 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 7. **Cron de seguimientos:** define `CRON_SECRET` en `.env` (mismo patrón que `AUTH_SECRET`). Sin esto, `GET /api/cron/follow-up-due` responde **503**. Las pruebas manuales usan `Authorization: Bearer …`. En Vercel, el cron oficial envía `x-vercel-cron: 1` (ver `docs/decisions/slice-s07-follow-up-cron.md`).
 
+8. **WhatsApp (Meta):** alta en Meta Business / WhatsApp Cloud API, número y tokens los obtiene el humano. En la app: `WHATSAPP_ACCOUNT_SLUG` (slug de cuenta), `WHATSAPP_VERIFY_TOKEN` (verificación del webhook), `WHATSAPP_APP_SECRET` (firma de `POST`, recomendado). URL del webhook: `https://TU-DOMINIO/api/webhooks/whatsapp` (ver `docs/decisions/slice-s08-whatsapp-webhook.md`).
+
 ---
 
 ### 3. Actualizar instalación tras el bootstrap monorepo (una sola vez)

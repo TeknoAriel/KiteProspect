@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **S08** — WhatsApp: contrato webhook (F1-E15) |
+| **Sprint activo** | **S09** — WhatsApp envío y cumplimiento (F1-E15) |
 | **Inicio (ISO)** | (rellenar al arrancar) |
-| **Objetivo del sprint** | Rutas webhook + verificación Meta; mapeo a conversación. |
+| **Objetivo del sprint** | Envío básico; respetar opt-out; auditoría/logs. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -96,8 +96,8 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
-| **S08** | Contrato y persistencia | F1-E15 | [ ] Rutas webhook + verificación Meta. [ ] Mapeo a `Conversation` / `Message`. |
-| **S09** | Envío y cumplimiento | F1-E15 | [ ] Envío básico; respetar opt-out; logs/auditoría. |
+| **S08** | Contrato y persistencia | F1-E15 | [x] `GET / POST /api/webhooks/whatsapp` + firma opcional; `WHATSAPP_ACCOUNT_SLUG`; ingest a Contact/Conversation/Message; opt-out; statuses; `slice-s08-whatsapp-webhook.md`. |
+| **S09** | Envío y cumplimiento | F1-E15 | [ ] Envío básico vía Graph API; respetar opt-out; logs/auditoría. |
 
 **Bloqueos 👤:** **Meta Business / número / tokens** — checklist en `docs/manual-actions-required.md`; el agente no puede obtener estos secretos.
 

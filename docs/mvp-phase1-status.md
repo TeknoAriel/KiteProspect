@@ -111,9 +111,10 @@
 
 ### Canales de captura (Fase 1 según PRODUCT_DEFINITION.md)
 - [x] Widget web (`kite-lead-widget.js` + `/embed/lead` — ver `docs/capture-integration.md`)
-- [ ] Script para landings
-- [ ] Formularios (UI básica)
-- [ ] WhatsApp base (webhook + envío)
+- [x] Patrón landings / proxy (`docs/capture-integration.md`, `docs/examples/`)
+- [x] Formularios (`/lead` + API)
+- [x] WhatsApp base — **webhook** (`/api/webhooks/whatsapp`, `slice-s08`)
+- [ ] WhatsApp — **envío** saliente (S09)
 
 **Nota:** Estos requieren decisiones de diseño/UX o credenciales externas. Ver `docs/manual-actions-required.md`.
 
