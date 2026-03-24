@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { RecalculateMatchesButton } from "./recalculate-matches-button";
 
 export default async function ContactDetailPage({
   params,
@@ -68,7 +69,7 @@ export default async function ContactDetailPage({
           },
         },
         orderBy: { score: "desc" },
-        take: 5,
+        take: 50,
       },
       consents: {
         orderBy: { createdAt: "desc" },
@@ -233,22 +234,37 @@ export default async function ContactDetailPage({
             </section>
           )}
 
-          {/* Propiedades recomendadas */}
-          {contact.propertyMatches.length > 0 && (
-            <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
-              <h3 style={{ marginTop: 0 }}>Propiedades recomendadas</h3>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          {/* Matching inventario (v0) */}
+          <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
+            <h3 style={{ marginTop: 0 }}>Propiedades recomendadas (matching v0)</h3>
+            <p style={{ fontSize: "0.8rem", color: "#555", marginTop: 0 }}>
+              Solo inventario con estado <code>available</code>; reglas sobre perfil de búsqueda (sin inventar
+              propiedades).
+            </p>
+            <RecalculateMatchesButton contactId={id} />
+            {contact.propertyMatches.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.75rem" }}>
                 {contact.propertyMatches.map((match) => (
                   <div key={match.id} style={{ padding: "0.75rem", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
-                    <p style={{ margin: 0, fontSize: "0.875rem" }}><strong>{match.property.title}</strong></p>
-                    <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#666" }}>
-                      {match.property.zone} | ${match.property.price.toLocaleString()} | Match: {match.score}%
+                    <p style={{ margin: 0, fontSize: "0.875rem" }}>
+                      <strong>{match.property.title}</strong>
                     </p>
+                    <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#666" }}>
+                      {match.property.zone} | ${match.property.price.toLocaleString()} | Score: {match.score}%
+                    </p>
+                    {match.reason && (
+                      <p style={{ margin: "0.35rem 0 0 0", fontSize: "0.75rem", color: "#444" }}>{match.reason}</p>
+                    )}
                   </div>
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <p style={{ fontSize: "0.875rem", color: "#666", marginTop: "0.75rem" }}>
+                Sin matches por encima del umbral. Necesitás perfil de búsqueda e inventario disponible; luego
+                &quot;Recalcular matches&quot;.
+              </p>
+            )}
+          </section>
 
           {/* Consentimientos */}
           {contact.consents.length > 0 && (
@@ -275,7 +291,7 @@ export default async function ContactDetailPage({
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          <strong>MVP:</strong> Vista de lectura. Edición y acciones en Fase 2.
+          <strong>MVP:</strong> Matching v0 recalcutable desde esta ficha; más edición CRM en Fase 2.
         </p>
       </div>
     </div>

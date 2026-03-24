@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **S04** — Matching v0 (reglas + persistencia) |
+| **Sprint activo** | **S06** — Secuencias: diseño job runner (F1-E12) |
 | **Inicio (ISO)** | (rellenar al arrancar) |
-| **Objetivo del sprint** | Servicio `PropertyMatch` por cuenta; guardar matches; casos documentados. |
+| **Objetivo del sprint** | BullMQ + Redis vs alternativa; documentar en `docs/decisions/`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -72,8 +72,8 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
-| **S04** | Reglas + persistencia | F1-E14 | [ ] Servicio de matching por cuenta (`accountId`). [ ] Guardar matches y motivo breve (`reason` si existe en modelo). [ ] Tests de reglas o casos en código documentados. |
-| **S05** | UI CRM + auditoría | F1-E14 | [ ] Vista en ficha de contacto o sección dedicada. [ ] `recordAuditEvent` en acciones relevantes. |
+| **S04** | Reglas + persistencia | F1-E14 | [x] Servicio `score-property-match` + `sync-property-matches` (solo `available`, umbral 30). [x] `reason` persistido. [x] `MATCHING_SCORE_CASES` + decisión `slice-s04-matching-v0.md`. |
+| **S05** | UI CRM + auditoría | F1-E14 | [x] Ficha contacto: lista + botón recalcular + motivo. [x] Auditoría `property_matches_synced`. |
 
 ---
 
