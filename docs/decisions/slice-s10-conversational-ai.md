@@ -36,8 +36,13 @@ Ver `.env.example` y `docs/configuracion-manual-paso-a-paso.md` (sección OpenAI
 
 Desde la raíz del monorepo: `npm run test:ai` (carga `.env`; requiere clave del proveedor activo, p. ej. `GEMINI_API_KEY`).
 
+## Verificación en producción (sin sesión)
+
+`GET /api/health/ai` con cabecera `Authorization: Bearer <CRON_SECRET>` (mismo valor que `CRON_SECRET` en Vercel). Ejecuta una llamada real al proveedor sobre la conversación más reciente y devuelve `actionKind` si todo está OK.
+
 ## Referencias
 
 - `apps/web/src/domains/ai-orchestration/`
 - `apps/web/src/app/api/ai/conversation/next-action/route.ts`
+- `apps/web/src/app/api/health/ai/route.ts`
 - `apps/web/scripts/test-ai-next-action.ts`
