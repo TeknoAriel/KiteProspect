@@ -1,2 +1,5 @@
-// followups
-// Dominio: seguimiento inteligente, secuencias
+// followups — seguimiento, secuencias
+export type {
+  ProcessDueFollowUpsInput,
+  ProcessDueFollowUpsResult,
+} from "./follow-up-job-contract";

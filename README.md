@@ -27,6 +27,7 @@ Plataforma **SaaS multi-tenant** de **prospección inmobiliaria asistida**.
 | [docs/execution-plan-sprints.md](./docs/execution-plan-sprints.md) | **Hitos, sprints y cola de trabajo** alineados al masterplan (autómata). |
 | [docs/capture-integration.md](./docs/capture-integration.md) | **Captura de leads:** formulario `/lead`, widget, API, landings. |
 | [docs/examples/README.md](./docs/examples/README.md) | **Ejemplos copy-paste** (HTML estático, proxy serverless). |
+| [docs/follow-up-worker-architecture.md](./docs/follow-up-worker-architecture.md) | **Seguimientos:** cron vs worker (BullMQ) y checklist. |
 
 ## Inicio rápido
 

@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **S06** — Secuencias: diseño job runner (F1-E12) |
+| **Sprint activo** | **S07** — Implementación mínima follow-up (cron + dominio) |
 | **Inicio (ISO)** | (rellenar al arrancar) |
-| **Objetivo del sprint** | BullMQ + Redis vs alternativa; documentar en `docs/decisions/`. |
+| **Objetivo del sprint** | Ruta cron + `ProcessDueFollowUps`; intentos e idempotencia básica. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -83,8 +83,8 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
-| **S06** | Diseño de job runner | F1-E12 | [ ] Decisión: BullMQ + Redis vs alternativa compatible con hosting (documentar en `docs/decisions/`). [ ] Worker fuera de request o servicio acordado. |
-| **S07** | Implementación mínima | F1-E12 | [ ] Encolar pasos; registrar intentos; idempotencia básica. [ ] Pausar/reanudar si el modelo lo permite. |
+| **S06** | Diseño de job runner | F1-E12 | [x] Decisión: **Cron Vercel + Postgres (MVP)**; BullMQ+Redis como escalado documentado. `slice-s06-job-runner-followups.md` + `docs/follow-up-worker-architecture.md`. [x] Contrato tipos `follow-up-job-contract.ts`. |
+| **S07** | Implementación mínima | F1-E12 | [ ] Ruta `/api/cron/follow-up-due` + servicio dominio; registrar intentos; idempotencia básica. [ ] Pausar/reanudar si el modelo lo permite. |
 
 **Bloqueos 👤:** Redis/hosting si Vercel no admite worker persistente → puede requerir **Neon + servicio worker** (Railway, etc.): el agente documenta; el humano solo crea cuenta si hace falta.
 
