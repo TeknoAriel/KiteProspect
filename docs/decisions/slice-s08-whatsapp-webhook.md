@@ -12,9 +12,9 @@
 6. **Estados:** webhook de **statuses** (`sent`, `delivered`, `read`, `failed`) actualiza `Message.status` y metadatos.
 7. **Auditoría:** `whatsapp_inbound_received` por mensaje entrante.
 
-## No incluido (S09)
+## Complemento (S09)
 
-- Envío de respuestas (`POST` a Graph API), plantillas, cumplimiento avanzado.
+- Envío básico de texto y cumplimiento mínimo (opt-out): ver **`slice-s09-whatsapp-outbound.md`**.
 
 ## Variables de entorno
 

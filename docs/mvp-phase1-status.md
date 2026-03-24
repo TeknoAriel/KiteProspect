@@ -114,17 +114,17 @@
 - [x] Patrón landings / proxy (`docs/capture-integration.md`, `docs/examples/`)
 - [x] Formularios (`/lead` + API)
 - [x] WhatsApp base — **webhook** (`/api/webhooks/whatsapp`, `slice-s08`)
-- [ ] WhatsApp — **envío** saliente (S09)
+- [x] WhatsApp — **envío** saliente (`POST /api/whatsapp/send`, `slice-s09`)
 
 **Nota:** Estos requieren decisiones de diseño/UX o credenciales externas. Ver `docs/manual-actions-required.md`.
 
 ### Motor conversacional
-- [ ] Integración con proveedor de IA
-- [ ] Prompts versionados
-- [ ] Outputs estructurados
-- [ ] Handoff a humano
+- [x] Integración con proveedor de IA (OpenAI HTTP; `OPENAI_API_KEY`, `slice-s10`)
+- [ ] Prompts versionados (BD/UI; S11+)
+- [x] Outputs estructurados (`NextConversationAction`; `POST /api/ai/conversation/next-action`)
+- [ ] Handoff a humano (reglas de negocio; S11)
 
-**Nota:** Requiere API key de proveedor de IA. Ver `docs/manual-actions-required.md`.
+**Nota:** API key: `docs/configuracion-manual-paso-a-paso.md` §4.
 
 ### Matching y recomendación
 - [ ] Algoritmo de matching básico

@@ -4,6 +4,10 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Norma de trabajo del proyecto** (rol, límites, cómo documentar implementado / pendiente / bloqueado): [working-rules.md](./working-rules.md).
 
+**Configuración externa paso a paso (URLs, qué pegar en cada sitio):** [configuracion-manual-paso-a-paso.md](./configuracion-manual-paso-a-paso.md).
+
+**Misma guía en lenguaje muy simple (pasos 1–7, sin tecnicismos):** [configuracion-paso-a-paso-humano.md](./configuracion-paso-a-paso-humano.md).
+
 **Solo pruebas en producción (URL pública):** checklist con rutas y ejemplos → **[produccion-checklist-usuario.md](./produccion-checklist-usuario.md)**.
 
 **Vercel `kiteprospect.vercel.app` — paso a paso con URLs y campos a completar:** **[paso-a-paso-vercel-kiteprospect.md](./paso-a-paso-vercel-kiteprospect.md)**.
@@ -57,7 +61,7 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 7. **Cron de seguimientos:** define `CRON_SECRET` en `.env` (mismo patrón que `AUTH_SECRET`). Sin esto, `GET /api/cron/follow-up-due` responde **503**. Las pruebas manuales usan `Authorization: Bearer …`. En Vercel, el cron oficial envía `x-vercel-cron: 1` (ver `docs/decisions/slice-s07-follow-up-cron.md`).
 
-8. **WhatsApp (Meta):** alta en Meta Business / WhatsApp Cloud API, número y tokens los obtiene el humano. En la app: `WHATSAPP_ACCOUNT_SLUG` (slug de cuenta), `WHATSAPP_VERIFY_TOKEN` (verificación del webhook), `WHATSAPP_APP_SECRET` (firma de `POST`, recomendado). URL del webhook: `https://TU-DOMINIO/api/webhooks/whatsapp` (ver `docs/decisions/slice-s08-whatsapp-webhook.md`).
+8. **WhatsApp (Meta):** alta en Meta Business / WhatsApp Cloud API, número y tokens los obtiene el humano. **Webhook:** `WHATSAPP_ACCOUNT_SLUG`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET` (recomendado). URL: `https://TU-DOMINIO/api/webhooks/whatsapp` → `slice-s08-whatsapp-webhook.md`. **Envío:** `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN` (y opcional `WHATSAPP_GRAPH_VERSION`) → `slice-s09-whatsapp-outbound.md`.
 
 ---
 
@@ -100,7 +104,7 @@ Si tenías una versión anterior del repo (Next y Prisma en la raíz, sin `apps/
 1. Tener una cuenta de **Meta Business** y una app en [Meta for Developers](https://developers.facebook.com/).
 2. Configurar el producto **WhatsApp** en la app.
 3. Obtener **Phone Number ID**, **Access Token** y (si aplica) verificar el número de negocio.
-4. Pegar esos valores en `.env` cuando el proyecto documente los nombres exactos de variables.
+4. Pegar en `.env` (raíz): `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`; opcional `WHATSAPP_GRAPH_VERSION` (por defecto `v21.0`). Para el webhook ya documentados: `WHATSAPP_ACCOUNT_SLUG`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET`.
 
 **URLs útiles:**
 
@@ -109,15 +113,19 @@ Si tenías una versión anterior del repo (Next y Prisma en la raíz, sin `apps/
 
 ---
 
-### 6. Proveedor de IA (cuando se conecte el motor conversacional)
+### 6. Proveedor de IA (motor conversacional — S10)
+
+**Implementado con OpenAI** (HTTP). Variables: `OPENAI_API_KEY` (obligatorio para usar la API), opcional `OPENAI_MODEL` (por defecto `gpt-4o-mini`).
 
 **Qué harás tú:**
 
-1. Crear cuenta en el proveedor acordado (OpenAI, Anthropic, etc.).
-2. Generar una **API key**.
-3. Guardarla en `.env` (el nombre de la variable se documentará en `docs/setup-local.md` cuando exista).
+1. Entrá en [https://platform.openai.com](https://platform.openai.com) → [API keys](https://platform.openai.com/api-keys) → **Create new secret key**.
+2. Copiá la clave (`sk-...`) y pegala en `.env` y en **Vercel → Environment Variables** como `OPENAI_API_KEY`.
+3. En **Billing** de OpenAI, activá facturación si el panel lo exige para usar la API.
 
-**Decisión de negocio:** Elegir proveedor y límites de costo mensual (no se puede inferir desde el código).
+**Guía detallada:** [configuracion-manual-paso-a-paso.md §4](./configuracion-manual-paso-a-paso.md#4-openai-motor-conversacional-s10).
+
+**Decisión de negocio:** presupuesto y límites de uso en OpenAI (no inferibles desde el código).
 
 ---
 

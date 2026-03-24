@@ -62,6 +62,8 @@ Los scripts `db:*` usan **dotenv-cli** y leen `.env` desde la raíz. Next.js tam
 
 Para probar **captura desde formularios** (`POST /api/contacts/create`), define también `CAPTURE_API_SECRET` (ver `.env.example` y `docs/decisions/slice-capture-api-hardening.md`). Opcional: `ENABLE_PUBLIC_LEAD_FORM=true` para habilitar **`/lead`**. Guía completa: **`docs/capture-integration.md`**.
 
+Para **IA conversacional** (`POST /api/ai/conversation/next-action`): `OPENAI_API_KEY` y opcional `OPENAI_MODEL` (ver `docs/decisions/slice-s10-conversational-ai.md` y **`docs/configuracion-manual-paso-a-paso.md`**).
+
 **Acción manual:** si no tienes PostgreSQL, sigue `docs/manual-actions-required.md`.
 
 ---

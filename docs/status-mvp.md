@@ -15,7 +15,8 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
 | **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`; `slice-s06` + `slice-s07`; envío real de canales pendiente. |
-| **WhatsApp (entrada)** | Webhook `/api/webhooks/whatsapp`; ingest + opt-out; `slice-s08-whatsapp-webhook.md`. Envío saliente: S09. |
+| **WhatsApp** | Entrada: webhook `/api/webhooks/whatsapp`; `slice-s08`. Saliente: `POST /api/whatsapp/send` (admin), Graph API; `slice-s09`. |
+| **IA conversacional (base)** | `POST /api/ai/conversation/next-action` (admin/coordinator); OpenAI JSON; `slice-s10`. Reglas/handoff automático: S11. |
 | **Dashboard** | KPIs básicos + navegación. |
 | **Auditoría** | `recordAuditEvent` + evento `session_started` en login + evento de seed; UI admin (`/dashboard/audit`). |
 | **Captura (API)** | `POST /api/contacts/create` con `CAPTURE_API_SECRET` + `accountSlug` (o `accountId`), email o teléfono; validación de campos + rate limit por IP (memoria); evento `lead_captured`. |
@@ -28,8 +29,8 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 Definido en `PRODUCT_DEFINITION.md` y **aún no** cerrado como slice completo:
 
-- WhatsApp base (webhook/envío).
-- Motor conversacional asistido (IA estructurada).
+- WhatsApp: webhook + envío básico admin **implementados**; plantillas / UI inbox pendientes si se priorizan.
+- Motor conversacional: **orquestación + proveedor** listos (S10); **reglas de handoff y versionado en UI** pendientes (S11).
 - Jobs (BullMQ) para seguimiento automático **no** implementados a propósito en MVP (evitar automatización prematura).
 
 ## Bloqueado por acción manual

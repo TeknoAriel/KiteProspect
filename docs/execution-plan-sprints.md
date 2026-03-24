@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **S09** — WhatsApp envío y cumplimiento (F1-E15) |
+| **Sprint activo** | **S11** — Reglas + handoff conversacional (F1-E9) |
 | **Inicio (ISO)** | (rellenar al arrancar) |
-| **Objetivo del sprint** | Envío básico; respetar opt-out; auditoría/logs. |
+| **Objetivo del sprint** | Cuándo escalar a humano; auditoría; versionado mínimo de prompts. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -97,7 +97,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S08** | Contrato y persistencia | F1-E15 | [x] `GET / POST /api/webhooks/whatsapp` + firma opcional; `WHATSAPP_ACCOUNT_SLUG`; ingest a Contact/Conversation/Message; opt-out; statuses; `slice-s08-whatsapp-webhook.md`. |
-| **S09** | Envío y cumplimiento | F1-E15 | [ ] Envío básico vía Graph API; respetar opt-out; logs/auditoría. |
+| **S09** | Envío y cumplimiento | F1-E15 | [x] `sendWhatsAppTextToContact` + `POST /api/whatsapp/send` (admin); opt-out; auditoría; `slice-s09-whatsapp-outbound.md`. |
 
 **Bloqueos 👤:** **Meta Business / número / tokens** — checklist en `docs/manual-actions-required.md`; el agente no puede obtener estos secretos.
 
@@ -109,7 +109,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
-| **S10** | Orquestación + proveedor | F1-E9 | [ ] Interfaz interna para “siguiente acción” estructurada. [ ] Integración proveedor IA (env). |
+| **S10** | Orquestación + proveedor | F1-E9 | [x] `NextConversationAction` + `planNextConversationAction` + OpenAI (`OPENAI_API_KEY`); `POST /api/ai/conversation/next-action`; `slice-s10-conversational-ai.md`. |
 | **S11** | Reglas de negocio + handoff | F1-E9 | [ ] Cuándo escalar a humano; registro en auditoría. [ ] Versionado mínimo de prompts/config. |
 
 **Bloqueos 👤:** API key de proveedor de IA en `.env` / Vercel (documentado).
