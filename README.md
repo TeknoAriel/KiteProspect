@@ -31,7 +31,8 @@ Plataforma **SaaS multi-tenant** de **prospección inmobiliaria asistida**.
 | [docs/decisions/slice-s07-follow-up-cron.md](./docs/decisions/slice-s07-follow-up-cron.md) | Cron `/api/cron/follow-up-due` y variables. |
 | [docs/decisions/slice-s08-whatsapp-webhook.md](./docs/decisions/slice-s08-whatsapp-webhook.md) | Webhook WhatsApp (Meta) y variables. |
 | [docs/decisions/slice-s09-whatsapp-outbound.md](./docs/decisions/slice-s09-whatsapp-outbound.md) | Envío saliente WhatsApp (Graph API) y `POST /api/whatsapp/send`. |
-| [docs/decisions/slice-s10-conversational-ai.md](./docs/decisions/slice-s10-conversational-ai.md) | Motor conversacional: siguiente acción estructurada + OpenAI. |
+| [docs/decisions/slice-s10-conversational-ai.md](./docs/decisions/slice-s10-conversational-ai.md) | Motor conversacional: siguiente acción estructurada + proveedor dual (Gemini/OpenAI). |
+| [docs/decisions/slice-s11-conversational-handoff-rules.md](./docs/decisions/slice-s11-conversational-handoff-rules.md) | Reglas de handoff post-modelo, auditoría y versión de prompt (`AI_CONVERSATION_PROMPT_VERSION`). |
 | [docs/configuracion-manual-paso-a-paso.md](./docs/configuracion-manual-paso-a-paso.md) | **Solo humano:** URLs y valores a configurar (Neon, Vercel, OpenAI, Meta, secretos). |
 | [docs/configuracion-paso-a-paso-humano.md](./docs/configuracion-paso-a-paso-humano.md) | **Versión simple** (pasos 1–7, qué clicar y qué pegar). |
 

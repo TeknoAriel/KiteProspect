@@ -71,5 +71,7 @@ export async function POST(request: NextRequest) {
     action: result.action,
     model: result.model,
     promptVersion: result.promptVersion,
+    modelSuggestedKind: result.modelSuggestedKind,
+    appliedRuleIds: result.appliedRuleIds,
   });
 }

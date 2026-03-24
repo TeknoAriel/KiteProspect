@@ -5,7 +5,7 @@
 1. **Contrato** `NextConversationAction` (`reply` | `handoff` | `noop`) en `types.ts`.
 2. **Servicio** `planNextConversationAction({ conversationId, accountId, actorUserId })`:
    - Carga conversación + contacto + últimos 30 mensajes.
-   - Llama al proveedor configurado por entorno (`AI_PROVIDER=gemini|openai`) con salida JSON y prompt versionado (`s10-v1`).
+   - Llama al proveedor configurado por entorno (`AI_PROVIDER=gemini|openai`) con salida JSON; el texto y versión del system prompt viven en `prompt-config.ts` (S11: default `s11-v1`, ver `slice-s11-conversational-handoff-rules.md`).
    - Parseo estricto en `parse-next-action.ts` (no ejecuta mutaciones sobre entidades).
 3. **Proveedor** HTTP sin SDK:
    - `gemini-chat-json.ts` → Google Generative Language API.
@@ -26,9 +26,12 @@
 
 Ver `.env.example` y `docs/configuracion-manual-paso-a-paso.md` (sección OpenAI).
 
-## No incluido (S11 u otras entregas)
+## Slices relacionados
 
-- Reglas de negocio de cuándo forzar handoff.
+- **S11:** reglas de handoff después del modelo, eventos de auditoría adicionales y versión de prompt (`slice-s11-conversational-handoff-rules.md`).
+
+## No incluido (backlog)
+
 - Envío automático del `draftReply` a WhatsApp / inbox.
 - Versionado de prompts en BD o UI.
 

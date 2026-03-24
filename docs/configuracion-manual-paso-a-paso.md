@@ -110,6 +110,7 @@ En **Settings → Environment Variables** en Vercel, si el login en producción 
      OPENAI_MODEL="gpt-4o-mini"
      ```
 4. En **Vercel** → **Settings → Environment Variables:** mismas variables para **Production**.
+5. **Opcional (S11 — trazabilidad del prompt):** `AI_CONVERSATION_PROMPT_VERSION` (ej. `s11-v1` o un tag interno al desplegar cambios de copy). Ver `docs/decisions/slice-s11-conversational-handoff-rules.md`.
 
 **Probar la API interna (con sesión):** `POST /api/ai/conversation/next-action` con JSON `{ "conversationId": "<id>" }` (usuario **admin** o **coordinator**). El `conversationId` lo ves en la base (tabla `Conversation`) o en datos seed demo.
 
@@ -173,7 +174,7 @@ Ver: `docs/decisions/slice-s07-follow-up-cron.md`.
 | Tema | Variables típicas |
 |------|-------------------|
 | App + DB | `DATABASE_URL`, `AUTH_SECRET`, opcional `AUTH_URL` |
-| IA (S10) | `AI_PROVIDER`, `GEMINI_API_KEY` (+ opcional `GEMINI_MODEL`) o `OPENAI_API_KEY` (+ opcional `OPENAI_MODEL`) |
+| IA (S10–S11) | `AI_PROVIDER`, `GEMINI_API_KEY` (+ opcional `GEMINI_MODEL`) o `OPENAI_API_KEY` (+ opcional `OPENAI_MODEL`); opcional `AI_CONVERSATION_PROMPT_VERSION` |
 | WhatsApp | `WHATSAPP_ACCOUNT_SLUG`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET`, `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN`, opcional `WHATSAPP_GRAPH_VERSION` |
 | Captura | `CAPTURE_API_SECRET` |
 | Cron | `CRON_SECRET` |

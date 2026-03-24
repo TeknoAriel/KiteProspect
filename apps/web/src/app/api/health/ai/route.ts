@@ -53,6 +53,8 @@ export async function GET(request: NextRequest) {
     ok: true,
     conversationId: conv.id,
     actionKind: result.action.kind,
+    modelSuggestedKind: result.modelSuggestedKind,
+    appliedRuleIds: result.appliedRuleIds,
     model: result.model,
     promptVersion: result.promptVersion,
   });

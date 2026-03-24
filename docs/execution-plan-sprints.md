@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **S11** — Reglas + handoff conversacional (F1-E9) |
-| **Inicio (ISO)** | (rellenar al arrancar) |
-| **Objetivo del sprint** | Cuándo escalar a humano; auditoría; versionado mínimo de prompts. |
+| **Sprint activo** | **Post-S11** — Hito 5 (motor conversacional MVP) cerrado; siguiente prioridad según `docs/roadmap.md` (deuda Fase 1 o Fase 2). |
+| **Inicio (ISO)** | — |
+| **Objetivo del sprint** | Definir próximo sprint al priorizar backlog (no hay S12 numerado en este plan). |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -110,7 +110,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S10** | Orquestación + proveedor | F1-E9 | [x] `NextConversationAction` + `planNextConversationAction` + OpenAI (`OPENAI_API_KEY`); `POST /api/ai/conversation/next-action`; `slice-s10-conversational-ai.md`. |
-| **S11** | Reglas de negocio + handoff | F1-E9 | [ ] Cuándo escalar a humano; registro en auditoría. [ ] Versionado mínimo de prompts/config. |
+| **S11** | Reglas de negocio + handoff | F1-E9 | [x] Reglas post-modelo + handoff forzado; auditoría `ai_next_action_planned` / `ai_handoff_rules_applied`. [x] Versionado mínimo en código + env (`AI_CONVERSATION_PROMPT_VERSION`). Ver `slice-s11-conversational-handoff-rules.md`. |
 
 **Bloqueos 👤:** API key de proveedor de IA en `.env` / Vercel (documentado).
 

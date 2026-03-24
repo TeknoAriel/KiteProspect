@@ -5,3 +5,8 @@ export { parseNextConversationAction } from "./parse-next-action";
 export { openAIChatJson } from "./openai-chat-json";
 export { geminiChatJson } from "./gemini-chat-json";
 export { callAIProviderJson } from "./provider-chat-json";
+export { applyHandoffRules } from "./handoff-rules";
+export {
+  getConversationPromptVersion,
+  getConversationSystemPrompt,
+} from "./prompt-config";
