@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S12** — Inbox con hilo + IA + overrides en cuenta cerrados; priorizar deuda Fase 1 o Fase 2 según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S13** — Hub configuración cuenta (F1-E2 parcial); siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | Definir próximo sprint (no hay S13 numerado en este plan). |
+| **Objetivo del sprint** | Definir próximo sprint (S14+ no numerados hasta priorizar). |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -49,6 +49,18 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 - [x] CI + verify en verde.
 - [x] Deploy Vercel con `build:vercel` (migraciones + seed + build).
 - [ ] Revisar deuda explícita en `docs/mvp-phase1-status.md` solo si entra en un sprint posterior.
+
+---
+
+## Hito 0b — Configuración de tenant (F1-E2, MVP parcial)
+
+**Objetivo:** pantalla que centralice lectura de cuenta y enlaces a valores en `Account.config` (sin CRUD completo de entidad todavía).
+
+| Sprint | Enfoque | Ref | Tareas |
+|--------|---------|-----|--------|
+| **S13** | Hub cuenta + navegación | F1-E2 | [x] `/dashboard/account` (admin): datos tenant + enlace a IA; doc `slice-s13-account-settings-hub.md`. |
+
+**Bloqueos 👤:** ninguno.
 
 ---
 

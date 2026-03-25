@@ -35,11 +35,8 @@ export default async function DashboardPage() {
               <Link href="/dashboard/audit" style={{ textDecoration: "none", color: "#0070f3" }}>
                 Auditoría
               </Link>
-              <Link
-                href="/dashboard/account/ai-prompt"
-                style={{ textDecoration: "none", color: "#0070f3" }}
-              >
-                IA (cuenta)
+              <Link href="/dashboard/account" style={{ textDecoration: "none", color: "#0070f3" }}>
+                Cuenta
               </Link>
             </>
           )}

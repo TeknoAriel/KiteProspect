@@ -9,6 +9,7 @@
 - [x] Dashboard con stats básicos
 - [x] Vistas de accounts, users, advisors (lectura)
 - [x] Multi-tenancy (filtrado por accountId)
+- [x] Hub admin de configuración de cuenta `/dashboard/account` (S13)
 
 **TODO Fase 2:**
 - CRUD completo

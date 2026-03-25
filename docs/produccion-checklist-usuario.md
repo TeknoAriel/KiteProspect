@@ -14,6 +14,12 @@ Esta página usa **dos “bases” de URL** que sí funcionan; solo cambia el **
 
 > **Importante:** en producción suele ser **https://**. En local, Next.js usa **http://** y el puerto **3000** salvo que hayas cambiado el puerto.
 
+### Despliegue en Vercel (tras `git push`)
+
+Si el repo está conectado a Vercel, cada push a la rama de producción (p. ej. `main`) **dispara un deploy** automático. Revisá **Deployments** en el panel del proyecto hasta ver **Ready**.
+
+Si usás `vercel deploy` en la terminal y aparece un error con ruta `apps/web/apps/web`, corregí **Root Directory** en la configuración del proyecto o usá solo el flujo por Git; detalle en `docs/decisions/vercel-build-migrations-seed.md`.
+
 ---
 
 ## 1) Variables en el hosting (solo producción en internet)
@@ -51,8 +57,9 @@ Estas son las **rutas** (lo que va después del dominio). Funcionan igual en loc
 | 5 | `/dashboard/inbox` | Inbox de conversaciones. |
 | 6 | `/dashboard/followups` | Seguimiento. |
 | 7 | `/dashboard/audit` | Auditoría (**solo usuario con rol admin**). |
-| 8 | `/lead` | Formulario público (**solo si** `ENABLE_PUBLIC_LEAD_FORM=true`). |
-| 9 | `/lead?slug=demo` | Igual que `/lead` pero fija la cuenta `demo` por URL. |
+| 8 | `/dashboard/account` | Configuración de la cuenta (**solo admin**): datos del tenant + enlace a IA. |
+| 9 | `/lead` | Formulario público (**solo si** `ENABLE_PUBLIC_LEAD_FORM=true`). |
+| 10 | `/lead?slug=demo` | Igual que `/lead` pero fija la cuenta `demo` por URL. |
 
 ---
 
