@@ -1,16 +1,28 @@
 /**
- * Versión y texto del system prompt conversacional (versionado en código + override por env).
+ * Versión y texto del system prompt conversacional.
+ * Prioridad: override por cuenta (`Account.config`) → env → default.
  */
-export function getConversationPromptVersion(): string {
+export function resolveConversationPromptVersion(
+  accountOverride?: string | null,
+): string {
+  const fromAccount = accountOverride?.trim();
+  if (fromAccount) return fromAccount;
   return (
     process.env.AI_CONVERSATION_PROMPT_VERSION?.trim() || "s11-v1"
   );
 }
 
-export function getConversationSystemPrompt(): string {
-  const v = getConversationPromptVersion();
-  return `Eres el asistente conversacional de una inmobiliaria (Kite Prospect).
-Versión de prompt interna: ${v}.
+/** @deprecated Usar `resolveConversationPromptVersion(null)` */
+export function getConversationPromptVersion(): string {
+  return resolveConversationPromptVersion(null);
+}
+
+export function buildConversationSystemPrompt(
+  version: string,
+  accountAppend?: string | null,
+): string {
+  let body = `Eres el asistente conversacional de una inmobiliaria (Kite Prospect).
+Versión de prompt interna: ${version}.
 
 Tu salida debe ser SIEMPRE un único objeto JSON válido (sin markdown, sin texto fuera del JSON).
 
@@ -25,4 +37,20 @@ Reglas:
 - Redacta en español neutro (Latam) salvo que el lead escriba en otro idioma; en ese caso, coherente con el lead.
 - draftReply: máximo ~800 caracteres si es posible.
 - Si el lead pide explícitamente hablar con una persona, o el tono suiere conflicto legal o reclamo grave, usa kind "handoff" en lugar de "reply".`;
+
+  const extra = accountAppend?.trim();
+  if (extra) {
+    body += `
+
+Instrucciones adicionales de la cuenta (no deben contradecir las reglas globales anteriores):
+${extra}`;
+  }
+
+  return body;
+}
+
+/** @deprecated Usar `buildConversationSystemPrompt(resolveConversationPromptVersion(null))` */
+export function getConversationSystemPrompt(): string {
+  const v = resolveConversationPromptVersion(null);
+  return buildConversationSystemPrompt(v, null);
 }

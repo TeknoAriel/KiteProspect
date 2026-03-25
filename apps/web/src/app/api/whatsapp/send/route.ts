@@ -13,8 +13,12 @@ export async function POST(request: NextRequest) {
   if (!session?.user?.accountId) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
-  if (session.user.role !== "admin") {
-    return NextResponse.json({ error: "Solo administradores" }, { status: 403 });
+  const role = session.user.role;
+  if (role !== "admin" && role !== "coordinator") {
+    return NextResponse.json(
+      { error: "Solo administradores o coordinadores" },
+      { status: 403 },
+    );
   }
 
   let body: { contactId?: string; text?: string };

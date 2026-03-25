@@ -11,14 +11,14 @@
 
 2. **Consentimiento** `getWhatsAppSendBlockReason` (`whatsapp-consent.ts`).
 
-3. **API (admin)** `POST /api/whatsapp/send`
-   - Sesión requerida; solo **`role === "admin"`**.
+3. **API** `POST /api/whatsapp/send`
+   - Sesión requerida; **`admin`** o **`coordinator`** (alineado con asistencia IA en inbox, S12).
    - Cuerpo JSON: `{ "contactId": "…", "text": "…" }`.
-   - Respuestas: `200` éxito; `401` sin sesión; `403` solo admin u opt-out; `400` validación / Graph / config.
+   - Respuestas: `200` éxito; `401` sin sesión; `403` rol u opt-out; `400` validación / Graph / config.
 
 ## No incluido (post-MVP o siguiente trabajo)
 
-- UI en dashboard para enviar desde la ficha.
+- Envío desde ficha contacto (opcional); el hilo de inbox con borrador IA cubre el flujo principal (S12).
 - Plantillas (template messages) y ventana de 24 h / políticas Meta detalladas.
 - Envío automático desde jobs de follow-up (requiere alinear con S07).
 

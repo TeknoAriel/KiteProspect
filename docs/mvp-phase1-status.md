@@ -47,6 +47,7 @@
 - [x] Vista de todas las conversaciones activas
 - [x] Último mensaje por conversación
 - [x] Link a ficha de contacto
+- [x] Hilo por conversación + asistencia IA + envío manual borrador WhatsApp (S12)
 
 **TODO Fase 2:**
 - Filtros por canal, estado, fecha

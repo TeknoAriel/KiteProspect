@@ -10,7 +10,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido con `auth()` en middleware (Auth.js v5). |
 | **Usuarios / asesores / cuentas** | Vistas de lectura en dashboard (`/dashboard/users`, `advisors`, `accounts`). |
 | **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
-| **Inbox** | Lista unificada de conversaciones activas (`/dashboard/inbox`). |
+| **Inbox** | Lista (`/dashboard/inbox`) + hilo por conversación (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
@@ -29,8 +29,8 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 Definido en `PRODUCT_DEFINITION.md` y **aún no** cerrado como slice completo:
 
-- WhatsApp: webhook + envío básico admin **implementados**; plantillas / UI inbox pendientes si se priorizan.
-- Motor conversacional: S10 + S11 (reglas post-modelo, auditoría, versión de prompt por env); **versionado editable en UI/BD** pendiente si se prioriza.
+- WhatsApp: webhook + envío **implementados**; desde inbox (S12) coordinador/admin puede enviar borrador IA; plantillas Meta / políticas 24 h si se priorizan.
+- Motor conversacional: S10–S12; **envío totalmente automático** del borrador sin humano sigue fuera del MVP intencionalmente.
 - Jobs (BullMQ) para seguimiento automático **no** implementados a propósito en MVP (evitar automatización prematura).
 
 ## Bloqueado por acción manual

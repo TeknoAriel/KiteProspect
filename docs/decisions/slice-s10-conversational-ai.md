@@ -5,7 +5,7 @@
 1. **Contrato** `NextConversationAction` (`reply` | `handoff` | `noop`) en `types.ts`.
 2. **Servicio** `planNextConversationAction({ conversationId, accountId, actorUserId })`:
    - Carga conversación + contacto + últimos 30 mensajes.
-   - Llama al proveedor configurado por entorno (`AI_PROVIDER=gemini|openai`) con salida JSON; el texto y versión del system prompt viven en `prompt-config.ts` (S11: default `s11-v1`, ver `slice-s11-conversational-handoff-rules.md`).
+   - Llama al proveedor configurado por entorno (`AI_PROVIDER=gemini|openai`) con salida JSON; system prompt y versión: `prompt-config.ts` + overrides por cuenta en `Account.config` (S12, `slice-s12-inbox-ai-assist.md`).
    - Parseo estricto en `parse-next-action.ts` (no ejecuta mutaciones sobre entidades).
 3. **Proveedor** HTTP sin SDK:
    - `gemini-chat-json.ts` → Google Generative Language API.

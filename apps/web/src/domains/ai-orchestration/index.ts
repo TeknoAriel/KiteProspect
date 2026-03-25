@@ -7,6 +7,8 @@ export { geminiChatJson } from "./gemini-chat-json";
 export { callAIProviderJson } from "./provider-chat-json";
 export { applyHandoffRules } from "./handoff-rules";
 export {
+  buildConversationSystemPrompt,
   getConversationPromptVersion,
   getConversationSystemPrompt,
+  resolveConversationPromptVersion,
 } from "./prompt-config";

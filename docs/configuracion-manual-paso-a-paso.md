@@ -111,8 +111,9 @@ En **Settings → Environment Variables** en Vercel, si el login en producción 
      ```
 4. En **Vercel** → **Settings → Environment Variables:** mismas variables para **Production**.
 5. **Opcional (S11 — trazabilidad del prompt):** `AI_CONVERSATION_PROMPT_VERSION` (ej. `s11-v1` o un tag interno al desplegar cambios de copy). Ver `docs/decisions/slice-s11-conversational-handoff-rules.md`.
+6. **Overrides por tenant (S12):** en la app, usuario **admin** → **IA (cuenta)** (`/dashboard/account/ai-prompt`): versión y texto adicional persistidos en `Account.config` (sin tocar Vercel).
 
-**Probar la API interna (con sesión):** `POST /api/ai/conversation/next-action` con JSON `{ "conversationId": "<id>" }` (usuario **admin** o **coordinator**). El `conversationId` lo ves en la base (tabla `Conversation`) o en datos seed demo.
+**Probar (con sesión):** desde **Inbox** → abrir un hilo → **Sugerir respuesta (IA)**; o `POST /api/ai/conversation/next-action` con `{ "conversationId": "<id>" }` (**admin** o **coordinator**). El id está en la tabla `Conversation` o en el seed demo.
 
 ---
 

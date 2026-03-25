@@ -31,9 +31,17 @@ export default async function DashboardPage() {
             Seguimiento
           </Link>
           {session.user.role === "admin" && (
-            <Link href="/dashboard/audit" style={{ textDecoration: "none", color: "#0070f3" }}>
-              Auditoría
-            </Link>
+            <>
+              <Link href="/dashboard/audit" style={{ textDecoration: "none", color: "#0070f3" }}>
+                Auditoría
+              </Link>
+              <Link
+                href="/dashboard/account/ai-prompt"
+                style={{ textDecoration: "none", color: "#0070f3" }}
+              >
+                IA (cuenta)
+              </Link>
+            </>
           )}
           <Link href="/dashboard/accounts" style={{ textDecoration: "none", color: "#0070f3" }}>
             Cuentas

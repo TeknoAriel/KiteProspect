@@ -45,7 +45,8 @@ export default async function InboxPage() {
         </Link>
         <h1 style={{ marginTop: "1rem" }}>Inbox</h1>
         <p style={{ color: "#666", fontSize: "0.875rem" }}>
-          {conversations.length} conversaciones activas
+          {conversations.length} conversaciones activas. Clic en la tarjeta para abrir el hilo y la
+          asistencia IA.
         </p>
       </header>
 
@@ -55,23 +56,23 @@ export default async function InboxPage() {
           const contact = conv.contact;
 
           return (
-            <Link
+            <div
               key={conv.id}
-              href={`/dashboard/contacts/${contact.id}`}
-              style={{ textDecoration: "none", color: "inherit" }}
+              style={{
+                padding: "1.5rem",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: "1rem",
+              }}
             >
-              <div
-                style={{
-                  padding: "1.5rem",
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "8px",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                  cursor: "pointer",
-                }}
+              <Link
+                href={`/dashboard/inbox/${conv.id}`}
+                style={{ textDecoration: "none", color: "inherit", flex: 1 }}
               >
-                <div style={{ flex: 1 }}>
+                <div style={{ cursor: "pointer" }}>
                   <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "0.5rem" }}>
                     <h3 style={{ margin: 0 }}>
                       {contact.name || contact.email || contact.phone || "Sin nombre"}
@@ -86,17 +87,20 @@ export default async function InboxPage() {
                       {lastMessage.content.length > 150 ? "..." : ""}
                     </p>
                   )}
-                  <div style={{ display: "flex", gap: "1rem", fontSize: "0.75rem", color: "#666" }}>
+                  <div style={{ display: "flex", gap: "1rem", fontSize: "0.75rem", color: "#666", flexWrap: "wrap" }}>
                     <span>💬 {conv._count.messages} mensajes</span>
                     <span>Estado: {contact.conversationalStage}</span>
                     <span>Comercial: {contact.commercialStage}</span>
                   </div>
                 </div>
-                <div style={{ fontSize: "0.875rem", color: "#666" }}>
-                  {new Date(conv.updatedAt).toLocaleDateString()}
-                </div>
+              </Link>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.5rem", fontSize: "0.875rem", color: "#666" }}>
+                <span>{new Date(conv.updatedAt).toLocaleDateString()}</span>
+                <Link href={`/dashboard/contacts/${contact.id}`} style={{ color: "#0070f3", fontSize: "0.8rem" }}>
+                  Ficha contacto
+                </Link>
               </div>
-            </Link>
+            </div>
           );
         })}
       </div>
@@ -109,7 +113,8 @@ export default async function InboxPage() {
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          <strong>MVP:</strong> Vista unificada de conversaciones. Filtros por canal y estado en Fase 2.
+          <strong>MVP:</strong> Hilo por conversación + sugerencia IA y envío manual del borrador por
+          WhatsApp (S12). Filtros avanzados en Fase 2.
         </p>
       </div>
     </div>

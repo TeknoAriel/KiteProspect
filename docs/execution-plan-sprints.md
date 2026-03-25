@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S11** — Hito 5 (motor conversacional MVP) cerrado; siguiente prioridad según `docs/roadmap.md` (deuda Fase 1 o Fase 2). |
+| **Sprint activo** | **Post-S12** — Inbox con hilo + IA + overrides en cuenta cerrados; priorizar deuda Fase 1 o Fase 2 según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | Definir próximo sprint al priorizar backlog (no hay S12 numerado en este plan). |
+| **Objetivo del sprint** | Definir próximo sprint (no hay S13 numerado en este plan). |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -111,8 +111,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 |--------|---------|-----|--------|
 | **S10** | Orquestación + proveedor | F1-E9 | [x] `NextConversationAction` + `planNextConversationAction` + OpenAI (`OPENAI_API_KEY`); `POST /api/ai/conversation/next-action`; `slice-s10-conversational-ai.md`. |
 | **S11** | Reglas de negocio + handoff | F1-E9 | [x] Reglas post-modelo + handoff forzado; auditoría `ai_next_action_planned` / `ai_handoff_rules_applied`. [x] Versionado mínimo en código + env (`AI_CONVERSATION_PROMPT_VERSION`). Ver `slice-s11-conversational-handoff-rules.md`. |
+| **S12** | Inbox hilo + IA + envío borrador WA + prompt por cuenta | F1-E8, F1-E9 | [x] `/dashboard/inbox/[id]` + panel IA; envío manual WhatsApp (admin/coordinator); `Account.config` + `/dashboard/account/ai-prompt` + API; ver `slice-s12-inbox-ai-assist.md`. |
 
-**Bloqueos 👤:** API key de proveedor de IA en `.env` / Vercel (documentado).
+**Bloqueos 👤:** API key de proveedor de IA en `.env` / Vercel (documentado); Meta para envío real por WhatsApp.
 
 ---
 
@@ -128,7 +129,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 2. En paralelo o después **S04 → S05** (matching) si prioriza conversión sobre captura.
 3. **S06 → S07** (jobs) cuando haya claridad de infraestructura.
 4. **S08 → S09** (WhatsApp) cuando 👤 tenga Meta listo.
-5. **S10 → S11** (IA conversacional) cuando 👤 tenga API de IA.
+5. **S10 → S11 → S12** (IA conversacional + inbox operativo) cuando 👤 tenga API de IA (y Meta si se usa WA desde inbox).
 
 > El **orden exacto** puede ajustarse si `PRODUCT_DEFINITION.md` o negocio cambian prioridad; este documento debe actualizarse en ese caso.
 

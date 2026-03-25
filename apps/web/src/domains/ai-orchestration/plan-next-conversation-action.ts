@@ -7,9 +7,10 @@ import { recordAuditEvent } from "@/lib/audit";
 import { getWhatsAppSendBlockReason } from "@/domains/integrations/whatsapp/whatsapp-consent";
 import { applyHandoffRules } from "./handoff-rules";
 import { callAIProviderJson } from "./provider-chat-json";
+import { extractAiPromptFromAccountConfig } from "@/domains/auth-tenancy/account-ai-prompt-config";
 import {
-  getConversationPromptVersion,
-  getConversationSystemPrompt,
+  buildConversationSystemPrompt,
+  resolveConversationPromptVersion,
 } from "./prompt-config";
 import { parseNextConversationAction } from "./parse-next-action";
 import type { PlanNextConversationActionResult } from "./types";
@@ -40,6 +41,19 @@ export async function planNextConversationAction(params: {
     return { ok: false, error: "Conversación no encontrada." };
   }
 
+  const account = await prisma.account.findFirst({
+    where: { id: params.accountId },
+    select: { config: true },
+  });
+  const aiCfg = extractAiPromptFromAccountConfig(account?.config);
+  const promptVersion = resolveConversationPromptVersion(
+    aiCfg.aiConversationPromptVersion ?? null,
+  );
+  const systemPrompt = buildConversationSystemPrompt(
+    promptVersion,
+    aiCfg.aiConversationSystemPromptAppend ?? null,
+  );
+
   const declared = conv.contact.declaredProfile;
   const declaredStr =
     declared === null || declared === undefined
@@ -62,9 +76,6 @@ export async function planNextConversationAction(params: {
   }
 
   const userPrompt = lines.join("\n");
-
-  const promptVersion = getConversationPromptVersion();
-  const systemPrompt = getConversationSystemPrompt();
 
   const ai = await callAIProviderJson({
     system: systemPrompt,
