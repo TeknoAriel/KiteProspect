@@ -81,11 +81,11 @@
 - [x] Vista de planes de seguimiento
 - [x] Vista de secuencias activas
 - [x] Próximos intentos
-- [x] Cron `/api/cron/follow-up-due` + `processDueFollowUps` (intentos `queued`; sin envío real aún)
+- [x] Cron `/api/cron/follow-up-due` + `processDueFollowUps`; pasos `channel: whatsapp` envían texto (Meta en env)
 
 **TODO Fase 2:**
 - Worker con BullMQ (escalado; ver `slice-s06`)
-- Envío real por canal
+- Envío email u otros canales
 - Pausar/reanudar
 - Notificaciones
 

@@ -15,7 +15,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
-| **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`; `slice-s06` + `slice-s07`; envío real de canales pendiente. |
+| **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`; envío **WhatsApp** cuando el paso es `channel: whatsapp` (Meta en env); email u otros canales pendientes. |
 | **WhatsApp** | Entrada: webhook `/api/webhooks/whatsapp`; `slice-s08`. Saliente: `POST /api/whatsapp/send` (admin), Graph API; `slice-s09`. |
 | **IA conversacional (base)** | `POST /api/ai/conversation/next-action` (admin/coordinator); proveedor dual S10; reglas handoff + versionado prompt S11 (`slice-s11-conversational-handoff-rules.md`). |
 | **Dashboard** | KPIs básicos + navegación. |

@@ -4,7 +4,7 @@
 
 1. **Servicio** `processDueFollowUps` — lee secuencias `active` con `nextAttemptAt <= now()`, hasta `FOLLOW_UP_CRON_BATCH_LIMIT` (default 25).
 2. **Pasos** desde `FollowUpPlan.sequence` (JSON): `delayHours`, `channel`, `objective`. Tras cada paso se programa el siguiente con el `delayHours` del **siguiente** paso.
-3. **FollowUpAttempt** con `outcome: "queued"` (MVP sin envío real).
+3. **FollowUpAttempt:** si el paso tiene `channel: "whatsapp"`, tras crear el intento se llama a `sendWhatsAppTextToContact` (texto = `objective` o default); `outcome` `sent` / `failed`. Otros canales siguen `queued` sin envío.
 4. **Auditoría** `follow_up_step_executed` por paso.
 5. **Ruta** `GET|POST /api/cron/follow-up-due`:
    - Requiere `CRON_SECRET` en entorno.
