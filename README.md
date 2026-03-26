@@ -19,6 +19,7 @@ Plataforma **SaaS multi-tenant** de **prospección inmobiliaria asistida**.
 | [docs/product-rules.md](./docs/product-rules.md) | Reglas operativas. |
 | [docs/setup-local.md](./docs/setup-local.md) | Arranque local (paso a paso). |
 | [docs/manual-actions-required.md](./docs/manual-actions-required.md) | Lo que solo un humano puede hacer (credenciales, altas, etc.). |
+| [docs/deploy-automation-one-time-setup.md](./docs/deploy-automation-one-time-setup.md) | Configuración única Vercel+Git para deploys automáticos en cada push. |
 | [docs/produccion-checklist-usuario.md](./docs/produccion-checklist-usuario.md) | **Solo tú en producción:** URLs a abrir, variables del hosting, ejemplos. |
 | [docs/paso-a-paso-sin-programar.md](./docs/paso-a-paso-sin-programar.md) | **Implementar sin programar:** Neon, Vercel, variables, enlaces y login demo. |
 | [docs/accesos-y-configuracion-git-neon-vercel.md](./docs/accesos-y-configuracion-git-neon-vercel.md) | **GitHub, Neon, Vercel:** URLs y ajustes exactos del proyecto. |
