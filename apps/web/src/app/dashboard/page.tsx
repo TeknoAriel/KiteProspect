@@ -30,6 +30,9 @@ export default async function DashboardPage() {
           <Link href="/dashboard/followups" style={{ textDecoration: "none", color: "#0070f3" }}>
             Seguimiento
           </Link>
+          <Link href="/dashboard/properties" style={{ textDecoration: "none", color: "#0070f3" }}>
+            Propiedades
+          </Link>
           {session.user.role === "admin" && (
             <>
               <Link href="/dashboard/audit" style={{ textDecoration: "none", color: "#0070f3" }}>
@@ -61,10 +64,20 @@ export default async function DashboardPage() {
           <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>Conversaciones</h3>
           <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{conversationsCount}</p>
         </div>
-        <div style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
+        <Link
+          href="/dashboard/properties"
+          style={{
+            padding: "1.5rem",
+            border: "1px solid #e0e0e0",
+            borderRadius: "8px",
+            textDecoration: "none",
+            color: "inherit",
+            display: "block",
+          }}
+        >
           <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>Propiedades</h3>
           <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{propertiesCount}</p>
-        </div>
+        </Link>
       </div>
 
       <div style={{ padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>

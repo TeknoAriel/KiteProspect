@@ -109,6 +109,14 @@
 - Búsqueda y filtros
 - Exportación
 
+### ✅ Slice S14: Inventario propiedades (F1-E4)
+- [x] API `GET/POST /api/properties`, `GET/PATCH/DELETE /api/properties/[id]`
+- [x] Lista y formularios `/dashboard/properties` (new, edit); eliminar con confirmación
+- [x] Roles: mutación admin/coordinator; lectura resto
+
+**TODO Fase 2:**
+- Importación masiva / fotos
+
 ## Pendiente para MVP completo
 
 ### Canales de captura (Fase 1 según PRODUCT_DEFINITION.md)
@@ -122,17 +130,17 @@
 
 ### Motor conversacional
 - [x] Integración con proveedor de IA (OpenAI HTTP; `OPENAI_API_KEY`, `slice-s10`)
-- [ ] Prompts versionados (BD/UI; S11+)
+- [x] Overrides de prompt por cuenta + versionado (`Account.config`, S11–S12)
 - [x] Outputs estructurados (`NextConversationAction`; `POST /api/ai/conversation/next-action`)
-- [ ] Handoff a humano (reglas de negocio; S11)
+- [x] Handoff a humano (reglas post-modelo; S11)
 
 **Nota:** API key: `docs/configuracion-manual-paso-a-paso.md` §4.
 
 ### Matching y recomendación
-- [ ] Algoritmo de matching básico
-- [ ] Envío de recomendaciones
+- [x] Algoritmo de matching v0 (`PropertyMatch`, reglas sobre inventario `available`)
+- [ ] Envío de recomendaciones (canal)
 
-**Nota:** Matching básico existe en scoring (Fit Score). Envío de recomendaciones pendiente.
+**Nota:** Inventario editable vía S14 (`slice-s14-properties-abm.md`). Envío de recomendaciones pendiente.
 
 ## Datos demo
 
@@ -156,3 +164,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-1-auth.md`
 - `docs/decisions/slice-2-crm.md`
 - `docs/decisions/slice-3-9-summary.md`
+- `docs/decisions/slice-s14-properties-abm.md`

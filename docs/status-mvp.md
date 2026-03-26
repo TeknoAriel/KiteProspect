@@ -8,6 +8,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 |------|---------|
 | **Multi-tenant** | Datos filtrados por `accountId` de sesión; login con **slug de cuenta** + email + contraseña. |
 | **Configuración cuenta (MVP)** | Hub admin `/dashboard/account` + IA en `Account.config` (S12–S13, `slice-s13-account-settings-hub.md`). |
+| **Inventario propiedades (F1-E4)** | ABM `/dashboard/properties` + API; mutaciones admin/coordinator; lectura asesor; `slice-s14-properties-abm.md`. |
 | **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido con `auth()` en middleware (Auth.js v5). |
 | **Usuarios / asesores / cuentas** | Vistas de lectura en dashboard (`/dashboard/users`, `advisors`, `accounts`). |
 | **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
@@ -42,4 +43,4 @@ Ver **`docs/manual-actions-required.md`**: PostgreSQL, `.env` (`DATABASE_URL`, `
 
 - Resolver tenant por subdomain además de slug en login.
 - OAuth, reset de contraseña, permisos granulares.
-- CRUD UI para entidades clave (sin convertir en CRM enterprise).
+- CRUD UI adicional para otras entidades (tareas, notas, etc.; sin convertir en CRM enterprise).

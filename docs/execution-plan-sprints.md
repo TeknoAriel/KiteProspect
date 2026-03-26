@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S13** — Hub configuración cuenta (F1-E2 parcial); siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S14** — Inventario propiedades ABM (F1-E4); siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | Definir próximo sprint (S14+ no numerados hasta priorizar). |
+| **Objetivo del sprint** | S14: API + dashboard inventario; ver `slice-s14-properties-abm.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -59,6 +59,18 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S13** | Hub cuenta + navegación | F1-E2 | [x] `/dashboard/account` (admin): datos tenant + enlace a IA; doc `slice-s13-account-settings-hub.md`. |
+
+**Bloqueos 👤:** ninguno.
+
+---
+
+## Hito 0c — Inventario propiedades (F1-E4)
+
+**Objetivo:** ABM de `Property` en el tenant con estados y validación; base para matching sin datos inventados.
+
+| Sprint | Enfoque | Ref | Tareas |
+|--------|---------|-----|--------|
+| **S14** | API + UI inventario | F1-E4 | [x] `GET/POST /api/properties`, `GET/PATCH/DELETE /api/properties/[id]`; `/dashboard/properties` (+ new, edit); roles mutación admin/coordinator; auditoría; `slice-s14-properties-abm.md`. |
 
 **Bloqueos 👤:** ninguno.
 
