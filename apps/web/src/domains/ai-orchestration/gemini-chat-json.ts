@@ -20,8 +20,9 @@ export async function geminiChatJson(params: {
     return { ok: false, error: "Falta GEMINI_API_KEY en el entorno." };
   }
 
+  /** Default: variante “lite” (mejor para free tier / bajo costo). Override: `GEMINI_MODEL`. */
   const model =
-    process.env.GEMINI_MODEL?.trim() || params.model || "gemini-2.0-flash";
+    process.env.GEMINI_MODEL?.trim() || params.model || "gemini-2.5-flash-lite";
 
   const url = `${GEMINI_BASE_URL}/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
   const res = await fetch(url, {

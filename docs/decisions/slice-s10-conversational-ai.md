@@ -20,7 +20,7 @@
 |----------|-------------|-------------|
 | `AI_PROVIDER` | No | `gemini` (default) o `openai`. |
 | `GEMINI_API_KEY` | Sí, si `AI_PROVIDER=gemini` | Clave de Google AI Studio. |
-| `GEMINI_MODEL` | No | Por defecto `gemini-2.0-flash`. |
+| `GEMINI_MODEL` | No | Por defecto `gemini-2.5-flash-lite` (liviano). Ver [modelos](https://ai.google.dev/gemini-api/docs/models/gemini). |
 | `OPENAI_API_KEY` | Sí, si `AI_PROVIDER=openai` | Clave de API de OpenAI. |
 | `OPENAI_MODEL` | No | Por defecto `gpt-4o-mini`. |
 

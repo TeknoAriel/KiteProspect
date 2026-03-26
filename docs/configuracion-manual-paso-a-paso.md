@@ -100,7 +100,7 @@ En **Settings → Environment Variables** en Vercel, si el login en producción 
    - Cargá:
      ```env
      GEMINI_API_KEY="AIza...tu-clave..."
-     GEMINI_MODEL="gemini-2.0-flash"
+     GEMINI_MODEL="gemini-2.5-flash-lite"
      ```
 3. Si usás **OpenAI**:
    - Generá key en [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
