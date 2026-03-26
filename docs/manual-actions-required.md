@@ -18,6 +18,8 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Flujo completo pantalla a pantalla (alineación + CI sin secretos):** **[flujo-completo-pantalla-a-pantalla.md](./flujo-completo-pantalla-a-pantalla.md)**.
 
+**Deploy automático (configuración única en Vercel + GitHub; después solo `git push`):** **[deploy-automation-one-time-setup.md](./deploy-automation-one-time-setup.md)**.
+
 ---
 
 ## Ahora (desarrollo local)
