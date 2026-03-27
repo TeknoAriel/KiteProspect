@@ -51,6 +51,7 @@
 - [x] Último mensaje por conversación
 - [x] Link a ficha de contacto
 - [x] Hilo por conversación + asistencia IA + envío manual borrador WhatsApp (S12)
+- [x] Filtros por canal y estado en la lista de inbox (S18)
 
 **TODO Fase 2:**
 - Filtros por canal, estado, fecha
@@ -185,3 +186,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s15-users-abm.md`
 - `docs/decisions/slice-s16-advisors-abm.md`
 - `docs/decisions/slice-s17-account-general-config.md`
+- `docs/decisions/slice-s18-inbox-filters.md`
