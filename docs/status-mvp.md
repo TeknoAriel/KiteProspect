@@ -10,7 +10,8 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Configuración cuenta (MVP)** | Hub admin `/dashboard/account` + IA en `Account.config` (S12–S13, `slice-s13-account-settings-hub.md`). |
 | **Inventario propiedades (F1-E4)** | ABM `/dashboard/properties` + API; mutaciones admin/coordinator; lectura asesor; `slice-s14-properties-abm.md`. |
 | **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido con `auth()` en middleware (Auth.js v5). |
-| **Usuarios / asesores / cuentas** | Vistas de lectura en dashboard (`/dashboard/users`, `advisors`, `accounts`). |
+| **Usuarios (F1-E3)** | ABM de usuario por tenant en `/dashboard/users` + API; hash bcrypt en alta/edición; no borrar usuario autenticado; `slice-s15-users-abm.md`. |
+| **Asesores / cuentas** | Vistas de lectura en dashboard (`/dashboard/advisors`, `accounts`). |
 | **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
 | **Inbox** | Lista (`/dashboard/inbox`) + hilo por conversación (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |

@@ -10,6 +10,7 @@
 - [x] Vistas de accounts, users, advisors (lectura)
 - [x] Multi-tenancy (filtrado por accountId)
 - [x] Hub admin de configuración de cuenta `/dashboard/account` (S13)
+- [x] ABM básico de usuarios por tenant (S15)
 
 **TODO Fase 2:**
 - CRUD completo
@@ -117,6 +118,14 @@
 **TODO Fase 2:**
 - Importación masiva / fotos
 
+### ✅ Slice S15: Usuarios ABM (F1-E3, parcial)
+- [x] API `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/[id]`
+- [x] Dashboard `/dashboard/users` con crear/editar/eliminar
+- [x] Contraseña hasheada con bcrypt; sin exposición de hash
+
+**TODO Fase 2:**
+- Reglas de reasignación al eliminar usuarios vinculados a asesores
+
 ## Pendiente para MVP completo
 
 ### Canales de captura (Fase 1 según PRODUCT_DEFINITION.md)
@@ -165,3 +174,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-2-crm.md`
 - `docs/decisions/slice-3-9-summary.md`
 - `docs/decisions/slice-s14-properties-abm.md`
+- `docs/decisions/slice-s15-users-abm.md`

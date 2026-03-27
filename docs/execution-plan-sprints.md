@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S14** — Inventario propiedades ABM (F1-E4); siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S15** — Usuarios ABM por tenant (F1-E3); siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S14: API + dashboard inventario; ver `slice-s14-properties-abm.md`. |
+| **Objetivo del sprint** | S15: API + dashboard usuarios; ver `slice-s15-users-abm.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -71,6 +71,18 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S14** | API + UI inventario | F1-E4 | [x] `GET/POST /api/properties`, `GET/PATCH/DELETE /api/properties/[id]`; `/dashboard/properties` (+ new, edit); roles mutación admin/coordinator; auditoría; `slice-s14-properties-abm.md`. |
+
+**Bloqueos 👤:** ninguno.
+
+---
+
+## Hito 0d — Usuarios y asesores (F1-E3, parcial usuario)
+
+**Objetivo:** ABM de `User` por tenant con hash de contraseña, roles y estados.
+
+| Sprint | Enfoque | Ref | Tareas |
+|--------|---------|-----|--------|
+| **S15** | API + UI usuarios | F1-E3 | [x] `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/[id]`; `/dashboard/users` (+ new, edit); hash bcrypt y no exponer password; auditoría; `slice-s15-users-abm.md`. |
 
 **Bloqueos 👤:** ninguno.
 

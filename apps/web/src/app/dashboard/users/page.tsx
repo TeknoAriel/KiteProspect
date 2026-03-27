@@ -25,11 +25,27 @@ export default async function UsersPage() {
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1200px", margin: "0 auto" }}>
-      <header style={{ marginBottom: "2rem" }}>
-        <Link href="/dashboard" style={{ textDecoration: "none", color: "#0070f3" }}>
-          ← Volver
+      <header style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "1rem", flexWrap: "wrap" }}>
+        <div>
+          <Link href="/dashboard" style={{ textDecoration: "none", color: "#0070f3" }}>
+            ← Volver
+          </Link>
+          <h1 style={{ marginTop: "1rem" }}>Usuarios</h1>
+        </div>
+        <Link
+          href="/dashboard/users/new"
+          style={{
+            display: "inline-block",
+            padding: "0.5rem 1rem",
+            backgroundColor: "#0070f3",
+            color: "#fff",
+            textDecoration: "none",
+            borderRadius: "6px",
+            fontSize: "0.875rem",
+          }}
+        >
+          Nuevo usuario
         </Link>
-        <h1 style={{ marginTop: "1rem" }}>Usuarios</h1>
       </header>
 
       <div style={{ display: "grid", gap: "1rem" }}>
@@ -43,6 +59,8 @@ export default async function UsersPage() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
+              gap: "1rem",
+              flexWrap: "wrap",
             }}
           >
             <div>
@@ -54,10 +72,13 @@ export default async function UsersPage() {
                 Rol: {user.role} | Estado: {user.status} | Asesores: {user._count.advisors}
               </p>
             </div>
-            <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <span style={{ fontSize: "0.875rem", color: "#666" }}>
                 {user.status === "active" ? "✅" : "⛔"}
               </span>
+              <Link href={`/dashboard/users/${user.id}/edit`} style={{ color: "#0070f3", fontSize: "0.875rem" }}>
+                Editar
+              </Link>
             </div>
           </div>
         ))}
@@ -65,7 +86,7 @@ export default async function UsersPage() {
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          <strong>MVP:</strong> Vista de lectura. CRUD completo en Fase 2.
+          <strong>MVP F1-E3:</strong> Alta, edición y baja lógica de usuario dentro del tenant.
         </p>
       </div>
     </div>
