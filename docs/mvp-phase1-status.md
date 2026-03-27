@@ -126,6 +126,13 @@
 **TODO Fase 2:**
 - Reglas de reasignación al eliminar usuarios vinculados a asesores
 
+### ✅ Slice S16: Asesores ABM (F1-E3)
+- [x] API `GET/POST /api/advisors`, `GET/PATCH/DELETE /api/advisors/[id]`
+- [x] Dashboard `/dashboard/advisors` con crear/editar/eliminar; unicidad usuario↔asesor
+
+**TODO Fase 2:**
+- Flujo guiado de reasignación al eliminar asesor con contactos activos
+
 ## Pendiente para MVP completo
 
 ### Canales de captura (Fase 1 según PRODUCT_DEFINITION.md)
@@ -175,3 +182,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-3-9-summary.md`
 - `docs/decisions/slice-s14-properties-abm.md`
 - `docs/decisions/slice-s15-users-abm.md`
+- `docs/decisions/slice-s16-advisors-abm.md`

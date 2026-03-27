@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S15** — Usuarios ABM por tenant (F1-E3); siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S16** — Asesores ABM (F1-E3); siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S15: API + dashboard usuarios; ver `slice-s15-users-abm.md`. |
+| **Objetivo del sprint** | S16: API + dashboard asesores; ver `slice-s16-advisors-abm.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -83,6 +83,18 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S15** | API + UI usuarios | F1-E3 | [x] `GET/POST /api/users`, `GET/PATCH/DELETE /api/users/[id]`; `/dashboard/users` (+ new, edit); hash bcrypt y no exponer password; auditoría; `slice-s15-users-abm.md`. |
+
+**Bloqueos 👤:** ninguno.
+
+---
+
+## Hito 0e — Asesores (F1-E3)
+
+**Objetivo:** ABM de `Advisor` por tenant; vínculo opcional a `User` con regla de unicidad.
+
+| Sprint | Enfoque | Ref | Tareas |
+|--------|---------|-----|--------|
+| **S16** | API + UI asesores | F1-E3 | [x] `GET/POST /api/advisors`, `GET/PATCH/DELETE /api/advisors/[id]`; `/dashboard/advisors` (+ new, edit); validación `userId` + unicidad; auditoría; `slice-s16-advisors-abm.md`. |
 
 **Bloqueos 👤:** ninguno.
 

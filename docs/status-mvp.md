@@ -11,7 +11,8 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Inventario propiedades (F1-E4)** | ABM `/dashboard/properties` + API; mutaciones admin/coordinator; lectura asesor; `slice-s14-properties-abm.md`. |
 | **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido con `auth()` en middleware (Auth.js v5). |
 | **Usuarios (F1-E3)** | ABM de usuario por tenant en `/dashboard/users` + API; hash bcrypt en alta/edición; no borrar usuario autenticado; `slice-s15-users-abm.md`. |
-| **Asesores / cuentas** | Vistas de lectura en dashboard (`/dashboard/advisors`, `accounts`). |
+| **Asesores (F1-E3)** | ABM `/dashboard/advisors` + API; vínculo opcional usuario del tenant (un usuario → un asesor); `slice-s16-advisors-abm.md`. |
+| **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
 | **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
 | **Inbox** | Lista (`/dashboard/inbox`) + hilo por conversación (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
