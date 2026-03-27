@@ -7,7 +7,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | Área | Qué hay |
 |------|---------|
 | **Multi-tenant** | Datos filtrados por `accountId` de sesión; login con **slug de cuenta** + email + contraseña. |
-| **Configuración cuenta (MVP)** | Hub admin `/dashboard/account` + IA en `Account.config` (S12–S13, `slice-s13-account-settings-hub.md`). |
+| **Configuración cuenta (F1-E2 MVP)** | Hub admin `/dashboard/account` + IA prompt + ajustes generales (`name`, `config.timezone`) vía `/dashboard/account/general` y API; `slice-s13-account-settings-hub.md`, `slice-s17-account-general-config.md`. |
 | **Inventario propiedades (F1-E4)** | ABM `/dashboard/properties` + API; mutaciones admin/coordinator; lectura asesor; `slice-s14-properties-abm.md`. |
 | **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido con `auth()` en middleware (Auth.js v5). |
 | **Usuarios (F1-E3)** | ABM de usuario por tenant en `/dashboard/users` + API; hash bcrypt en alta/edición; no borrar usuario autenticado; `slice-s15-users-abm.md`. |

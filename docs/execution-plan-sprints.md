@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S16** — Asesores ABM (F1-E3); siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S17** — Cuenta settings generales (F1-E2); siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S16: API + dashboard asesores; ver `slice-s16-advisors-abm.md`. |
+| **Objetivo del sprint** | S17: API + dashboard account general settings; ver `slice-s17-account-general-config.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -59,6 +59,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S13** | Hub cuenta + navegación | F1-E2 | [x] `/dashboard/account` (admin): datos tenant + enlace a IA; doc `slice-s13-account-settings-hub.md`. |
+| **S17** | Ajustes generales | F1-E2 | [x] `/dashboard/account/general` + `GET/PATCH /api/account/general-config`; edición de `Account.name` y `Account.config.timezone`; auditoría; `slice-s17-account-general-config.md`. |
 
 **Bloqueos 👤:** ninguno.
 

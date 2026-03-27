@@ -11,6 +11,7 @@
 - [x] Multi-tenancy (filtrado por accountId)
 - [x] Hub admin de configuración de cuenta `/dashboard/account` (S13)
 - [x] ABM básico de usuarios por tenant (S15)
+- [x] Ajustes generales de cuenta (`name` + `Account.config.timezone`) (S17)
 
 **TODO Fase 2:**
 - CRUD completo
@@ -183,3 +184,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s14-properties-abm.md`
 - `docs/decisions/slice-s15-users-abm.md`
 - `docs/decisions/slice-s16-advisors-abm.md`
+- `docs/decisions/slice-s17-account-general-config.md`

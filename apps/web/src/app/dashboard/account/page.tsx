@@ -76,6 +76,15 @@ export default async function AccountSettingsHubPage() {
         <h2 style={{ fontSize: "1rem" }}>Ajustes</h2>
         <ul style={{ paddingLeft: "1.25rem", fontSize: "0.875rem" }}>
           <li style={{ marginBottom: "0.5rem" }}>
+            <Link href="/dashboard/account/general" style={{ color: "#0070f3" }}>
+              Ajustes generales
+            </Link>
+            <span style={{ color: "#666" }}>
+              {" "}
+              — nombre comercial y timezone (S17)
+            </span>
+          </li>
+          <li style={{ marginBottom: "0.5rem" }}>
             <Link href="/dashboard/account/ai-prompt" style={{ color: "#0070f3" }}>
               IA conversacional
             </Link>
