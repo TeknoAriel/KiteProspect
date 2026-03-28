@@ -1,9 +1,28 @@
 import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
+import type { Prisma } from "@kite-prospect/db";
 
 const CHANNEL_OPTIONS = ["all", "form", "web_widget", "landing", "whatsapp"] as const;
 const STATUS_OPTIONS = ["all", "active", "closed", "archived"] as const;
+
+const DEFAULT_PAGE_SIZE = 20;
+const MIN_PAGE_SIZE = 10;
+const MAX_PAGE_SIZE = 50;
+const MAX_Q_LEN = 200;
+
+function parseParam(v: string | string[] | undefined): string | undefined {
+  return Array.isArray(v) ? v[0] : v;
+}
+
+function buildInboxQueryString(params: Record<string, string | undefined>): string {
+  const usp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== "") usp.set(k, v);
+  }
+  const s = usp.toString();
+  return s ? `?${s}` : "";
+}
 
 export default async function InboxPage(props: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
@@ -11,10 +30,13 @@ export default async function InboxPage(props: {
   const session = await requireAuth();
   const accountId = session.user.accountId;
   const searchParams = (await props.searchParams) ?? {};
-  const channelRaw = searchParams.channel;
-  const statusRaw = searchParams.status;
-  const channelParam = Array.isArray(channelRaw) ? channelRaw[0] : channelRaw;
-  const statusParam = Array.isArray(statusRaw) ? statusRaw[0] : statusRaw;
+
+  const channelParam = parseParam(searchParams.channel);
+  const statusParam = parseParam(searchParams.status);
+  const qRaw = parseParam(searchParams.q);
+  const pageRaw = parseParam(searchParams.page);
+  const pageSizeRaw = parseParam(searchParams.pageSize);
+
   const channelFilter = CHANNEL_OPTIONS.includes(
     (channelParam ?? "all") as (typeof CHANNEL_OPTIONS)[number],
   )
@@ -26,15 +48,55 @@ export default async function InboxPage(props: {
     ? ((statusParam ?? "active") as (typeof STATUS_OPTIONS)[number])
     : "active";
 
-  // Conversaciones por cuenta, ordenadas por última actividad.
+  const q = (qRaw ?? "").trim().slice(0, MAX_Q_LEN);
+
+  let page = parseInt(pageRaw ?? "1", 10);
+  if (!Number.isFinite(page) || page < 1) page = 1;
+  let pageSize = parseInt(pageSizeRaw ?? String(DEFAULT_PAGE_SIZE), 10);
+  if (!Number.isFinite(pageSize)) pageSize = DEFAULT_PAGE_SIZE;
+  pageSize = Math.min(MAX_PAGE_SIZE, Math.max(MIN_PAGE_SIZE, pageSize));
+
+  const baseWhere: Prisma.ConversationWhereInput = {
+    accountId,
+    ...(statusFilter !== "all" ? { status: statusFilter } : {}),
+    ...(channelFilter !== "all" ? { channel: channelFilter } : {}),
+  };
+
+  const where: Prisma.ConversationWhereInput =
+    q.length > 0
+      ? {
+          ...baseWhere,
+          OR: [
+            {
+              contact: {
+                OR: [
+                  { name: { contains: q, mode: "insensitive" } },
+                  { email: { contains: q, mode: "insensitive" } },
+                  { phone: { contains: q, mode: "insensitive" } },
+                ],
+              },
+            },
+            {
+              messages: {
+                some: {
+                  content: { contains: q, mode: "insensitive" },
+                },
+              },
+            },
+          ],
+        }
+      : baseWhere;
+
+  const total = await prisma.conversation.count({ where });
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  if (page > totalPages) page = totalPages;
+  if (page < 1) page = 1;
+
   const conversations = await prisma.conversation.findMany({
-    where: {
-      accountId,
-      ...(statusFilter !== "all" ? { status: statusFilter } : {}),
-      ...(channelFilter !== "all" ? { channel: channelFilter } : {}),
-    },
+    where,
     orderBy: { updatedAt: "desc" },
-    take: 50, // MVP: limitar a 50
+    skip: (page - 1) * pageSize,
+    take: pageSize,
     include: {
       contact: {
         select: {
@@ -48,7 +110,7 @@ export default async function InboxPage(props: {
       },
       messages: {
         orderBy: { createdAt: "desc" },
-        take: 1, // Último mensaje
+        take: 1,
       },
       _count: {
         select: {
@@ -58,6 +120,22 @@ export default async function InboxPage(props: {
     },
   });
 
+  const commonQs = {
+    channel: channelFilter === "all" ? undefined : channelFilter,
+    status: statusFilter === "active" && !statusParam ? undefined : statusFilter,
+    q: q || undefined,
+    pageSize: pageSize === DEFAULT_PAGE_SIZE ? undefined : String(pageSize),
+  };
+
+  const prevHref =
+    page > 1
+      ? `/dashboard/inbox${buildInboxQueryString({ ...commonQs, page: String(page - 1) })}`
+      : null;
+  const nextHref =
+    page < totalPages
+      ? `/dashboard/inbox${buildInboxQueryString({ ...commonQs, page: String(page + 1) })}`
+      : null;
+
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1400px", margin: "0 auto" }}>
       <header style={{ marginBottom: "2rem" }}>
@@ -66,12 +144,25 @@ export default async function InboxPage(props: {
         </Link>
         <h1 style={{ marginTop: "1rem" }}>Inbox</h1>
         <p style={{ color: "#666", fontSize: "0.875rem" }}>
-          {conversations.length} conversaciones. Clic en la tarjeta para abrir el hilo y la asistencia
-          IA.
+          {total === 0
+            ? "Sin resultados para los filtros actuales."
+            : `Mostrando ${conversations.length} de ${total} conversación(es) (página ${page} de ${totalPages}).`}{" "}
+          Clic en la tarjeta para abrir el hilo y la asistencia IA.
         </p>
       </header>
 
-      <form method="get" style={{ marginBottom: "1.25rem", display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+      <form method="get" style={{ marginBottom: "1.25rem", display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "end" }}>
+        <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666", flex: "1 1 220px" }}>
+          Buscar
+          <input
+            type="search"
+            name="q"
+            defaultValue={q}
+            maxLength={MAX_Q_LEN}
+            placeholder="Nombre, email, teléfono o texto en mensajes"
+            style={{ padding: "0.45rem", minWidth: "200px" }}
+          />
+        </label>
         <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666" }}>
           Canal
           <select name="channel" defaultValue={channelFilter} style={{ padding: "0.4rem", minWidth: "170px" }}>
@@ -91,15 +182,45 @@ export default async function InboxPage(props: {
             <option value="archived">archived</option>
           </select>
         </label>
-        <div style={{ display: "flex", gap: "0.5rem", alignItems: "end" }}>
+        <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666" }}>
+          Por página
+          <select name="pageSize" defaultValue={String(pageSize)} style={{ padding: "0.4rem", minWidth: "100px" }}>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <button type="submit" style={{ padding: "0.45rem 0.8rem", cursor: "pointer" }}>
-            Filtrar
+            Aplicar
           </button>
           <Link href="/dashboard/inbox" style={{ fontSize: "0.85rem", color: "#0070f3" }}>
             Limpiar
           </Link>
         </div>
       </form>
+
+      {total > 0 && (
+        <div style={{ marginBottom: "1rem", display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center", fontSize: "0.875rem" }}>
+          {prevHref ? (
+            <Link href={prevHref} style={{ color: "#0070f3" }}>
+              ← Anterior
+            </Link>
+          ) : (
+            <span style={{ color: "#ccc" }}>← Anterior</span>
+          )}
+          <span style={{ color: "#666" }}>
+            Página {page} / {totalPages}
+          </span>
+          {nextHref ? (
+            <Link href={nextHref} style={{ color: "#0070f3" }}>
+              Siguiente →
+            </Link>
+          ) : (
+            <span style={{ color: "#ccc" }}>Siguiente →</span>
+          )}
+        </div>
+      )}
 
       <div style={{ display: "grid", gap: "1rem" }}>
         {conversations.map((conv) => {
@@ -124,7 +245,7 @@ export default async function InboxPage(props: {
                 style={{ textDecoration: "none", color: "inherit", flex: 1 }}
               >
                 <div style={{ cursor: "pointer" }}>
-                  <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <div style={{ display: "flex", gap: "1rem", alignItems: "center", marginBottom: "0.5rem", flexWrap: "wrap" }}>
                     <h3 style={{ margin: 0 }}>
                       {contact.name || contact.email || contact.phone || "Sin nombre"}
                     </h3>
@@ -161,14 +282,33 @@ export default async function InboxPage(props: {
 
       {conversations.length === 0 && (
         <div style={{ padding: "2rem", textAlign: "center", color: "#666" }}>
-          <p>No hay conversaciones para ese filtro.</p>
+          <p>No hay conversaciones para ese filtro o búsqueda.</p>
+        </div>
+      )}
+
+      {total > 0 && (
+        <div style={{ marginTop: "1.25rem", display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center", fontSize: "0.875rem" }}>
+          {prevHref ? (
+            <Link href={prevHref} style={{ color: "#0070f3" }}>
+              ← Anterior
+            </Link>
+          ) : (
+            <span style={{ color: "#ccc" }}>← Anterior</span>
+          )}
+          {nextHref ? (
+            <Link href={nextHref} style={{ color: "#0070f3" }}>
+              Siguiente →
+            </Link>
+          ) : (
+            <span style={{ color: "#ccc" }}>Siguiente →</span>
+          )}
         </div>
       )}
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
           <strong>MVP:</strong> Hilo por conversación + sugerencia IA y envío manual del borrador por
-          WhatsApp (S12). Filtros por canal/estado en la lista (S18).
+          WhatsApp (S12). Filtros por canal/estado (S18), búsqueda y paginación (S19).
         </p>
       </div>
     </div>

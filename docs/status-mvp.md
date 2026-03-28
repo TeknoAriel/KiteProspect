@@ -14,7 +14,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Asesores (F1-E3)** | ABM `/dashboard/advisors` + API; vínculo opcional usuario del tenant (un usuario → un asesor); `slice-s16-advisors-abm.md`. |
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
 | **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
-| **Inbox** | Lista (`/dashboard/inbox`) con filtros por canal/estado (S18) + hilo por conversación (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
+| **Inbox** | Lista (`/dashboard/inbox`) con filtros (S18), búsqueda y paginación (S19) + hilo (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |

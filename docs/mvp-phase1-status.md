@@ -52,11 +52,10 @@
 - [x] Link a ficha de contacto
 - [x] Hilo por conversación + asistencia IA + envío manual borrador WhatsApp (S12)
 - [x] Filtros por canal y estado en la lista de inbox (S18)
+- [x] Búsqueda de texto y paginación en la lista de inbox (S19)
 
 **TODO Fase 2:**
-- Filtros por canal, estado, fecha
-- Búsqueda de texto
-- Paginación
+- Filtro por fecha (rango)
 - Marcar como leído
 
 ### ✅ Slice 5: Perfil declarado
@@ -187,3 +186,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s16-advisors-abm.md`
 - `docs/decisions/slice-s17-account-general-config.md`
 - `docs/decisions/slice-s18-inbox-filters.md`
+- `docs/decisions/slice-s19-inbox-search-pagination.md`

@@ -15,8 +15,8 @@
 
 ## Pendiente (Fase 2+)
 
-- Búsqueda por texto.
-- Paginación y orden configurable.
+- Cubierto en MVP como **S19** (`slice-s19-inbox-search-pagination.md`): búsqueda por texto y paginación básica.
+- Orden configurable y mejoras de rendimiento (índices / full-text) siguen en fases posteriores.
 
 ## Referencias
 

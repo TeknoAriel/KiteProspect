@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S18** — Inbox filtros básicos (F1-E8); siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S19** — Inbox búsqueda + paginación (F1-E8); siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S18: filtros inbox por canal/estado; ver `slice-s18-inbox-filters.md`. |
+| **Objetivo del sprint** | S19: búsqueda texto + paginación en `/dashboard/inbox`; ver `slice-s19-inbox-search-pagination.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -162,6 +162,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | **S11** | Reglas de negocio + handoff | F1-E9 | [x] Reglas post-modelo + handoff forzado; auditoría `ai_next_action_planned` / `ai_handoff_rules_applied`. [x] Versionado mínimo en código + env (`AI_CONVERSATION_PROMPT_VERSION`). Ver `slice-s11-conversational-handoff-rules.md`. |
 | **S12** | Inbox hilo + IA + envío borrador WA + prompt por cuenta | F1-E8, F1-E9 | [x] `/dashboard/inbox/[id]` + panel IA; envío manual WhatsApp (admin/coordinator); `Account.config` + `/dashboard/account/ai-prompt` + API; ver `slice-s12-inbox-ai-assist.md`. |
 | **S18** | Inbox lista con filtros | F1-E8 | [x] `/dashboard/inbox` con filtros por `channel` y `status`; estado visible en tarjeta; ver `slice-s18-inbox-filters.md`. |
+| **S19** | Inbox búsqueda + paginación | F1-E8 | [x] `q` (contacto o mensajes), `page` / `pageSize` (10, 20 o 50), enlaces y formulario coherentes con S18; ver `slice-s19-inbox-search-pagination.md`. |
 
 **Bloqueos 👤:** API key de proveedor de IA en `.env` / Vercel (documentado); Meta para envío real por WhatsApp.
 
