@@ -32,7 +32,7 @@ export default async function AccountGeneralSettingsPage() {
       }}
     >
       <Link href="/dashboard/account" style={{ textDecoration: "none", color: "#0070f3" }}>
-        ← Configuración de la cuenta
+        ← Centro de configuración
       </Link>
       <h1 style={{ marginTop: "1rem" }}>Ajustes generales (cuenta)</h1>
       <p style={{ color: "#666", fontSize: "0.875rem" }}>

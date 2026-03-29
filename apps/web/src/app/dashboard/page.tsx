@@ -39,7 +39,7 @@ export default async function DashboardPage() {
                 Auditoría
               </Link>
               <Link href="/dashboard/account" style={{ textDecoration: "none", color: "#0070f3" }}>
-                Cuenta
+                Configuración
               </Link>
             </>
           )}
@@ -148,9 +148,9 @@ export default async function DashboardPage() {
             <>
               <li>
                 <Link href="/dashboard/account" style={{ color: "#0070f3" }}>
-                  Cuenta
+                  Configuración
                 </Link>{" "}
-                — nombre, zona horaria, prompt IA.
+                — módulos, Vercel, endpoints, IA, planes de seguimiento, ajustes generales.
               </li>
               <li>
                 <Link href="/dashboard/audit" style={{ color: "#0070f3" }}>

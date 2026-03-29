@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S20** — envío recomendación WhatsApp (F1-E14); siguiente prioridad según `docs/roadmap.md` / cierre Fase 1. |
+| **Sprint activo** | **Post-S21** — centro de configuración visible + planes de seguimiento editables; siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S20: envío de `PropertyMatch` por WhatsApp + `Recommendation` + auditoría; ver `slice-s20-property-recommendation-whatsapp.md`. |
+| **Objetivo del sprint** | S21: hub admin (módulos, env, endpoints, IA, seguimientos) + UI edición `FollowUpPlan`; ver `slice-s21-settings-hub-followup-plans.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -60,6 +60,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 |--------|---------|-----|--------|
 | **S13** | Hub cuenta + navegación | F1-E2 | [x] `/dashboard/account` (admin): datos tenant + enlace a IA; doc `slice-s13-account-settings-hub.md`. |
 | **S17** | Ajustes generales | F1-E2 | [x] `/dashboard/account/general` + `GET/PATCH /api/account/general-config`; edición de `Account.name` y `Account.config.timezone`; auditoría; `slice-s17-account-general-config.md`. |
+| **S21** | Centro configuración + planes seguimiento | F1-E2, F1-E12 | [x] `/dashboard/account` ampliado (módulos, env, endpoints, IA, enlaces); `/dashboard/account/follow-up-plans` edición JSON validada; `slice-s21-settings-hub-followup-plans.md`. |
 
 **Bloqueos 👤:** ninguno.
 

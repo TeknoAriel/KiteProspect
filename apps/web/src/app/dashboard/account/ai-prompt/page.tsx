@@ -28,7 +28,7 @@ export default async function AccountAiPromptPage() {
       }}
     >
       <Link href="/dashboard/account" style={{ textDecoration: "none", color: "#0070f3" }}>
-        ← Configuración de la cuenta
+        ← Centro de configuración
       </Link>
       <h1 style={{ marginTop: "1rem" }}>IA conversacional (cuenta)</h1>
       <p style={{ color: "#666", fontSize: "0.875rem" }}>

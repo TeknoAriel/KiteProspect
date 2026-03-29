@@ -9,7 +9,7 @@
 - [x] Dashboard con stats básicos
 - [x] Vistas de accounts, users, advisors (lectura)
 - [x] Multi-tenancy (filtrado por accountId)
-- [x] Hub admin de configuración de cuenta `/dashboard/account` (S13)
+- [x] Hub admin de configuración de cuenta `/dashboard/account` (S13) + centro visible S21 (endpoints, env, módulos)
 - [x] ABM básico de usuarios por tenant (S15)
 - [x] Ajustes generales de cuenta (`name` + `Account.config.timezone`) (S17)
 
@@ -84,6 +84,7 @@
 - [x] Vista de secuencias activas
 - [x] Próximos intentos
 - [x] Cron `/api/cron/follow-up-due` + `processDueFollowUps`; pasos `channel: whatsapp` envían texto (Meta en env)
+- [x] Edición de planes (secuencia JSON) en `/dashboard/account/follow-up-plans` (S21, admin)
 
 **TODO Fase 2:**
 - Worker con BullMQ (escalado; ver `slice-s06`)
@@ -188,3 +189,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s18-inbox-filters.md`
 - `docs/decisions/slice-s19-inbox-search-pagination.md`
 - `docs/decisions/slice-s20-property-recommendation-whatsapp.md`
+- `docs/decisions/slice-s21-settings-hub-followup-plans.md`
