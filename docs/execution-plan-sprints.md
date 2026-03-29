@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S19** — Inbox búsqueda + paginación (F1-E8); siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S19** — inbox lista cerrada (S18+S19, F1-E8); **siguiente candidato F1** según `docs/mvp-phase1-status.md`: *envío de recomendaciones por canal* (matching ya v0 en S04–S05), salvo que negocio priorice otro ítem de `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S19: búsqueda texto + paginación en `/dashboard/inbox`; ver `slice-s19-inbox-search-pagination.md`. |
+| **Objetivo del sprint** | Definir y ejecutar el próximo slice (p. ej. recomendaciones enviadas / canal) o refinamiento acordado; último entregado en esta línea: S19 (`slice-s19-inbox-search-pagination.md`). |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
