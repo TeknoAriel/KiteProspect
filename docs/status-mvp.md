@@ -27,7 +27,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Captura (formulario)** | `/lead` opcional con `ENABLE_PUBLIC_LEAD_FORM=true`; misma lógica vía server action (auditoría `via: public_lead_form`). |
 | **Captura (widget)** | `kite-lead-widget.js` → iframe `/embed/lead`; canal `web_widget`; ver `docs/capture-integration.md`. |
 | **Captura (landings)** | Patrones unificados + ejemplos copy-paste: `docs/capture-integration.md` §4, `docs/examples/`. |
-| **Matching v0** | Reglas sobre inventario `available` + `syncPropertyMatchesForContact`; UI recalcular en ficha; `docs/decisions/slice-s04-matching-v0.md`. |
+| **Matching v0** | Reglas sobre inventario `available` + `syncPropertyMatchesForContact`; UI recalcular en ficha; envío por WhatsApp con `Recommendation` (S20); `slice-s04-matching-v0.md`, `slice-s20-property-recommendation-whatsapp.md`. |
 
 ## Pendiente respecto a Fase 1 (producto)
 

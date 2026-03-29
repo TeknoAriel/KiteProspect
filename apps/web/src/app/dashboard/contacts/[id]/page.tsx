@@ -3,6 +3,7 @@ import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
+import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
 
 export default async function ContactDetailPage({
   params,
@@ -83,6 +84,9 @@ export default async function ContactDetailPage({
 
   const latestScore = contact.leadScores[0];
   const latestProfile = contact.searchProfiles[0];
+  const canSendRecommendation =
+    session.user.role === "admin" || session.user.role === "coordinator";
+  const hasPhoneForWa = Boolean(contact.phone?.trim());
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1400px", margin: "0 auto" }}>
@@ -239,22 +243,48 @@ export default async function ContactDetailPage({
             <h3 style={{ marginTop: 0 }}>Propiedades recomendadas (matching v0)</h3>
             <p style={{ fontSize: "0.8rem", color: "#555", marginTop: 0 }}>
               Solo inventario con estado <code>available</code>; reglas sobre perfil de búsqueda (sin inventar
-              propiedades).
+              propiedades). Envío por WhatsApp (admin/coordinator) registra <code>Recommendation</code> y
+              actualiza <code>sentAt</code> en el match (S20).
             </p>
             <RecalculateMatchesButton contactId={id} />
             {contact.propertyMatches.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.75rem" }}>
                 {contact.propertyMatches.map((match) => (
-                  <div key={match.id} style={{ padding: "0.75rem", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
-                    <p style={{ margin: 0, fontSize: "0.875rem" }}>
-                      <strong>{match.property.title}</strong>
-                    </p>
-                    <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#666" }}>
-                      {match.property.zone} | ${match.property.price.toLocaleString()} | Score: {match.score}%
-                    </p>
-                    {match.reason && (
-                      <p style={{ margin: "0.35rem 0 0 0", fontSize: "0.75rem", color: "#444" }}>{match.reason}</p>
-                    )}
+                  <div
+                    key={match.id}
+                    style={{
+                      padding: "0.75rem",
+                      backgroundColor: "#f9f9f9",
+                      borderRadius: "4px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      gap: "0.75rem",
+                      flexWrap: "wrap",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <div style={{ flex: "1 1 200px" }}>
+                      <p style={{ margin: 0, fontSize: "0.875rem" }}>
+                        <strong>{match.property.title}</strong>
+                      </p>
+                      <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#666" }}>
+                        {match.property.zone} | ${match.property.price.toLocaleString()} | Score: {match.score}%
+                      </p>
+                      {match.sentAt && (
+                        <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.7rem", color: "#888" }}>
+                          Último envío: {new Date(match.sentAt).toLocaleString()}
+                        </p>
+                      )}
+                      {match.reason && (
+                        <p style={{ margin: "0.35rem 0 0 0", fontSize: "0.75rem", color: "#444" }}>{match.reason}</p>
+                      )}
+                    </div>
+                    <SendRecommendationWhatsAppButton
+                      contactId={id}
+                      propertyMatchId={match.id}
+                      canSend={canSendRecommendation}
+                      hasPhone={hasPhoneForWa}
+                    />
                   </div>
                 ))}
               </div>

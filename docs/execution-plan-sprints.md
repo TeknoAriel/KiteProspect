@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S19** — inbox lista cerrada (S18+S19, F1-E8); **siguiente candidato F1** según `docs/mvp-phase1-status.md`: *envío de recomendaciones por canal* (matching ya v0 en S04–S05), salvo que negocio priorice otro ítem de `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S20** — envío recomendación WhatsApp (F1-E14); siguiente prioridad según `docs/roadmap.md` / cierre Fase 1. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | Definir y ejecutar el próximo slice (p. ej. recomendaciones enviadas / canal) o refinamiento acordado; último entregado en esta línea: S19 (`slice-s19-inbox-search-pagination.md`). |
+| **Objetivo del sprint** | S20: envío de `PropertyMatch` por WhatsApp + `Recommendation` + auditoría; ver `slice-s20-property-recommendation-whatsapp.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -123,6 +123,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 |--------|---------|-----|--------|
 | **S04** | Reglas + persistencia | F1-E14 | [x] Servicio `score-property-match` + `sync-property-matches` (solo `available`, umbral 30). [x] `reason` persistido. [x] `MATCHING_SCORE_CASES` + decisión `slice-s04-matching-v0.md`. |
 | **S05** | UI CRM + auditoría | F1-E14 | [x] Ficha contacto: lista + botón recalcular + motivo. [x] Auditoría `property_matches_synced`. |
+| **S20** | Envío recomendación WhatsApp | F1-E14 | [x] Botón por match en ficha contacto; `Recommendation` + `sentAt`; roles admin/coordinator; `slice-s20-property-recommendation-whatsapp.md`. |
 
 ---
 

@@ -155,9 +155,9 @@
 
 ### Matching y recomendación
 - [x] Algoritmo de matching v0 (`PropertyMatch`, reglas sobre inventario `available`)
-- [ ] Envío de recomendaciones (canal)
+- [x] Envío de recomendaciones por **WhatsApp** desde ficha contacto (admin/coordinator); modelo `Recommendation` + `sentAt` (S20)
 
-**Nota:** Inventario editable vía S14 (`slice-s14-properties-abm.md`). Envío de recomendaciones pendiente.
+**Nota:** Inventario editable vía S14 (`slice-s14-properties-abm.md`). Otros canales (email, etc.) en Fase 2.
 
 ## Datos demo
 
@@ -187,3 +187,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s17-account-general-config.md`
 - `docs/decisions/slice-s18-inbox-filters.md`
 - `docs/decisions/slice-s19-inbox-search-pagination.md`
+- `docs/decisions/slice-s20-property-recommendation-whatsapp.md`
