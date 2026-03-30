@@ -73,15 +73,44 @@ export async function syncPropertyMatchesForContact(
   candidates.sort((a, b) => b.score - a.score);
 
   await prisma.$transaction(async (tx) => {
-    await tx.propertyMatch.deleteMany({ where: { contactId } });
-    if (candidates.length > 0) {
-      await tx.propertyMatch.createMany({
-        data: candidates.map((c) => ({
+    const existing = await tx.propertyMatch.findMany({
+      where: { contactId },
+      select: { id: true, propertyId: true },
+    });
+    const existingByPropertyId = new Map(existing.map((m) => [m.propertyId, m.id]));
+    const candidatePropertyIds = new Set(candidates.map((c) => c.propertyId));
+
+    const toDeleteIds = existing
+      .filter((m) => !candidatePropertyIds.has(m.propertyId))
+      .map((m) => m.id);
+    if (toDeleteIds.length > 0) {
+      await tx.propertyMatch.deleteMany({
+        where: {
+          id: { in: toDeleteIds },
+        },
+      });
+    }
+
+    for (const c of candidates) {
+      const existingId = existingByPropertyId.get(c.propertyId);
+      if (existingId) {
+        await tx.propertyMatch.update({
+          where: { id: existingId },
+          data: {
+            score: c.score,
+            reason: c.reason,
+          },
+        });
+        continue;
+      }
+
+      await tx.propertyMatch.create({
+        data: {
           contactId,
           propertyId: c.propertyId,
           score: c.score,
           reason: c.reason,
-        })),
+        },
       });
     }
   });
@@ -97,6 +126,7 @@ export async function syncPropertyMatchesForContact(
       metadata: {
         matchedCount: candidates.length,
         inventoryCount: properties.length,
+        preservedHistory: true,
         rulesVersion: "v0",
       },
     });
