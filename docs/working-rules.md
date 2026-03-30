@@ -60,7 +60,7 @@ entonces:
 
 ## Verificación automática (código) vs. pruebas humanas (URL)
 
-- **Repositorio / asistente / CI:** ejecutar `npm run verify` en la raíz (lint + typecheck + build). No sustituye pruebas manuales en un entorno desplegado.
+- **Repositorio / asistente / CI:** ejecutar `npm run verify` en la raíz (lint + typecheck + tests Vitest + build). No sustituye pruebas manuales en un entorno desplegado.
 - **Persona (producción):** solo lo descrito en **`docs/produccion-checklist-usuario.md`** (URLs, variables del hosting, ejemplos de login y API).
 
 ---

@@ -29,6 +29,10 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Captura (landings)** | Patrones unificados + ejemplos copy-paste: `docs/capture-integration.md` §4, `docs/examples/`. |
 | **Matching v0** | Reglas sobre inventario `available` + `syncPropertyMatchesForContact`; UI recalcular en ficha; envío por WhatsApp con `Recommendation` (S20); tests Vitest en matching (S24); `slice-s04-matching-v0.md`, `slice-s20-property-recommendation-whatsapp.md`. |
 
+## Plan de trabajo actual
+
+Sprint **L1** (bloque largo, ~10–14 días): matching/scoring + CRM mínimo en ficha; backlog vivo en `docs/execution-plan-sprints.md` y decisión `docs/decisions/sprint-l1-long-block.md`.
+
 ## Pendiente respecto a Fase 1 (producto)
 
 Definido en `PRODUCT_DEFINITION.md` y **aún no** cerrado como slice completo:
