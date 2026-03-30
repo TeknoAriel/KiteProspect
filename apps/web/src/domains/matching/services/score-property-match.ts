@@ -38,18 +38,23 @@ function norm(s: string | null | undefined): string {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+/** Normaliza intención de perfil: minúsculas, sin acentos, ñ→n (ej. inversión → inversion). */
+function normIntentToken(s: string | null | undefined): string {
+  return norm(s).replace(/ñ/g, "n");
+}
+
 /** compra ↔ listado venta; renta ↔ renta; inversión acepta ambos con leve penalización */
 export function scoreIntentDimension(
   profileIntent: string | null | undefined,
   propertyIntent: string,
 ): number {
-  const pi = norm(profileIntent);
+  const pi = normIntentToken(profileIntent);
   const pint = norm(propertyIntent);
   if (!pi) return 10;
 
   if (pi === "compra" && pint === "venta") return DIM.intent;
   if (pi === "renta" && pint === "renta") return DIM.intent;
-  if (pi === "inversión" && (pint === "venta" || pint === "renta")) return 16;
+  if (pi === "inversion" && (pint === "venta" || pint === "renta")) return 16;
   return 0;
 }
 

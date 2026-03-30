@@ -29,11 +29,11 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **L1 — Bloque largo** (matching/scoring + CRM mínimo F1-E13). Ver sección **Sprint largo L1** y `docs/decisions/sprint-l1-long-block.md`. |
+| **Sprint activo** | **L1 — cerrado** (backlog tabular L1 completado). Próxima prioridad: deuda F1-E13 / backlog transversal según `docs/status-mvp.md` y `docs/roadmap.md`. |
 | **Inicio (ISO)** | 2026-03-30 (sugerido; ajustar si el equipo arranca otro día). |
 | **Fin objetivo (ISO)** | +10 a +14 días desde inicio (ventana de trabajo continuo). |
 | **Objetivo del sprint** | Avanzar **sin micro-cierres obligatorios**: refuerzo de matching/scoring (tests, reglas, UX de ficha) + **al menos una** mutación CRM acotada en ficha contacto (p. ej. nota o tarea) alineada a `PRODUCT_DEFINITION.md` / F1-E13. |
-| **Última verificación agente** | `npm run verify` en verde antes de cada push; documentación al cierre de L1 o al hito semanal si hay bloqueo. |
+| **Última verificación agente** | 2026-03-30: `npm run verify` en verde; cierre documentado en `docs/decisions/slice-l1-batch-completion.md`. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -45,13 +45,13 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | # | Área | Ref roadmap | Entregable (ejemplo) | Estado |
 |---|------|-------------|----------------------|--------|
-| 1 | Matching | F1-E14 | Más tests Vitest (dimensiones sueltas: precio, zona, dormitorios) + mantener `MATCHING_SCORE_CASES` al día | [ ] |
-| 2 | Scoring | F1-E11 | Tests o funciones puras extraídas para `intent/readiness/engagement` (sin depender de Prisma donde sea posible) | [ ] |
-| 3 | CRM ficha | F1-E13 | Una mutación mínima: alta de **nota** o **tarea** desde `/dashboard/contacts/[id]` + API scoped por tenant + auditoría | [ ] |
-| 4 | Matching UX | F1-E14 | Ficha: indicador claro de propiedad ya enviada por WA (`sentAt`) / evitar reenvío accidental | [ ] |
-| 5 | Trazas | — | Logs estructurados en sync de matches (accountId, contactId, counts) sin PII | [ ] |
+| 1 | Matching | F1-E14 | Más tests Vitest (dimensiones sueltas: precio, zona, dormitorios) + mantener `MATCHING_SCORE_CASES` al día | [x] |
+| 2 | Scoring | F1-E11 | Tests o funciones puras extraídas para `intent/readiness/engagement` (sin depender de Prisma donde sea posible) | [x] |
+| 3 | CRM ficha | F1-E13 | Una mutación mínima: alta de **nota** o **tarea** desde `/dashboard/contacts/[id]` + API scoped por tenant + auditoría | [x] |
+| 4 | Matching UX | F1-E14 | Ficha: indicador claro de propiedad ya enviada por WA (`sentAt`) / evitar reenvío accidental | [x] |
+| 5 | Trazas | — | Logs estructurados en sync de matches (accountId, contactId, counts) sin PII | [x] |
 
-**Cierre L1:** cuando las filas críticas (1–3 al menos) estén `[x]`, actualizar esta tabla, `docs/status-mvp.md` y el **Sprint activo** a la siguiente prioridad del roadmap.
+**Cierre L1:** filas 1–5 `[x]`; tabla y `docs/status-mvp.md` actualizados; sprint activo rotado (ver arriba). Detalle: `docs/decisions/slice-l1-batch-completion.md`.
 
 ---
 

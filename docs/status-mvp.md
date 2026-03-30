@@ -13,7 +13,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Usuarios (F1-E3)** | ABM de usuario por tenant en `/dashboard/users` + API; hash bcrypt en alta/edición; no borrar usuario autenticado; `slice-s15-users-abm.md`. |
 | **Asesores (F1-E3)** | ABM `/dashboard/advisors` + API; vínculo opcional usuario del tenant (un usuario → un asesor); `slice-s16-advisors-abm.md`. |
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
-| **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
+| **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`); alta de **nota** en ficha (server action + auditoría `contact_note_created`, L1). |
 | **Inbox** | Lista (`/dashboard/inbox`) con filtros (S18), búsqueda y paginación (S19) + hilo (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
@@ -27,11 +27,11 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Captura (formulario)** | `/lead` opcional con `ENABLE_PUBLIC_LEAD_FORM=true`; misma lógica vía server action (auditoría `via: public_lead_form`). |
 | **Captura (widget)** | `kite-lead-widget.js` → iframe `/embed/lead`; canal `web_widget`; ver `docs/capture-integration.md`. |
 | **Captura (landings)** | Patrones unificados + ejemplos copy-paste: `docs/capture-integration.md` §4, `docs/examples/`. |
-| **Matching v0** | Reglas sobre inventario `available` + `syncPropertyMatchesForContact`; UI recalcular en ficha; envío por WhatsApp con `Recommendation` (S20); tests Vitest en matching (S24); `slice-s04-matching-v0.md`, `slice-s20-property-recommendation-whatsapp.md`. |
+| **Matching v0** | Reglas sobre inventario `available` + `syncPropertyMatchesForContact`; UI recalcular en ficha; envío por WhatsApp con `Recommendation` (S20); tests Vitest (matching + dimensiones; lead-score-rules); log estructurado en sync; UX reenvío WA cuando `sentAt` (L1); `slice-s04-matching-v0.md`, `slice-s20-property-recommendation-whatsapp.md`. |
 
 ## Plan de trabajo actual
 
-Sprint **L1** (bloque largo, ~10–14 días): matching/scoring + CRM mínimo en ficha; backlog vivo en `docs/execution-plan-sprints.md` y decisión `docs/decisions/sprint-l1-long-block.md`.
+Sprint **L1** cerrado (2026-03-30): backlog L1 en `docs/execution-plan-sprints.md` completado; resumen `docs/decisions/slice-l1-batch-completion.md`. Siguiente: priorizar deuda F1-E13 u otros ítems de Fase 1 según roadmap.
 
 ## Pendiente respecto a Fase 1 (producto)
 

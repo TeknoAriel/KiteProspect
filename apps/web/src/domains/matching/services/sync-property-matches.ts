@@ -72,17 +72,17 @@ export async function syncPropertyMatchesForContact(
 
   candidates.sort((a, b) => b.score - a.score);
 
-  await prisma.$transaction(async (tx) => {
-    const existing = await tx.propertyMatch.findMany({
-      where: { contactId },
-      select: { id: true, propertyId: true },
-    });
-    const existingByPropertyId = new Map(existing.map((m) => [m.propertyId, m.id]));
-    const candidatePropertyIds = new Set(candidates.map((c) => c.propertyId));
+  const existing = await prisma.propertyMatch.findMany({
+    where: { contactId },
+    select: { id: true, propertyId: true },
+  });
+  const existingByPropertyId = new Map(existing.map((m) => [m.propertyId, m.id]));
+  const candidatePropertyIds = new Set(candidates.map((c) => c.propertyId));
+  const toDeleteIds = existing
+    .filter((m) => !candidatePropertyIds.has(m.propertyId))
+    .map((m) => m.id);
 
-    const toDeleteIds = existing
-      .filter((m) => !candidatePropertyIds.has(m.propertyId))
-      .map((m) => m.id);
+  await prisma.$transaction(async (tx) => {
     if (toDeleteIds.length > 0) {
       await tx.propertyMatch.deleteMany({
         where: {
@@ -115,6 +115,18 @@ export async function syncPropertyMatchesForContact(
     }
   });
 
+  console.log(
+    JSON.stringify({
+      event: "property_matches_synced",
+      accountId,
+      contactId,
+      inventoryCount: properties.length,
+      matchedCount: candidates.length,
+      removedCount: toDeleteIds.length,
+      rulesVersion: "v0",
+    }),
+  );
+
   try {
     await recordAuditEvent({
       accountId,
@@ -126,6 +138,7 @@ export async function syncPropertyMatchesForContact(
       metadata: {
         matchedCount: candidates.length,
         inventoryCount: properties.length,
+        removedCount: toDeleteIds.length,
         preservedHistory: true,
         rulesVersion: "v0",
       },

@@ -4,6 +4,11 @@
  * TODO Fase 2: reglas más sofisticadas, machine learning
  */
 import { prisma } from "@kite-prospect/db";
+import {
+  leadScoreEngagementFromConversations,
+  leadScoreIntentFromProfileIntent,
+  leadScoreReadinessFromCommercialStage,
+} from "./lead-score-rules";
 
 interface ScoreWeights {
   intent: number;
@@ -47,17 +52,13 @@ export async function calculateLeadScore(
     throw new Error("Contact not found or access denied");
   }
 
-  // Intent Score: basado en perfil declarado
-  const intentScore = calculateIntentScore(contact.searchProfiles[0]);
+  const intentScore = leadScoreIntentFromProfileIntent(contact.searchProfiles[0]?.intent);
 
-  // Readiness Score: basado en interacciones y urgencia
-  const readinessScore = calculateReadinessScore(contact);
+  const readinessScore = leadScoreReadinessFromCommercialStage(contact.commercialStage);
 
-  // Fit Score: basado en matching con inventario (simplificado en MVP)
   const fitScore = await calculateFitScore(contactId, accountId);
 
-  // Engagement Score: basado en respuestas y actividad
-  const engagementScore = calculateEngagementScore(contact.conversations);
+  const engagementScore = leadScoreEngagementFromConversations(contact.conversations);
 
   // Total score (ponderado)
   const totalScore =
@@ -85,45 +86,6 @@ export async function calculateLeadScore(
   return score;
 }
 
-function normIntentKey(raw: string): string {
-  return raw
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function calculateIntentScore(profile: { intent?: string | null } | undefined): number {
-  if (!profile?.intent) return 0;
-
-  const key = normIntentKey(profile.intent);
-  const intentMap: Record<string, number> = {
-    compra: 80,
-    renta: 60,
-    inversion: 70,
-  };
-
-  return intentMap[key] ?? 50;
-}
-
-function calculateReadinessScore(contact: { commercialStage: string; conversationalStage: string }): number {
-  const stageMap: Record<string, number> = {
-    won: 95,
-    hot: 90,
-    opportunity_active: 85,
-    visit_scheduled: 80,
-    assigned: 70,
-    real_lead: 60,
-    prospect: 40,
-    exploratory: 20,
-    paused: 25,
-    blocked: 15,
-    lost: 10,
-  };
-
-  return stageMap[contact.commercialStage] ?? 10;
-}
-
 async function calculateFitScore(
   contactId: string,
   accountId: string,
@@ -148,27 +110,3 @@ async function calculateFitScore(
   return Math.min(100, Math.round(avg));
 }
 
-function calculateEngagementScore(conversations: Array<{ messages: Array<{ direction: string }> }>): number {
-  if (conversations.length === 0) return 0;
-
-  let inboundCount = 0;
-  let outboundCount = 0;
-
-  conversations.forEach((conv) => {
-    conv.messages.forEach((msg) => {
-      if (msg.direction === "inbound") inboundCount++;
-      else outboundCount++;
-    });
-  });
-
-  if (inboundCount === 0) return 0;
-
-  // Ratio de respuestas
-  const responseRatio = inboundCount / (outboundCount || 1);
-
-  // MVP: lógica simple
-  if (responseRatio > 1) return 80; // Responde más de lo que enviamos
-  if (responseRatio > 0.5) return 60; // Responde la mitad
-  if (responseRatio > 0.25) return 40; // Responde ocasionalmente
-  return 20; // Poca respuesta
-}

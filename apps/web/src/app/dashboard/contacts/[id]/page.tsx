@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ContactNotesForm } from "./contact-notes-form";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
 
@@ -188,6 +189,7 @@ export default async function ContactDetailPage({
           {/* Notas */}
           <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
             <h2 style={{ marginTop: 0 }}>Notas ({contact.notes.length})</h2>
+            <ContactNotesForm contactId={id} />
             {contact.notes.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {contact.notes.map((note) => (
@@ -284,6 +286,7 @@ export default async function ContactDetailPage({
                       propertyMatchId={match.id}
                       canSend={canSendRecommendation}
                       hasPhone={hasPhoneForWa}
+                      sentAt={match.sentAt}
                     />
                   </div>
                 ))}
