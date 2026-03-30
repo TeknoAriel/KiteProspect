@@ -213,9 +213,10 @@ export default async function DashboardPage() {
 
       <div style={{ padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>
-          <strong>Producción parece “atrasada”:</strong> en Vercel revisá que el último deployment sea de la rama{" "}
-          <code style={{ fontSize: "0.8rem" }}>main</code> y estado <strong>Ready</strong>. La URL correcta es la de{" "}
-          <strong>Domains</strong> en el proyecto (no mezclar con otro preview o otro repo).
+          <strong>Deploy en Vercel:</strong> si ves funciones viejas en la URL pública, abrí el proyecto →{" "}
+          <strong>Deployments</strong> y confirmá que el último sea de <code style={{ fontSize: "0.8rem" }}>main</code> en
+          estado <strong>Ready</strong>. La URL canónica está en <strong>Settings → Domains</strong> (no confundir con
+          preview de otra rama).
         </p>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
           <strong>Lista de sprints en el repo:</strong> archivo <code style={{ fontSize: "0.8rem" }}>docs/execution-plan-sprints.md</code>{" "}

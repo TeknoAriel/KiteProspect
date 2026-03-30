@@ -73,6 +73,11 @@
 - [x] Historial de scores
 - [x] UI para ver y recalcular
 
+### ✅ Slice S24: Tests matching + fit score (refuerzo F1-E11 / F1-E14)
+- [x] Vitest en `verify`; tests `score-property-match.test.ts`
+- [x] `fitScore` = promedio top-3 `PropertyMatch`; readiness/intent extendidos
+- [x] `slice-s24-matching-tests-scoring-fit.md`
+
 **TODO Fase 2:**
 - Pesos configurables
 - Reglas más sofisticadas
@@ -199,3 +204,4 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s21-settings-hub-followup-plans.md`
 - `docs/decisions/slice-s22-kiteprop-property-feed.md`
 - `docs/decisions/slice-s23-dashboard-kpis.md`
+- `docs/decisions/slice-s24-matching-tests-scoring-fit.md`

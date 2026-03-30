@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S23** — KPIs dashboard (F1-E16); siguiente: deuda Fase 1 en `docs/status-mvp.md` / roadmap. |
+| **Sprint activo** | **Post-S24** — tests matching + ajuste fit/readiness; siguiente: deuda Fase 1 / CRM según `docs/status-mvp.md`. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S23: agregados por tenant en `/dashboard` (nuevos 7 días, conversaciones abiertas, disponibles, pipeline por `commercialStage`); ver `slice-s23-dashboard-kpis.md`. |
+| **Objetivo del sprint** | S24: Vitest en `verify`, tests matching v0, `fitScore` desde promedio top-3 matches, readiness/intent más completos, copy deploy dashboard; ver `slice-s24-matching-tests-scoring-fit.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -86,6 +86,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S23** | KPIs por tenant | F1-E16 | [x] `getDashboardKpisForAccount`; `/dashboard` con nuevos (7 días), conversaciones abiertas, propiedades disponibles, tabla por `commercialStage`; `slice-s23-dashboard-kpis.md`. |
+| **S24** | Matching/score hardening | F1-E11, F1-E14 | [x] Vitest + tests `score-property-match`; `calculateFitScore` promedio top-3; intent/readiness extendidos; texto deploy en dashboard; `slice-s24-matching-tests-scoring-fit.md`. |
 
 **Bloqueos 👤:** ninguno.
 

@@ -19,7 +19,7 @@
 
 | Acción | Dónde |
 |--------|--------|
-| `npm run verify` | Agente / GitHub Actions (sin BD) |
+| `npm run verify` | Agente / GitHub Actions (sin BD): lint, typecheck, **Vitest** (`npm run test`), build |
 | `npm run build:vercel` | **Solo Vercel** (migrate + seed + next build) |
 | `npm run db:*` con `dotenv -e .env` | Máquina local **solo si** hay `.env` con BD alcanzable |
 

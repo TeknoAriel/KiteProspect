@@ -7,7 +7,9 @@
     "build": "node ../../node_modules/next/dist/bin/next build",
     "start": "node ../../node_modules/next/dist/bin/next start",
     "lint": "node ../../node_modules/next/dist/bin/next lint",
-    "typecheck": "node ../../node_modules/typescript/bin/tsc --noEmit"
+    "typecheck": "node ../../node_modules/typescript/bin/tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@kite-prospect/db": "*",
@@ -25,6 +27,7 @@
     "@types/react-dom": "^18.3.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.35",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.9"
   }
 }

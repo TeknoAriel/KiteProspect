@@ -85,20 +85,30 @@ export async function calculateLeadScore(
   return score;
 }
 
+function normIntentKey(raw: string): string {
+  return raw
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function calculateIntentScore(profile: { intent?: string | null } | undefined): number {
   if (!profile?.intent) return 0;
 
+  const key = normIntentKey(profile.intent);
   const intentMap: Record<string, number> = {
     compra: 80,
     renta: 60,
-    inversión: 70,
+    inversion: 70,
   };
 
-  return intentMap[profile.intent] || 50;
+  return intentMap[key] ?? 50;
 }
 
 function calculateReadinessScore(contact: { commercialStage: string; conversationalStage: string }): number {
   const stageMap: Record<string, number> = {
+    won: 95,
     hot: 90,
     opportunity_active: 85,
     visit_scheduled: 80,
@@ -106,16 +116,19 @@ function calculateReadinessScore(contact: { commercialStage: string; conversatio
     real_lead: 60,
     prospect: 40,
     exploratory: 20,
+    paused: 25,
+    blocked: 15,
+    lost: 10,
   };
 
-  return stageMap[contact.commercialStage] || 10;
+  return stageMap[contact.commercialStage] ?? 10;
 }
 
 async function calculateFitScore(
   contactId: string,
   accountId: string,
 ): Promise<number> {
-  // MVP: basado en si hay matches con propiedades
+  /** Promedio de los mejores matches (hasta 3) sobre inventario disponible; alinea fit con calidad global del match. */
   const matches = await prisma.propertyMatch.findMany({
     where: {
       contactId,
@@ -125,13 +138,14 @@ async function calculateFitScore(
       },
     },
     orderBy: { score: "desc" },
-    take: 1,
+    take: 3,
   });
 
   if (matches.length === 0) return 0;
 
-  // Si hay match con score > 70, fit es alto
-  return matches[0].score > 70 ? 80 : matches[0].score;
+  const sum = matches.reduce((acc, m) => acc + m.score, 0);
+  const avg = sum / matches.length;
+  return Math.min(100, Math.round(avg));
 }
 
 function calculateEngagementScore(conversations: Array<{ messages: Array<{ direction: string }> }>): number {

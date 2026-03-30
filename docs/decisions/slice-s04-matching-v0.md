@@ -23,7 +23,7 @@
 
 4. **Auditoría:** `property_matches_synced` con `matchedCount`, `inventoryCount`, `rulesVersion: "v0"`.
 
-5. **Casos de referencia** exportados en `MATCHING_SCORE_CASES` (documentación; sin runner de tests en CI).
+5. **Casos de referencia** exportados en `MATCHING_SCORE_CASES`; tests Vitest en `score-property-match.test.ts` (ver `slice-s24-matching-tests-scoring-fit.md`).
 
 ## Fuera de alcance (Fase 2+)
 

@@ -16,7 +16,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`). |
 | **Inbox** | Lista (`/dashboard/inbox`) con filtros (S18), búsqueda y paginación (S19) + hilo (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
-| **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`). |
+| **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
 | **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`; envío **WhatsApp** cuando el paso es `channel: whatsapp` (Meta en env); email u otros canales pendientes. |
 | **WhatsApp** | Entrada: webhook `/api/webhooks/whatsapp`; `slice-s08`. Saliente: `POST /api/whatsapp/send` (admin), Graph API; `slice-s09`. |
@@ -27,7 +27,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Captura (formulario)** | `/lead` opcional con `ENABLE_PUBLIC_LEAD_FORM=true`; misma lógica vía server action (auditoría `via: public_lead_form`). |
 | **Captura (widget)** | `kite-lead-widget.js` → iframe `/embed/lead`; canal `web_widget`; ver `docs/capture-integration.md`. |
 | **Captura (landings)** | Patrones unificados + ejemplos copy-paste: `docs/capture-integration.md` §4, `docs/examples/`. |
-| **Matching v0** | Reglas sobre inventario `available` + `syncPropertyMatchesForContact`; UI recalcular en ficha; envío por WhatsApp con `Recommendation` (S20); `slice-s04-matching-v0.md`, `slice-s20-property-recommendation-whatsapp.md`. |
+| **Matching v0** | Reglas sobre inventario `available` + `syncPropertyMatchesForContact`; UI recalcular en ficha; envío por WhatsApp con `Recommendation` (S20); tests Vitest en matching (S24); `slice-s04-matching-v0.md`, `slice-s20-property-recommendation-whatsapp.md`. |
 
 ## Pendiente respecto a Fase 1 (producto)
 

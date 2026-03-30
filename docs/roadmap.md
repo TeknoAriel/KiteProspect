@@ -67,7 +67,7 @@ Alineado con **PRODUCT_DEFINITION.md**. Los ítems son **épicas / entregables**
 
 ## Backlog transversal (cualquier fase)
 
-- Tests automatizados en políticas de scoring y matching.
+- Tests automatizados en políticas de scoring y matching (parcial: Vitest + `score-property-match.test.ts`, ver `slice-s24-matching-tests-scoring-fit.md`).
 - Observabilidad: logs estructurados, trazas por `accountId` / `contactId`.
 - Documentación de runbooks en `docs/` cuando haya despliegue real.
 
