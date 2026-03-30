@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 export default function LoginPage() {
   const router = useRouter();
   const [accountSlug, setAccountSlug] = useState("demo");
-  const [email, setEmail] = useState("");
+  /** Mismo default que el seed (`packages/db/prisma/seed.ts`) para no enviar el formulario solo con slug. */
+  const [email, setEmail] = useState("admin@demo.local");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,9 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Credenciales inválidas");
+        setError(
+          "Credenciales inválidas. Comprobá slug demo, email y contraseña demo123. Si usás tu propia base, puede faltar el seed: ver /api/health (demoUser debe ser true).",
+        );
       } else {
         router.push("/dashboard");
         router.refresh();
@@ -102,7 +105,16 @@ export default function LoginPage() {
           </button>
         </form>
         <p style={{ marginTop: "1rem", fontSize: "0.875rem", color: "#666", textAlign: "center" }}>
-          Demo: slug <strong>demo</strong>, email <strong>admin@demo.local</strong>, contraseña <strong>demo123</strong>
+          Demo: los tres campos son obligatorios — slug <strong>demo</strong>, email <strong>admin@demo.local</strong>,
+          contraseña <strong>demo123</strong>.
+        </p>
+        <p style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#888", textAlign: "center" }}>
+          ¿Sigue fallando?{" "}
+          <a href="/api/health" style={{ color: "#0070f3" }}>
+            Diagnóstico /api/health
+          </a>{" "}
+          (si <code>demoUser</code> es <code>false</code>, en local: <code>npm run db:migrate:deploy</code> y{" "}
+          <code>npm run db:seed</code> contra la misma <code>DATABASE_URL</code>).
         </p>
       </div>
     </div>
