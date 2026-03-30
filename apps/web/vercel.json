@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/follow-up-due",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/cron/kiteprop-property-feed",
+      "schedule": "0 */6 * * *"
     }
   ]
 }

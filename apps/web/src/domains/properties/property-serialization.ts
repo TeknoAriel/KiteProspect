@@ -18,6 +18,13 @@ export function serializeProperty(p: Property): SerializedProperty {
     area: p.area?.toString() ?? null,
     status: p.status,
     metadata: p.metadata,
+    externalSource: p.externalSource ?? null,
+    externalId: p.externalId ?? null,
+    currency: p.currency ?? null,
+    surfaceTotal: p.surfaceTotal?.toString() ?? null,
+    surfaceCovered: p.surfaceCovered?.toString() ?? null,
+    rooms: p.rooms ?? null,
+    feedLastSeenAt: p.feedLastSeenAt?.toISOString() ?? null,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
   };

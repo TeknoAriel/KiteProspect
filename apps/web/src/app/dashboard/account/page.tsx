@@ -99,6 +99,9 @@ export default async function AccountSettingsHubPage() {
         <a href="#ajustes" style={{ color: "#0070f3" }}>
           Ajustes cuenta
         </a>
+        <a href="#inventario-feeds" style={{ color: "#0070f3" }}>
+          Inventario (feeds)
+        </a>
       </nav>
 
       <Section id="modulos" title="Módulos del MVP (estado en producto)">
@@ -212,6 +215,10 @@ export default async function AccountSettingsHubPage() {
             <strong>Cron seguimientos:</strong> <code>GET {baseUrl}/api/cron/follow-up-due</code> —{" "}
             <code>Authorization: Bearer CRON_SECRET</code> o cabecera de Vercel Cron.
           </li>
+          <li>
+            <strong>Cron inventario KiteProp:</strong> <code>GET {baseUrl}/api/cron/kiteprop-property-feed</code> — misma
+            auth; agenda en Vercel cada 6 h UTC (cuentas con feed habilitado y URL).
+          </li>
         </ul>
       </Section>
 
@@ -256,6 +263,19 @@ export default async function AccountSettingsHubPage() {
         <p style={{ fontSize: "0.8rem", color: "#666", marginBottom: 0 }}>
           Alta de planes nuevos solo por seed o futura UI — hoy podés editar los existentes.
         </p>
+      </Section>
+
+      <Section id="inventario-feeds" title="Inventario: feeds KiteProp (XML + JSON)">
+        <p style={{ fontSize: "0.85rem", color: "#555", marginTop: 0 }}>
+          URLs del export OpenNavent / Proppit y opción de baja automática cuando el aviso ya no viene en el snapshot.
+        </p>
+        <ul style={{ fontSize: "0.875rem", paddingLeft: "1.25rem", margin: 0 }}>
+          <li>
+            <Link href="/dashboard/account/property-feeds" style={{ color: "#0070f3" }}>
+              Configurar feeds de propiedades
+            </Link>
+          </li>
+        </ul>
       </Section>
 
       <Section id="ajustes" title="Ajustes persistidos en cuenta">

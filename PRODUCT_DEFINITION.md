@@ -92,6 +92,7 @@ Quiero una plataforma que transforme consultas dispersas en oportunidades comerc
 - secuencias simples de seguimiento
 - dashboard base
 - auditoría básica
+- ingesta de inventario desde feeds configurados del tenant (p. ej. export XML/JSON del CRM inmobiliario), sin inventar datos
 
 ---
 

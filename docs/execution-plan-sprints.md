@@ -29,7 +29,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S21** — centro de configuración visible + planes de seguimiento editables; siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S22** — feeds KiteProp (XML + JSON) + cron inventario; siguiente prioridad según `docs/roadmap.md`. |
 | **Inicio (ISO)** | — |
 | **Objetivo del sprint** | S21: hub admin (módulos, env, endpoints, IA, seguimientos) + UI edición `FollowUpPlan`; ver `slice-s21-settings-hub-followup-plans.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
@@ -73,8 +73,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S14** | API + UI inventario | F1-E4 | [x] `GET/POST /api/properties`, `GET/PATCH/DELETE /api/properties/[id]`; `/dashboard/properties` (+ new, edit); roles mutación admin/coordinator; auditoría; `slice-s14-properties-abm.md`. |
+| **S22** | Ingesta KiteProp (feeds) | F1-E4 | [x] `Account.config.kitepropFeed`; parsers OpenNavent XML + JSON flexible; `syncKitepropFeedForAccount` (fingerprint, withdrawn si falta en snapshot); `GET/PATCH /api/account/kiteprop-feed-config`, `POST /api/account/kiteprop-feed-sync`; `GET /api/cron/kiteprop-property-feed` + Vercel cron `0 */6 * * *`; UI `/dashboard/account/property-feeds`; `slice-s22-kiteprop-property-feed.md`. |
 
-**Bloqueos 👤:** ninguno.
+**Bloqueos 👤:** URLs de feed reales las pega el admin en la UI (HTTPS en producción).
 
 ---
 

@@ -70,6 +70,12 @@ export default async function PropertiesListPage() {
                     {s.type} · {s.intent}
                   </span>
                   {s.zone && <span>{s.zone}</span>}
+                  {s.externalSource === "kiteprop" && (
+                    <span style={{ color: "#555" }}>
+                      Origen feed · id {s.externalId}
+                      {s.currency ? ` · ${s.currency}` : ""}
+                    </span>
+                  )}
                   <span>
                     Precio: {s.price} · Estado: {s.status}
                   </span>

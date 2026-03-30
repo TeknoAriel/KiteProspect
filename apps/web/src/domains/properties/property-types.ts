@@ -14,6 +14,13 @@ export type SerializedProperty = {
   area: string | null;
   status: string;
   metadata: unknown;
+  externalSource: string | null;
+  externalId: string | null;
+  currency: string | null;
+  surfaceTotal: string | null;
+  surfaceCovered: string | null;
+  rooms: number | null;
+  feedLastSeenAt: string | null;
   createdAt: string;
   updatedAt: string;
 };

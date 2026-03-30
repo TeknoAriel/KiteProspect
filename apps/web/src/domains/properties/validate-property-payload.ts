@@ -5,7 +5,7 @@
 
 export const PROPERTY_TYPES = ["departamento", "casa", "terreno"] as const;
 export const PROPERTY_INTENTS = ["venta", "renta"] as const;
-export const PROPERTY_STATUSES = ["available", "reserved", "sold", "rented"] as const;
+export const PROPERTY_STATUSES = ["available", "reserved", "sold", "rented", "withdrawn"] as const;
 
 export type PropertyType = (typeof PROPERTY_TYPES)[number];
 export type PropertyIntent = (typeof PROPERTY_INTENTS)[number];

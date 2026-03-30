@@ -181,7 +181,24 @@ model Property {
   bedrooms    Int?
   bathrooms   Int?
   area        Decimal? @db.Decimal(10, 2)
-  status      String   @default("available") // available, reserved, sold, rented
+  status      String   @default("available") // available, reserved, sold, rented, withdrawn
+
+  // Ingesta KiteProp / portales (XML full + JSON delta Proppit)
+  externalSource    String? // p.ej. kiteprop
+  externalId        String? // id en el feed
+  importFingerprint String? // sha256 payload estable; evita escrituras si no cambió
+  amenities         Json? // mapa nombre → boolean o estructura del portal
+  city              String?
+  province          String?
+  country           String?   @default("AR")
+  currency          String?   @default("ARS")
+  surfaceTotal      Decimal?  @db.Decimal(12, 2)
+  surfaceCovered    Decimal?  @db.Decimal(12, 2)
+  rooms             Int? // ambientes
+  latitude          Decimal?  @db.Decimal(12, 9)
+  longitude         Decimal?  @db.Decimal(12, 9)
+  feedLastSeenAt    DateTime?
+  feedRemovedAt     DateTime?
 
   metadata Json?
   createdAt DateTime @default(now())
@@ -190,6 +207,9 @@ model Property {
   account        Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
   propertyMatches PropertyMatch[]
   recommendations Recommendation[]
+
+  @@index([accountId, externalSource])
+  @@unique([accountId, externalSource, externalId], name: "property_account_external_key")
 }
 
 model PropertyMatch {
