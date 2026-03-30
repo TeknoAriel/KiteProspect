@@ -1,17 +1,12 @@
+import { getDashboardKpisForAccount } from "@/domains/analytics/get-dashboard-kpis";
 import { requireAuth } from "@/lib/server-utils";
-import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 
 export default async function DashboardPage() {
   const session = await requireAuth();
   const accountId = session.user.accountId;
 
-  // Stats básicos para dashboard
-  const [contactsCount, conversationsCount, propertiesCount] = await Promise.all([
-    prisma.contact.count({ where: { accountId } }),
-    prisma.conversation.count({ where: { accountId } }),
-    prisma.property.count({ where: { accountId } }),
-  ]);
+  const kpis = await getDashboardKpisForAccount(accountId);
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1200px", margin: "0 auto" }}>
@@ -61,7 +56,7 @@ export default async function DashboardPage() {
         entrar a cada módulo.
       </p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
         <Link
           href="/dashboard/contacts"
           style={{
@@ -74,7 +69,10 @@ export default async function DashboardPage() {
           }}
         >
           <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>Contactos</h3>
-          <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{contactsCount}</p>
+          <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{kpis.contactsTotal}</p>
+          <p style={{ margin: "0.35rem 0 0", fontSize: "0.8rem", color: "#666" }}>
+            Nuevos últimos {kpis.newContactsDays} días: <strong>{kpis.contactsNewInPeriod}</strong>
+          </p>
         </Link>
         <Link
           href="/dashboard/inbox"
@@ -87,8 +85,11 @@ export default async function DashboardPage() {
             display: "block",
           }}
         >
-          <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>Conversaciones</h3>
-          <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{conversationsCount}</p>
+          <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>Conversaciones abiertas</h3>
+          <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{kpis.conversationsOpen}</p>
+          <p style={{ margin: "0.35rem 0 0", fontSize: "0.8rem", color: "#666" }}>
+            Total en cuenta: {kpis.conversationsTotal}
+          </p>
         </Link>
         <Link
           href="/dashboard/properties"
@@ -102,9 +103,42 @@ export default async function DashboardPage() {
           }}
         >
           <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>Propiedades</h3>
-          <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{propertiesCount}</p>
+          <p style={{ margin: 0, fontSize: "2rem", fontWeight: "bold" }}>{kpis.propertiesTotal}</p>
+          <p style={{ margin: "0.35rem 0 0", fontSize: "0.8rem", color: "#666" }}>
+            Disponibles (matching): <strong>{kpis.propertiesAvailable}</strong>
+          </p>
         </Link>
       </div>
+
+      {kpis.commercialStageCounts.length > 0 && (
+        <section style={{ marginBottom: "2rem" }}>
+          <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>Pipeline comercial (por etapa)</h2>
+          <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
+            Distribución de <code>commercialStage</code> en contactos del tenant. Alineado a funnel en{" "}
+            <code>docs/product-rules.md</code>.
+          </p>
+          <div style={{ overflowX: "auto", border: "1px solid #e8e8e8", borderRadius: "8px" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+              <thead>
+                <tr style={{ background: "#fafafa", textAlign: "left" }}>
+                  <th style={{ padding: "0.5rem 0.75rem", borderBottom: "1px solid #eee" }}>Etapa</th>
+                  <th style={{ padding: "0.5rem 0.75rem", borderBottom: "1px solid #eee" }}>Contactos</th>
+                </tr>
+              </thead>
+              <tbody>
+                {kpis.commercialStageCounts.map((row) => (
+                  <tr key={row.stage}>
+                    <td style={{ padding: "0.45rem 0.75rem", borderBottom: "1px solid #f0f0f0", fontFamily: "monospace" }}>
+                      {row.stage}
+                    </td>
+                    <td style={{ padding: "0.45rem 0.75rem", borderBottom: "1px solid #f0f0f0" }}>{row.count}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section style={{ marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.1rem", marginBottom: "0.75rem" }}>Dónde probar lo que ya está en el MVP</h2>
@@ -150,7 +184,11 @@ export default async function DashboardPage() {
                 <Link href="/dashboard/account" style={{ color: "#0070f3" }}>
                   Configuración
                 </Link>{" "}
-                — módulos, Vercel, endpoints, IA, planes de seguimiento, ajustes generales.
+                — módulos, Vercel, endpoints, IA, planes de seguimiento, ajustes generales,{" "}
+                <Link href="/dashboard/account/property-feeds" style={{ color: "#0070f3" }}>
+                  feeds de inventario KiteProp
+                </Link>
+                .
               </li>
               <li>
                 <Link href="/dashboard/audit" style={{ color: "#0070f3" }}>

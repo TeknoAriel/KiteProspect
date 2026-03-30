@@ -96,6 +96,10 @@
 - [x] Stats básicos (counts)
 - [x] Links a secciones principales
 
+### ✅ Slice S23: Dashboard KPIs (F1-E16, refuerzo)
+- [x] `getDashboardKpisForAccount` — nuevos contactos (7 días), conversaciones abiertas, propiedades disponibles, `groupBy` etapa comercial
+- [x] `/dashboard` — tarjetas + tabla pipeline; `slice-s23-dashboard-kpis.md`
+
 **TODO Fase 2:**
 - Gráficos
 - Filtros por fecha
@@ -116,6 +120,9 @@
 - [x] API `GET/POST /api/properties`, `GET/PATCH/DELETE /api/properties/[id]`
 - [x] Lista y formularios `/dashboard/properties` (new, edit); eliminar con confirmación
 - [x] Roles: mutación admin/coordinator; lectura resto
+
+### ✅ Slice S22: Ingesta KiteProp (feeds) (F1-E4)
+- [x] Config `Account.config.kitepropFeed`, parsers XML/JSON, sync + cron + UI; `slice-s22-kiteprop-property-feed.md`
 
 **TODO Fase 2:**
 - Importación masiva / fotos
@@ -190,3 +197,5 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s19-inbox-search-pagination.md`
 - `docs/decisions/slice-s20-property-recommendation-whatsapp.md`
 - `docs/decisions/slice-s21-settings-hub-followup-plans.md`
+- `docs/decisions/slice-s22-kiteprop-property-feed.md`
+- `docs/decisions/slice-s23-dashboard-kpis.md`

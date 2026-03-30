@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-S22** — feeds KiteProp (XML + JSON) + cron inventario; siguiente prioridad según `docs/roadmap.md`. |
+| **Sprint activo** | **Post-S23** — KPIs dashboard (F1-E16); siguiente: deuda Fase 1 en `docs/status-mvp.md` / roadmap. |
 | **Inicio (ISO)** | — |
-| **Objetivo del sprint** | S21: hub admin (módulos, env, endpoints, IA, seguimientos) + UI edición `FollowUpPlan`; ver `slice-s21-settings-hub-followup-plans.md`. |
+| **Objetivo del sprint** | S23: agregados por tenant en `/dashboard` (nuevos 7 días, conversaciones abiertas, disponibles, pipeline por `commercialStage`); ver `slice-s23-dashboard-kpis.md`. |
 | **Última verificación agente** | `npm run verify` en verde antes de merge/push. |
 
 > **Nota para el agente:** al terminar un sprint, marcar tareas `[x]`, actualizar **Sprint activo** a la siguiente fila de la tabla de sprints, y añadir una línea en `docs/decisions/` si hubo decisión técnica relevante.
@@ -76,6 +76,18 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | **S22** | Ingesta KiteProp (feeds) | F1-E4 | [x] `Account.config.kitepropFeed`; parsers OpenNavent XML + JSON flexible; `syncKitepropFeedForAccount` (fingerprint, withdrawn si falta en snapshot); `GET/PATCH /api/account/kiteprop-feed-config`, `POST /api/account/kiteprop-feed-sync`; `GET /api/cron/kiteprop-property-feed` + Vercel cron `0 */6 * * *`; UI `/dashboard/account/property-feeds`; `slice-s22-kiteprop-property-feed.md`. |
 
 **Bloqueos 👤:** URLs de feed reales las pega el admin en la UI (HTTPS en producción).
+
+---
+
+## Hito 0f — Dashboard operativo (F1-E16, refuerzo)
+
+**Objetivo:** números accionables además de totales globales.
+
+| Sprint | Enfoque | Ref | Tareas |
+|--------|---------|-----|--------|
+| **S23** | KPIs por tenant | F1-E16 | [x] `getDashboardKpisForAccount`; `/dashboard` con nuevos (7 días), conversaciones abiertas, propiedades disponibles, tabla por `commercialStage`; `slice-s23-dashboard-kpis.md`. |
+
+**Bloqueos 👤:** ninguno.
 
 ---
 
