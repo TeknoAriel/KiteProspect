@@ -3,8 +3,19 @@ import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactNotesForm } from "./contact-notes-form";
+import { ContactTasksForm } from "./contact-tasks-form";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
+
+function taskTypeLabel(type: string): string {
+  const map: Record<string, string> = {
+    call: "Llamada",
+    visit: "Visita",
+    followup: "Seguimiento",
+    other: "Otro",
+  };
+  return map[type] ?? type;
+}
 
 export default async function ContactDetailPage({
   params,
@@ -40,9 +51,9 @@ export default async function ContactDetailPage({
         take: 1,
       },
       tasks: {
-        orderBy: { dueAt: "asc" },
+        orderBy: [{ dueAt: "asc" }, { createdAt: "desc" }],
         where: { status: "pending" },
-        take: 5,
+        take: 20,
       },
       notes: {
         orderBy: { createdAt: "desc" },
@@ -167,13 +178,19 @@ export default async function ContactDetailPage({
           </section>
 
           {/* Tareas pendientes */}
-          {contact.tasks.length > 0 && (
-            <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
-              <h2 style={{ marginTop: 0 }}>Tareas pendientes</h2>
+          <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
+            <h2 style={{ marginTop: 0 }}>Tareas pendientes ({contact.tasks.length})</h2>
+            <ContactTasksForm contactId={id} />
+            {contact.tasks.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {contact.tasks.map((task) => (
                   <div key={task.id} style={{ padding: "0.75rem", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
-                    <p style={{ margin: 0 }}><strong>{task.title}</strong></p>
+                    <p style={{ margin: 0 }}>
+                      <strong>{task.title}</strong>
+                      <span style={{ marginLeft: "0.5rem", fontSize: "0.75rem", color: "#666" }}>
+                        ({taskTypeLabel(task.type)})
+                      </span>
+                    </p>
                     {task.description && <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.875rem" }}>{task.description}</p>}
                     {task.dueAt && (
                       <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.875rem", color: "#666" }}>
@@ -183,8 +200,10 @@ export default async function ContactDetailPage({
                   </div>
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <p style={{ color: "#666", marginTop: 0 }}>Sin tareas pendientes.</p>
+            )}
+          </section>
 
           {/* Notas */}
           <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>

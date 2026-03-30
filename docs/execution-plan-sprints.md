@@ -33,7 +33,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | **Inicio (ISO)** | 2026-03-30 (sugerido; ajustar si el equipo arranca otro día). |
 | **Fin objetivo (ISO)** | +10 a +14 días desde inicio (ventana de trabajo continuo). |
 | **Objetivo del sprint** | Avanzar **sin micro-cierres obligatorios**: refuerzo de matching/scoring (tests, reglas, UX de ficha) + **al menos una** mutación CRM acotada en ficha contacto (p. ej. nota o tarea) alineada a `PRODUCT_DEFINITION.md` / F1-E13. |
-| **Última verificación agente** | 2026-03-30: `npm run verify` en verde; cierre documentado en `docs/decisions/slice-l1-batch-completion.md`. |
+| **Última verificación agente** | 2026-03-30: `npm run verify` en verde; alta tarea en ficha + doc `docs/decisions/slice-post-l1-contact-task.md`. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 

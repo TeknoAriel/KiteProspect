@@ -13,7 +13,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Usuarios (F1-E3)** | ABM de usuario por tenant en `/dashboard/users` + API; hash bcrypt en alta/edición; no borrar usuario autenticado; `slice-s15-users-abm.md`. |
 | **Asesores (F1-E3)** | ABM `/dashboard/advisors` + API; vínculo opcional usuario del tenant (un usuario → un asesor); `slice-s16-advisors-abm.md`. |
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
-| **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`); alta de **nota** en ficha (server action + auditoría `contact_note_created`, L1). |
+| **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`); alta de **nota** y **tarea** en ficha (server actions; auditoría `contact_note_created`, `contact_task_created`; post-L1). |
 | **Inbox** | Lista (`/dashboard/inbox`) con filtros (S18), búsqueda y paginación (S19) + hilo (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
