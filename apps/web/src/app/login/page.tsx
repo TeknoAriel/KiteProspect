@@ -109,12 +109,12 @@ export default function LoginPage() {
           contraseña <strong>demo123</strong>.
         </p>
         <p style={{ marginTop: "0.5rem", fontSize: "0.8rem", color: "#888", textAlign: "center" }}>
-          ¿Sigue fallando?{" "}
+          Si te cerró la sesión de golpe: suele ser un redeploy o un cambio de <code>AUTH_SECRET</code> (las sesiones JWT
+          anteriores dejan de valer). Si además no podés volver a entrar:{" "}
           <a href="/api/health" style={{ color: "#0070f3" }}>
-            Diagnóstico /api/health
+            abrí /api/health
           </a>{" "}
-          (si <code>demoUser</code> es <code>false</code>, en local: <code>npm run db:migrate:deploy</code> y{" "}
-          <code>npm run db:seed</code> contra la misma <code>DATABASE_URL</code>).
+          y revisá <code>issues</code> / <code>hint</code> (BD demo, <code>AUTH_SECRET</code>, hash bcrypt).
         </p>
       </div>
     </div>

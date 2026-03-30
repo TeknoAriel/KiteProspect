@@ -21,65 +21,78 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
+        try {
+          if (!credentials?.email || !credentials?.password) {
+            return null;
+          }
 
-        const slug = String(credentials.accountSlug ?? "")
-          .trim()
-          .toLowerCase();
-        if (!slug) {
-          return null;
-        }
+          const slug = String(credentials.accountSlug ?? "")
+            .trim()
+            .toLowerCase();
+          if (!slug) {
+            return null;
+          }
 
-        const emailNorm = String(credentials.email ?? "")
-          .trim()
-          .toLowerCase();
-        if (!emailNorm) {
-          return null;
-        }
+          const emailNorm = String(credentials.email ?? "")
+            .trim()
+            .toLowerCase();
+          if (!emailNorm) {
+            return null;
+          }
 
-        const account = await prisma.account.findUnique({
-          where: { slug },
-        });
+          const account = await prisma.account.findUnique({
+            where: { slug },
+          });
 
-        if (!account || account.status !== "active") {
-          return null;
-        }
+          if (!account || account.status !== "active") {
+            if (process.env.NODE_ENV === "development") {
+              console.warn("[auth] authorize: cuenta inexistente o inactiva", { slug });
+            }
+            return null;
+          }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            accountId_email: {
+          // Case-insensitive: evita fallos si el email en BD no coincide en mayúsculas (p. ej. datos viejos).
+          const user = await prisma.user.findFirst({
+            where: {
               accountId: account.id,
-              email: emailNorm,
+              email: { equals: emailNorm, mode: "insensitive" },
             },
-          },
-          include: {
-            account: true,
-          },
-        });
+            include: {
+              account: true,
+            },
+          });
 
-        if (!user || user.status !== "active") {
+          if (!user || user.status !== "active") {
+            if (process.env.NODE_ENV === "development") {
+              console.warn("[auth] authorize: usuario inexistente o inactivo", { slug, email: emailNorm });
+            }
+            return null;
+          }
+
+          const isValid = await bcrypt.compare(
+            String(credentials.password ?? ""),
+            user.password,
+          );
+
+          if (!isValid) {
+            if (process.env.NODE_ENV === "development") {
+              console.warn("[auth] authorize: contraseña incorrecta", { slug, email: emailNorm });
+            }
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            accountId: user.accountId,
+            accountSlug: user.account.slug,
+          };
+        } catch (e) {
+          console.error("[auth] authorize: error de base de datos o bcrypt", e);
           return null;
         }
-
-        const isValid = await bcrypt.compare(
-          String(credentials.password ?? ""),
-          user.password,
-        );
-
-        if (!isValid) {
-          return null;
-        }
-
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role,
-          accountId: user.accountId,
-          accountSlug: user.account.slug,
-        };
       },
     }),
   ],

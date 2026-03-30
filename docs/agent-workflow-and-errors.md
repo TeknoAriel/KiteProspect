@@ -11,7 +11,8 @@
 | Código / síntoma | Causa | Resolución automática / en repo |
 |------------------|--------|----------------------------------|
 | **P1001** `Can't reach database server at localhost` | `DATABASE_URL` en `.env` apunta a Postgres local que no está encendido | En **producción**: el build de Vercel usa `DATABASE_URL` del panel (Neon), no `.env` local. Migraciones + seed corren en `npm run build:vercel`. Local: cambiar `.env` a Neon o arrancar Postgres. |
-| **Credenciales inválidas** (login) | No existe usuario demo en la misma BD que Vercel | **Seed en build de Vercel** (`build:vercel`) para que exista `demo` / `admin@demo.local` tras el deploy. |
+| **Credenciales inválidas** (login) | BD distinta sin seed; `AUTH_SECRET` ausente o corto; password en BD no bcrypt; email con mayúsculas distintas en filas antiguas | Ver **`GET /api/health`** (`issues`, `hint`, `authSecretConfigured`, `demoPasswordLooksBcrypt`). Local: `db:migrate:deploy` + `db:seed` con la misma `DATABASE_URL`. |
+| **Sesión cerrada sola** (antes entraba) | Cambio de **`AUTH_SECRET`**, redeploy, o cookie inválida; JWT anterior deja de valer | Es esperable; volver a login. Si no deja entrar: mismo diagnóstico que credenciales inválidas (`/api/health`). |
 | **Build Vercel: .next no encontrado** | Monorepo | **Root Directory** = `apps/web` + `vercel.json` (ya documentado). |
 | **CI verde, producción distinta** | Variables solo en Vercel | Revisar **Environment Variables** en Vercel; no duplicar secretos en Git. |
 
