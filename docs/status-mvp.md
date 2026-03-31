@@ -18,7 +18,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
-| **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`; envío **WhatsApp** cuando el paso es `channel: whatsapp` (Meta en env); email u otros canales pendientes. |
+| **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`: **WhatsApp** (Meta), **email** (Resend si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, tarea en ficha), **Instagram/otros** → tarea manual; ver `docs/decisions/slice-follow-up-channels-email-manual.md`. |
 | **WhatsApp** | Entrada: webhook `/api/webhooks/whatsapp`; `slice-s08`. Saliente: `POST /api/whatsapp/send` (admin), Graph API; `slice-s09`. |
 | **IA conversacional (base)** | `POST /api/ai/conversation/next-action` (admin/coordinator); proveedor dual S10; reglas handoff + versionado prompt S11 (`slice-s11-conversational-handoff-rules.md`). |
 | **Dashboard (F1-E16)** | KPIs por tenant: nuevos contactos (7 días), conversaciones abiertas vs total, propiedades disponibles, tabla pipeline por `commercialStage` (`slice-s23-dashboard-kpis.md`); navegación. |

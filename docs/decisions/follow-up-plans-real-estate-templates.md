@@ -9,7 +9,7 @@
 |--------|-----|
 | `step` | Índice lógico (opcional; si falta, usa posición en el array). |
 | `delayHours` | Tras **completar** el paso `N-1`, espera **estas horas** antes de ejecutar el paso `N`. El `delayHours` del **paso 0** no programa el primer disparo (eso lo define `nextAttemptAt` de la secuencia). |
-| `channel` | `whatsapp` → envío real vía Meta (si está configurado). Otros valores → intento registrado `queued` **sin envío automático** en MVP (operador ve el objetivo y actúa en email / IG / llamada según proceso manual o integraciones futuras). |
+| `channel` | `whatsapp` → Meta (si está configurado). `email` → **Resend** si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, **tarea CRM** en ficha. `instagram` / otros → **tarea CRM** (DM sin API en MVP). |
 | `objective` | Texto del mensaje si `channel === "whatsapp"` (truncado); además queda en `FollowUpAttempt` para trazabilidad. |
 
 **“Canales paralelos” (mismo día, mail + IG o WA + IG):** el motor no tiene un solo paso con dos canales. Equivalente operativo: **dos entradas consecutivas** en el JSON con `delayHours: 0` en la segunda del par (misma ventana temporal; el cron las procesará en corridas sucesivas).
@@ -165,14 +165,14 @@ Ejemplo compacto (ajustá delays):
 | Mismo día, dos canales | Paso K (`email`) con `delayHours` que corresponda al siguiente paso; paso K+1 (`instagram` o `whatsapp`) con **`delayHours: 0`**. |
 | Solo WhatsApp | Todos los pasos `channel: "whatsapp"` con `objective` claro por etapa. |
 
-**Instagram / email** en producción: hasta que exista integración, el cron deja el intento en `queued` y el equipo ejecuta desde CRM / Meta Business según proceso interno.
+**Email:** ver `docs/decisions/slice-follow-up-channels-email-manual.md` (Resend + tarea de respaldo).
 
 ---
 
 ## Pendiente (Fase 2 / producto)
 
 - Un solo paso con `channels: string[]` y envío coordinado.
-- Envío real de email transaccional desde el mismo job.
+- Plantillas HTML y métricas de apertura por tenant.
 - Reglas por `commercialStage` / score (`triggers` en `FollowUpPlan`).
 - Fatiga global por contacto (límite de mensajes / semana).
 

@@ -153,9 +153,11 @@ export default async function FollowUpsPage() {
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>
-          <strong>MVP:</strong> El cron <code>/api/cron/follow-up-due</code> procesa secuencias vencidas (ver{" "}
-          <code>docs/decisions/slice-s07-follow-up-cron.md</code>). Canal <code>whatsapp</code> con Meta configurado
-          envía texto; email queda registrado sin SMTP en MVP.
+          <strong>Cron:</strong> <code>/api/cron/follow-up-due</code> procesa secuencias vencidas ({" "}
+          <code>docs/decisions/slice-s07-follow-up-cron.md</code>). <code>whatsapp</code> envía por Meta si está
+          configurado; <code>email</code> usa Resend si <code>RESEND_API_KEY</code> y{" "}
+          <code>FOLLOW_UP_FROM_EMAIL</code> están en el entorno; si no, crea una tarea en la ficha.{" "}
+          <code>instagram</code> u otros canales generan tarea para acción manual.
         </p>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
           <strong>Editar planes (admin):</strong>{" "}

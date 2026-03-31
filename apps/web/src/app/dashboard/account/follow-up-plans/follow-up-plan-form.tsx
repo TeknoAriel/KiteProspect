@@ -107,9 +107,10 @@ export function FollowUpPlanForm({ plan }: Props) {
         />
       </label>
       <p style={{ margin: 0, fontSize: "0.78rem", color: "#666" }}>
-        Cada elemento: <code>step</code> (número), <code>delayHours</code> (horas hasta el siguiente intento),{" "}
-        <code>channel</code> (<code>whatsapp</code> envía por Graph si Meta está configurado; <code>email</code> queda
-        registrado sin envío SMTP en MVP), <code>objective</code> opcional (texto del mensaje WA si aplica).
+        Cada elemento: <code>step</code>, <code>delayHours</code> (horas hasta el siguiente intento),{" "}
+        <code>channel</code> (<code>whatsapp</code> = Meta; <code>email</code> = Resend si variables de entorno;{" "}
+        <code>instagram</code> u otros = tarea CRM manual), <code>objective</code> (cuerpo WA / email o guía para la
+        tarea).
       </p>
       <button
         type="submit"

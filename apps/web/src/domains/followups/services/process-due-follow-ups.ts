@@ -3,6 +3,7 @@
  */
 import { prisma, Prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { sendFollowUpEmailToContact } from "@/domains/integrations/email/send-follow-up-email";
 import { sendWhatsAppTextToContact } from "@/domains/integrations/whatsapp/send-whatsapp-text";
 import type { ProcessDueFollowUpsInput, ProcessDueFollowUpsResult } from "../follow-up-job-contract";
 
@@ -43,9 +44,42 @@ function followUpWhatsAppBody(step: SequenceStep): string {
   return "Hola, te escribimos para dar seguimiento a tu consulta. Si querés, contanos cómo seguimos.";
 }
 
+async function createManualFollowUpTask(params: {
+  contactId: string;
+  channel: string;
+  objective?: string | null;
+  sequenceId: string;
+  step: number;
+}): Promise<string> {
+  const ch = params.channel.trim().toLowerCase();
+  const title =
+    ch === "instagram" || ch === "ig"
+      ? "Seguimiento Instagram (DM manual)"
+      : `Seguimiento ${params.channel} (acción manual)`;
+  const description = [
+    params.objective?.trim() || undefined,
+    `Referencia: secuencia ${params.sequenceId} · paso ${params.step}`,
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
+  const task = await prisma.task.create({
+    data: {
+      contactId: params.contactId,
+      title: title.slice(0, 500),
+      description: description.slice(0, 8000),
+      type: "followup",
+      status: "pending",
+    },
+  });
+  return task.id;
+}
+
 /**
  * Ejecuta un paso por secuencia vencida: crea FollowUpAttempt, avanza paso y programa siguiente.
- * Canal `whatsapp`: envío real vía Graph API (si config Meta). Otros canales: `queued` sin envío.
+ * - `whatsapp`: Graph API (Meta) si está configurado.
+ * - `email`: Resend si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, tarea manual.
+ * - `instagram` / otros: tarea CRM para acción humana (sin API de DM en MVP).
  */
 export async function processDueFollowUps(
   input: ProcessDueFollowUpsInput = {},
@@ -62,7 +96,7 @@ export async function processDueFollowUps(
       nextAttemptAt: { lte: now },
     },
     include: {
-      contact: { select: { id: true, accountId: true } },
+      contact: { select: { id: true, accountId: true, email: true, name: true, phone: true } },
       plan: true,
     },
     orderBy: { nextAttemptAt: "asc" },
@@ -109,6 +143,13 @@ export async function processDueFollowUps(
 
       const stepDef = steps[idx];
       const accountId = seq.contact.accountId;
+      const channelNorm = stepDef.channel.trim().toLowerCase();
+
+      const account = await prisma.account.findUnique({
+        where: { id: accountId },
+        select: { name: true },
+      });
+      const accountName = account?.name ?? "Cuenta";
 
       const attemptId = await prisma.$transaction(async (tx) => {
         const created = await tx.followUpAttempt.create({
@@ -160,7 +201,7 @@ export async function processDueFollowUps(
         return created.id;
       });
 
-      if (stepDef.channel === "whatsapp") {
+      if (channelNorm === "whatsapp") {
         const send = await sendWhatsAppTextToContact({
           contactId: seq.contact.id,
           accountId,
@@ -174,17 +215,99 @@ export async function processDueFollowUps(
             metadata: (
               send.ok
                 ? {
-                    source: "cron_v1",
+                    source: "cron_v2",
                     channel: "whatsapp",
                     messageId: send.messageId,
                     waMessageId: send.waMessageId,
                   }
                 : {
-                    source: "cron_v1",
+                    source: "cron_v2",
                     channel: "whatsapp",
                     error: send.error,
                   }
             ) as Prisma.InputJsonValue,
+          },
+        });
+      } else if (channelNorm === "email") {
+        const send = await sendFollowUpEmailToContact({
+          contactId: seq.contact.id,
+          accountId,
+          accountName,
+          objective: stepDef.objective,
+        });
+        if (send.ok) {
+          await prisma.followUpAttempt.update({
+            where: { id: attemptId },
+            data: {
+              outcome: "sent",
+              metadata: {
+                source: "cron_v2",
+                channel: "email",
+                provider: "resend",
+                emailId: send.providerId,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        } else if (send.reason === "not_configured" || send.reason === "no_email") {
+          const taskId = await createManualFollowUpTask({
+            contactId: seq.contact.id,
+            channel: "email",
+            objective: stepDef.objective,
+            sequenceId: seq.id,
+            step: idx,
+          });
+          await prisma.followUpAttempt.update({
+            where: { id: attemptId },
+            data: {
+              outcome: "manual",
+              metadata: {
+                source: "cron_v2",
+                channel: "email",
+                reason: send.reason,
+                error: send.error,
+                taskId,
+                note:
+                  send.reason === "not_configured"
+                    ? "Configurá RESEND_API_KEY y FOLLOW_UP_FROM_EMAIL para envío automático."
+                    : "El contacto no tiene email; completar dato o enviar por otro canal.",
+              } as Prisma.InputJsonValue,
+            },
+          });
+        } else {
+          await prisma.followUpAttempt.update({
+            where: { id: attemptId },
+            data: {
+              outcome: send.reason === "blocked" ? "skipped" : "failed",
+              metadata: {
+                source: "cron_v2",
+                channel: "email",
+                reason: send.reason,
+                error: send.error,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        }
+      } else {
+        const taskId = await createManualFollowUpTask({
+          contactId: seq.contact.id,
+          channel: stepDef.channel,
+          objective: stepDef.objective,
+          sequenceId: seq.id,
+          step: idx,
+        });
+        await prisma.followUpAttempt.update({
+          where: { id: attemptId },
+          data: {
+            outcome: "manual",
+            metadata: {
+              source: "cron_v2",
+              channel: stepDef.channel,
+              taskId,
+              note:
+                channelNorm === "instagram" || channelNorm === "ig"
+                  ? "DM Instagram sin API en MVP: usar tarea y Meta Business."
+                  : "Canal sin automatización en MVP: completar desde CRM.",
+            } as Prisma.InputJsonValue,
           },
         });
       }

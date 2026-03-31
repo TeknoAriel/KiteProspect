@@ -67,6 +67,8 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 9. **WhatsApp (Meta):** alta en Meta Business / WhatsApp Cloud API, número y tokens los obtiene el humano. **Webhook:** `WHATSAPP_ACCOUNT_SLUG`, `WHATSAPP_VERIFY_TOKEN`, `WHATSAPP_APP_SECRET` (recomendado). URL: `https://TU-DOMINIO/api/webhooks/whatsapp` → `slice-s08-whatsapp-webhook.md`. **Envío:** `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_ACCESS_TOKEN` (y opcional `WHATSAPP_GRAPH_VERSION`) → `slice-s09-whatsapp-outbound.md`.
 
+10. **Email de seguimiento (Resend):** para que los pasos con `channel: "email"` en los planes JSON envíen correo real, crear API key en [Resend](https://resend.com), verificar dominio/remitente, y en Vercel (o `.env`) definir `RESEND_API_KEY` y `FOLLOW_UP_FROM_EMAIL` (ej. `Nombre <notificaciones@tudominio.com>`). Opcional: `FOLLOW_UP_EMAIL_SUBJECT_PREFIX`. **Sin estas variables**, el cron igual avanza la secuencia y crea una **tarea** en la ficha del contacto para envío manual. Detalle: `docs/decisions/slice-follow-up-channels-email-manual.md`.
+
 ---
 
 ### 3. Actualizar instalación tras el bootstrap monorepo (una sola vez)
