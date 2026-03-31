@@ -10,7 +10,37 @@ const prisma = new PrismaClient();
 async function main() {
   const already = await prisma.account.findUnique({ where: { slug: "demo" } });
   if (already) {
-    console.log('Seed omitido: ya existe Account con slug "demo".');
+    // Mantener seed idempotente pero autocurativo: si existe cuenta demo sin usuario admin, lo crea.
+    const hashedPassword = await bcrypt.hash("demo123", 10);
+    const existingAdmin = await prisma.user.findFirst({
+      where: {
+        accountId: already.id,
+        email: { equals: "admin@demo.local", mode: "insensitive" },
+      },
+      select: { id: true, email: true, status: true },
+    });
+
+    if (!existingAdmin) {
+      await prisma.user.create({
+        data: {
+          accountId: already.id,
+          email: "admin@demo.local",
+          password: hashedPassword,
+          name: "Admin Demo",
+          role: "admin",
+          status: "active",
+        },
+      });
+      console.log('Seed autocurativo: se creó admin@demo.local en cuenta "demo".');
+    } else if (existingAdmin.status !== "active") {
+      await prisma.user.update({
+        where: { id: existingAdmin.id },
+        data: { status: "active", password: hashedPassword },
+      });
+      console.log('Seed autocurativo: se reactivó admin@demo.local en cuenta "demo".');
+    } else {
+      console.log('Seed omitido: ya existe Account "demo" y usuario admin activo.');
+    }
     return;
   }
 
