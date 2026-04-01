@@ -2,9 +2,16 @@ import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  COMMERCIAL_STAGES,
+  CONVERSATIONAL_STAGES,
+  isCommercialStage,
+  isConversationalStage,
+} from "@/domains/crm-leads/contact-stage-constants";
 import { ContactNotesForm } from "./contact-notes-form";
 import { ContactTasksForm } from "./contact-tasks-form";
 import { ContactAssignmentForm } from "./contact-assignment-form";
+import { ContactStagesForm } from "./contact-stages-form";
 import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
@@ -110,12 +117,20 @@ export default async function ContactDetailPage({
     notFound();
   }
 
+  const commercialForSelect = isCommercialStage(contact.commercialStage)
+    ? contact.commercialStage
+    : COMMERCIAL_STAGES[0];
+  const conversationalForSelect = isConversationalStage(contact.conversationalStage)
+    ? contact.conversationalStage
+    : CONVERSATIONAL_STAGES[0];
+
   const latestScore = contact.leadScores[0];
   const latestProfile = contact.searchProfiles[0];
   const canSendRecommendation =
     session.user.role === "admin" || session.user.role === "coordinator";
   const canMutateAssign =
     session.user.role === "admin" || session.user.role === "coordinator";
+  const canMutateStages = canMutateAssign;
   const hasPhoneForWa = Boolean(contact.phone?.trim());
   const activeAssignment = contact.assignments[0];
   const currentAdvisorId = activeAssignment?.advisorId ?? null;
@@ -149,6 +164,12 @@ export default async function ContactDetailPage({
               <p><strong>Estado conversacional:</strong> {contact.conversationalStage}</p>
               <p><strong>Estado comercial:</strong> {contact.commercialStage}</p>
             </div>
+            <ContactStagesForm
+              contactId={id}
+              commercialStage={commercialForSelect}
+              conversationalStage={conversationalForSelect}
+              canMutate={canMutateStages}
+            />
           </section>
 
           {/* Perfil de búsqueda */}

@@ -24,6 +24,20 @@ function buildInboxQueryString(params: Record<string, string | undefined>): stri
   return s ? `?${s}` : "";
 }
 
+/** Fecha YYYY-MM-DD en UTC; inválida → null */
+function parseYmdUtc(ymd: string | undefined): Date | null {
+  const s = ymd?.trim();
+  if (!s || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  const d = new Date(`${s}T00:00:00.000Z`);
+  return Number.isFinite(d.getTime()) ? d : null;
+}
+
+function endUtcDay(d: Date): Date {
+  const x = new Date(d.getTime());
+  x.setUTCHours(23, 59, 59, 999);
+  return x;
+}
+
 export default async function InboxPage(props: {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
@@ -36,6 +50,8 @@ export default async function InboxPage(props: {
   const qRaw = parseParam(searchParams.q);
   const pageRaw = parseParam(searchParams.page);
   const pageSizeRaw = parseParam(searchParams.pageSize);
+  const fromRaw = parseParam(searchParams.from);
+  const toRaw = parseParam(searchParams.to);
 
   const channelFilter = CHANNEL_OPTIONS.includes(
     (channelParam ?? "all") as (typeof CHANNEL_OPTIONS)[number],
@@ -50,6 +66,12 @@ export default async function InboxPage(props: {
 
   const q = (qRaw ?? "").trim().slice(0, MAX_Q_LEN);
 
+  const fromDate = parseYmdUtc(fromRaw);
+  const toDate = parseYmdUtc(toRaw);
+  const updatedAtRange: { gte?: Date; lte?: Date } = {};
+  if (fromDate) updatedAtRange.gte = fromDate;
+  if (toDate) updatedAtRange.lte = endUtcDay(toDate);
+
   let page = parseInt(pageRaw ?? "1", 10);
   if (!Number.isFinite(page) || page < 1) page = 1;
   let pageSize = parseInt(pageSizeRaw ?? String(DEFAULT_PAGE_SIZE), 10);
@@ -60,6 +82,7 @@ export default async function InboxPage(props: {
     accountId,
     ...(statusFilter !== "all" ? { status: statusFilter } : {}),
     ...(channelFilter !== "all" ? { channel: channelFilter } : {}),
+    ...(Object.keys(updatedAtRange).length > 0 ? { updatedAt: updatedAtRange } : {}),
   };
 
   const where: Prisma.ConversationWhereInput =
@@ -190,6 +213,24 @@ export default async function InboxPage(props: {
             <option value="50">50</option>
           </select>
         </label>
+        <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666" }}>
+          Actualizado desde (UTC)
+          <input
+            type="date"
+            name="from"
+            defaultValue={fromRaw?.trim() ?? ""}
+            style={{ padding: "0.4rem", minWidth: "140px" }}
+          />
+        </label>
+        <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666" }}>
+          Actualizado hasta (UTC)
+          <input
+            type="date"
+            name="to"
+            defaultValue={toRaw?.trim() ?? ""}
+            style={{ padding: "0.4rem", minWidth: "140px" }}
+          />
+        </label>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
           <button type="submit" style={{ padding: "0.45rem 0.8rem", cursor: "pointer" }}>
             Aplicar
@@ -308,7 +349,8 @@ export default async function InboxPage(props: {
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
           <strong>MVP:</strong> Hilo por conversación + sugerencia IA y envío manual del borrador por
-          WhatsApp (S12). Filtros por canal/estado (S18), búsqueda y paginación (S19).
+          WhatsApp (S12). Filtros por canal/estado (S18), búsqueda y paginación (S19), rango por{" "}
+          <code>updatedAt</code> en UTC (S25).
         </p>
       </div>
     </div>

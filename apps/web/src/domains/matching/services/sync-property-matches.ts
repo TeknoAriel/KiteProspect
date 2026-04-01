@@ -3,6 +3,7 @@
  */
 import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { logStructured } from "@/lib/structured-log";
 import { scorePropertyAgainstProfile } from "./score-property-match";
 
 /** Por debajo de este umbral no guardamos fila (evita ruido en UI). */
@@ -115,17 +116,14 @@ export async function syncPropertyMatchesForContact(
     }
   });
 
-  console.log(
-    JSON.stringify({
-      event: "property_matches_synced",
-      accountId,
-      contactId,
-      inventoryCount: properties.length,
-      matchedCount: candidates.length,
-      removedCount: toDeleteIds.length,
-      rulesVersion: "v0",
-    }),
-  );
+  logStructured("property_matches_synced", {
+    accountId,
+    contactId,
+    inventoryCount: properties.length,
+    matchedCount: candidates.length,
+    removedCount: toDeleteIds.length,
+    rulesVersion: "v0",
+  });
 
   try {
     await recordAuditEvent({

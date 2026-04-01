@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createLeadCapture } from "@/domains/capture/services/create-lead-capture";
 import { getClientIpFromRequest } from "@/lib/client-ip";
 import { allowRateLimit, getCaptureRateLimitConfig } from "@/lib/rate-limit-memory";
+import { logStructured } from "@/lib/structured-log";
 
 function verifyCaptureSecret(request: NextRequest): boolean {
   const secret = process.env.CAPTURE_API_SECRET?.trim();
@@ -97,6 +98,11 @@ export async function POST(request: NextRequest) {
     if (!result.ok) {
       return NextResponse.json({ error: result.error }, { status: result.status });
     }
+
+    logStructured("lead_capture_api_ok", {
+      contactId: result.contactId,
+      conversationId: result.conversationId,
+    });
 
     return NextResponse.json({
       contactId: result.contactId,

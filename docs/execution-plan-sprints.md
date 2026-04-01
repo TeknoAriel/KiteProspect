@@ -29,11 +29,11 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **Post-L1 / F1-E13** — refuerzo CRM operativo (lista contactos, asignación, pausa seguimiento). Ver `docs/decisions/slice-crm-contacts-filters-assignment-followup-pause.md`. |
+| **Sprint activo** | **S25 — cerrado** (inbox fechas UTC, etapas contacto, logs estructurados). Ver `docs/decisions/slice-s25-inbox-dates-stages-structured-log.md`. |
 | **Inicio (ISO)** | 2026-03-30 (sugerido; ajustar si el equipo arranca otro día). |
 | **Fin objetivo (ISO)** | +10 a +14 días desde inicio (ventana de trabajo continuo). |
-| **Objetivo del sprint** | Avanzar **sin micro-cierres obligatorios**: refuerzo de matching/scoring (tests, reglas, UX de ficha) + **al menos una** mutación CRM acotada en ficha contacto (p. ej. nota o tarea) alineada a `PRODUCT_DEFINITION.md` / F1-E13. |
-| **Última verificación agente** | 2026-03-30: `npm run verify` en verde; alta tarea en ficha + doc `docs/decisions/slice-post-l1-contact-task.md`. |
+| **Objetivo del sprint** | Inbox operable por rango de fechas; edición de etapas comercial/conversacional en ficha; trazas JSON mínimas en jobs/captura/matching. |
+| **Última verificación agente** | 2026-03-31: `npm run verify` en verde; decisión S25. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -196,6 +196,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | **S12** | Inbox hilo + IA + envío borrador WA + prompt por cuenta | F1-E8, F1-E9 | [x] `/dashboard/inbox/[id]` + panel IA; envío manual WhatsApp (admin/coordinator); `Account.config` + `/dashboard/account/ai-prompt` + API; ver `slice-s12-inbox-ai-assist.md`. |
 | **S18** | Inbox lista con filtros | F1-E8 | [x] `/dashboard/inbox` con filtros por `channel` y `status`; estado visible en tarjeta; ver `slice-s18-inbox-filters.md`. |
 | **S19** | Inbox búsqueda + paginación | F1-E8 | [x] `q` (contacto o mensajes), `page` / `pageSize` (10, 20 o 50), enlaces y formulario coherentes con S18; ver `slice-s19-inbox-search-pagination.md`. |
+| **S25** | Inbox rango fechas + etapas contacto + logs | F1-E8, F1-E13 | [x] `from`/`to` (UTC) sobre `Conversation.updatedAt`; `PATCH /api/contacts/[id]` etapas; `structured-log` en matching, follow-up batch, captura API; `slice-s25-inbox-dates-stages-structured-log.md`. |
 
 **Bloqueos 👤:** API key de proveedor de IA en `.env` / Vercel (documentado); Meta para envío real por WhatsApp.
 

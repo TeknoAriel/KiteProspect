@@ -3,6 +3,7 @@
  */
 import { prisma, Prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { logStructured } from "@/lib/structured-log";
 import { sendFollowUpEmailToContact } from "@/domains/integrations/email/send-follow-up-email";
 import { sendWhatsAppTextToContact } from "@/domains/integrations/whatsapp/send-whatsapp-text";
 import type { ProcessDueFollowUpsInput, ProcessDueFollowUpsResult } from "../follow-up-job-contract";
@@ -336,6 +337,12 @@ export async function processDueFollowUps(
       skipped++;
     }
   }
+
+  logStructured("follow_up_due_batch_done", {
+    sequencesExamined,
+    attemptsCreated,
+    skipped,
+  });
 
   return {
     sequencesExamined,

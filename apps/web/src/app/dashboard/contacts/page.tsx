@@ -1,4 +1,8 @@
 import { requireAuth } from "@/lib/server-utils";
+import {
+  COMMERCIAL_STAGES,
+  CONVERSATIONAL_STAGES,
+} from "@/domains/crm-leads/contact-stage-constants";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import type { Prisma } from "@kite-prospect/db";
@@ -7,30 +11,6 @@ const DEFAULT_PAGE_SIZE = 20;
 const MIN_PAGE_SIZE = 10;
 const MAX_PAGE_SIZE = 50;
 const MAX_Q_LEN = 200;
-
-const COMMERCIAL_STAGES = [
-  "exploratory",
-  "prospect",
-  "real_lead",
-  "blocked",
-  "hot",
-  "assigned",
-  "visit_scheduled",
-  "opportunity_active",
-  "paused",
-  "lost",
-  "won",
-] as const;
-
-const CONVERSATIONAL_STAGES = [
-  "new",
-  "answered",
-  "identified",
-  "profiled_partial",
-  "profiled_useful",
-  "consent_obtained",
-  "followup_active",
-] as const;
 
 function parseParam(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
