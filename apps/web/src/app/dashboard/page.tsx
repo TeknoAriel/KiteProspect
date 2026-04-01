@@ -51,9 +51,12 @@ export default async function DashboardPage() {
       </header>
 
       <p style={{ color: "#555", fontSize: "0.9rem", maxWidth: "52rem", lineHeight: 1.5, marginBottom: "1.25rem" }}>
-        Esta pantalla solo resume <strong>cantidades</strong>. Cada sprint suma funciones en <strong>otras rutas</strong> (inbox,
-        fichas de contacto, inventario, etc.). Si los números siguen en 1 con datos demo, es normal; el progreso se ve al
-        entrar a cada módulo.
+        Esta pantalla resume <strong>cantidades</strong>. Tras <code style={{ fontSize: "0.85rem" }}>npm run db:seed</code>{" "}
+        la cuenta <code style={{ fontSize: "0.85rem" }}>demo</code> incluye contactos de ejemplo (emails{" "}
+        <code style={{ fontSize: "0.85rem" }}>*@demo-showcase.local</code>) con distintos canales de entrada, mensajes de
+        respuesta y planes de seguimiento por intensidad; ver inbox, contactos y seguimiento.         El recorrido guiado: <strong>Cerrar</strong> lo omite en esta sesión del navegador;{" "}
+        <strong>No volver a mostrar</strong> guarda la preferencia en este dispositivo. Reabrilo con{" "}
+        <strong>Cómo funciona Kite</strong> (abajo a la derecha).
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>

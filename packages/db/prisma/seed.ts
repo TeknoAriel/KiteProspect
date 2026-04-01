@@ -1,209 +1,91 @@
 /**
- * Datos de ejemplo para desarrollo local.
- * Idempotente: si ya existe la cuenta `demo`, no hace cambios.
+ * Datos de ejemplo para desarrollo local y seed en deploy.
+ * Idempotente: cuenta `demo` + usuario admin; datos enriquecidos vía `ensureDemoShowcase`.
  */
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { ensureDemoShowcase } from "./seed-demo-showcase.js";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const already = await prisma.account.findUnique({ where: { slug: "demo" } });
-  if (already) {
-    // Mantener seed idempotente pero autocurativo: si existe cuenta demo sin usuario admin, lo crea.
-    const hashedPassword = await bcrypt.hash("demo123", 10);
-    const existingAdmin = await prisma.user.findFirst({
-      where: {
-        accountId: already.id,
-        email: { equals: "admin@demo.local", mode: "insensitive" },
-      },
-      select: { id: true, email: true, status: true },
-    });
-
-    if (!existingAdmin) {
-      await prisma.user.create({
-        data: {
-          accountId: already.id,
-          email: "admin@demo.local",
-          password: hashedPassword,
-          name: "Admin Demo",
-          role: "admin",
-          status: "active",
-        },
-      });
-      console.log('Seed autocurativo: se creó admin@demo.local en cuenta "demo".');
-    } else if (existingAdmin.status !== "active") {
-      await prisma.user.update({
-        where: { id: existingAdmin.id },
-        data: { status: "active", password: hashedPassword },
-      });
-      console.log('Seed autocurativo: se reactivó admin@demo.local en cuenta "demo".');
-    } else {
-      console.log('Seed omitido: ya existe Account "demo" y usuario admin activo.');
-    }
-    return;
-  }
-
-  const account = await prisma.account.create({
-    data: {
-      name: "Inmobiliaria Demo",
-      slug: "demo",
-      status: "active",
-      config: { timezone: "America/Argentina/Buenos_Aires" },
-    },
-  });
-
   const hashedPassword = await bcrypt.hash("demo123", 10);
 
-  const adminUser = await prisma.user.create({
-    data: {
+  let account = await prisma.account.findUnique({ where: { slug: "demo" } });
+  const createdNewAccount = !account;
+
+  if (!account) {
+    account = await prisma.account.create({
+      data: {
+        name: "Inmobiliaria Demo",
+        slug: "demo",
+        status: "active",
+        config: { timezone: "America/Argentina/Buenos_Aires" },
+      },
+    });
+  }
+
+  let adminUser = await prisma.user.findFirst({
+    where: {
       accountId: account.id,
-      email: "admin@demo.local",
-      password: hashedPassword,
-      name: "Admin Demo",
-      role: "admin",
-      status: "active",
+      email: { equals: "admin@demo.local", mode: "insensitive" },
     },
   });
 
-  const advisor = await prisma.advisor.create({
-    data: {
-      accountId: account.id,
-      userId: adminUser.id,
-      name: "Asesor Demo",
-      email: "asesor@demo.local",
-      status: "active",
-    },
+  if (!adminUser) {
+    adminUser = await prisma.user.create({
+      data: {
+        accountId: account.id,
+        email: "admin@demo.local",
+        password: hashedPassword,
+        name: "Admin Demo",
+        role: "admin",
+        status: "active",
+      },
+    });
+    console.log('Seed: se creó admin@demo.local en cuenta "demo".');
+  } else if (adminUser.status !== "active") {
+    await prisma.user.update({
+      where: { id: adminUser.id },
+      data: { status: "active", password: hashedPassword },
+    });
+    console.log('Seed: se reactivó admin@demo.local en cuenta "demo".');
+  }
+
+  let advisor = await prisma.advisor.findFirst({
+    where: { accountId: account.id },
   });
 
-  const property = await prisma.property.create({
-    data: {
-      accountId: account.id,
-      title: "Departamento 2 ambientes — Palermo",
-      description: "Ejemplo de inventario para desarrollo.",
-      type: "departamento",
-      intent: "venta",
-      zone: "Palermo",
-      price: 185000,
-      bedrooms: 2,
-      bathrooms: 1,
-      status: "available",
-    },
-  });
+  if (!advisor) {
+    advisor = await prisma.advisor.create({
+      data: {
+        accountId: account.id,
+        userId: adminUser.id,
+        name: "Asesor Demo",
+        email: "asesor@demo.local",
+        status: "active",
+      },
+    });
+  }
 
-  const contact = await prisma.contact.create({
-    data: {
-      accountId: account.id,
-      name: "María Contacto",
-      email: "maria.contacto@example.com",
-      phone: "+5491112345678",
-      conversationalStage: "answered",
-      commercialStage: "prospect",
-    },
-  });
+  await ensureDemoShowcase(prisma, account.id, advisor.id);
 
-  const conversation = await prisma.conversation.create({
-    data: {
-      accountId: account.id,
-      contactId: contact.id,
-      channel: "form",
-      status: "active",
-    },
-  });
-
-  await prisma.message.create({
-    data: {
-      conversationId: conversation.id,
-      direction: "inbound",
-      content: "Hola, busco un 2 ambientes en Palermo.",
-      channel: "form",
-    },
-  });
-
-  await prisma.searchProfile.create({
-    data: {
-      contactId: contact.id,
-      intent: "compra",
-      propertyType: "departamento",
-      zone: "Palermo",
-      maxPrice: 200000,
-      bedrooms: 2,
-      source: "declared",
-    },
-  });
-
-  await prisma.leadScore.create({
-    data: {
-      contactId: contact.id,
-      intentScore: 40,
-      readinessScore: 30,
-      fitScore: 50,
-      engagementScore: 35,
-      totalScore: 39,
-      version: 1,
-    },
-  });
-
-  const followUpPlan = await prisma.followUpPlan.create({
-    data: {
-      accountId: account.id,
-      name: "Seguimiento estándar (demo)",
-      description: "Secuencia mínima para pruebas locales.",
-      intensity: "low",
-      maxAttempts: 3,
-      sequence: [
-        { step: 0, delayHours: 0, channel: "email", objective: "confirmar interés" },
-        { step: 1, delayHours: 72, channel: "whatsapp", objective: "agendar llamada" },
-      ],
-      status: "active",
-    },
-  });
-
-  await prisma.followUpSequence.create({
-    data: {
-      contactId: contact.id,
-      followUpPlanId: followUpPlan.id,
-      status: "active",
-      currentStep: 0,
-      attempts: 0,
-      nextAttemptAt: new Date(),
-    },
-  });
-
-  await prisma.assignment.create({
-    data: {
-      contactId: contact.id,
-      advisorId: advisor.id,
-      status: "active",
-      reason: "seed",
-    },
-  });
-
-  await prisma.propertyMatch.create({
-    data: {
-      contactId: contact.id,
-      propertyId: property.id,
-      score: 72,
-      reason: "Zona y ambientes alineados con perfil declarado (demo).",
-    },
-  });
-
-  await prisma.auditEvent.create({
-    data: {
-      accountId: account.id,
-      entityType: "account",
-      entityId: account.id,
-      action: "seed_demo_applied",
-      actorType: "system",
-      metadata: { source: "prisma/seed.ts" },
-    },
-  });
+  if (createdNewAccount) {
+    await prisma.auditEvent.create({
+      data: {
+        accountId: account.id,
+        entityType: "account",
+        entityId: account.id,
+        action: "seed_demo_applied",
+        actorType: "system",
+        metadata: { source: "prisma/seed.ts" },
+      },
+    });
+  }
 
   console.log("Seed OK:", {
     accountId: account.id,
     adminEmail: adminUser.email,
-    contactId: contact.id,
-    propertyId: property.id,
   });
 }
 

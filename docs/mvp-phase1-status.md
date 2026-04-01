@@ -28,11 +28,13 @@
 - [x] Consentimientos
 
 **TODO Fase 2:**
-- Formularios de edición
-- Crear/editar tareas y notas
-- Cambiar asignación
+- Formularios de edición ampliados
+- Editar tareas y notas existentes
 - Vista de pipeline (kanban)
-- Búsqueda y filtros
+- Más filtros (fechas, asesor, etc.)
+
+**Hecho post-slice inicial:**
+- Búsqueda y filtros por etapa en lista de contactos; reasignación y pausa de seguimiento (`slice-crm-contacts-filters-assignment-followup-pause.md`).
 
 ### ✅ Slice 3: Contactos y conversaciones
 - [x] Endpoint API para crear contactos

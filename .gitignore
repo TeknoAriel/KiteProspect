@@ -38,3 +38,5 @@ yarn-error.log*
 coverage
 .vercel/
 apps/web/.vercel/
+# Salida de `vercel env pull` si se nombra así (evitar secretos en repo)
+.env.vercel-production

@@ -1,6 +1,7 @@
 import { requireAuth } from "@/lib/server-utils";
 import { redirect } from "next/navigation";
 import { signOut } from "@/lib/auth";
+import { DashboardTour } from "./dashboard-tour";
 
 export default async function DashboardLayout({
   children,
@@ -25,6 +26,7 @@ export default async function DashboardLayout({
             </button>
           </form>
         </nav>
+        <DashboardTour />
         {children}
       </div>
     );

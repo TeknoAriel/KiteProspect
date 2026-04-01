@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ContactNotesForm } from "./contact-notes-form";
 import { ContactTasksForm } from "./contact-tasks-form";
+import { ContactAssignmentForm } from "./contact-assignment-form";
+import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
 
@@ -26,7 +28,8 @@ export default async function ContactDetailPage({
   const accountId = session.user.accountId;
   const { id } = await params;
 
-  const contact = await prisma.contact.findFirst({
+  const [contact, advisors] = await Promise.all([
+    prisma.contact.findFirst({
     where: {
       id,
       accountId, // Seguridad: solo contactos de la cuenta
@@ -87,8 +90,21 @@ export default async function ContactDetailPage({
       consents: {
         orderBy: { createdAt: "desc" },
       },
+      followUpSequences: {
+        include: {
+          plan: { select: { name: true } },
+        },
+        orderBy: { startedAt: "desc" },
+        take: 5,
+      },
     },
-  });
+  }),
+    prisma.advisor.findMany({
+      where: { accountId, status: "active" },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   if (!contact) {
     notFound();
@@ -98,7 +114,11 @@ export default async function ContactDetailPage({
   const latestProfile = contact.searchProfiles[0];
   const canSendRecommendation =
     session.user.role === "admin" || session.user.role === "coordinator";
+  const canMutateAssign =
+    session.user.role === "admin" || session.user.role === "coordinator";
   const hasPhoneForWa = Boolean(contact.phone?.trim());
+  const activeAssignment = contact.assignments[0];
+  const currentAdvisorId = activeAssignment?.advisorId ?? null;
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1400px", margin: "0 auto" }}>
@@ -343,7 +363,7 @@ export default async function ContactDetailPage({
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          <strong>MVP:</strong> Matching v0 recalcutable desde esta ficha; más edición CRM en Fase 2.
+          <strong>MVP:</strong> Matching v0, asignación y pausa de seguimiento desde esta ficha (admin/coordinador).
         </p>
       </div>
     </div>

@@ -13,7 +13,7 @@ Las inmobiliarias publican avisos en portales con formatos estándar (OpenNavent
 5. **Idempotencia**: `importFingerprint` = SHA-256 de un payload estable (título, precio, amenities serializadas ordenadas, etc.). Si no cambia, solo se actualiza `feedLastSeenAt`.
 6. **Delist**: con `delistMissing`, las filas `kiteprop` en `available` o `reserved` cuyo `externalId` no está en el snapshot pasan a `withdrawn` y `feedRemovedAt`. Snapshot vacío pero descarga válida implica baja de todas las activas importadas.
 7. **Estados terminales manuales**: si `status` es `sold` o `rented`, el sync **no** lo fuerza a `available` (respeta cierre manual).
-8. **Cron**: `GET /api/cron/kiteprop-property-feed` con la misma auth que otros crons (`CRON_SECRET` / `x-vercel-cron`). Vercel: cada 6 h UTC.
+8. **Cron**: `GET /api/cron/kiteprop-property-feed` con la misma auth que otros crons (`CRON_SECRET` / `x-vercel-cron`). En Vercel **Hobby** el schedule es **1×/día** (`0 2 * * *` UTC); ver `docs/decisions/vercel-hobby-cron-daily-kiteprop-feed.md`. Sync manual sigue disponible.
 9. **URLs**: en producción solo `https:`; `http` permitido en desarrollo para pruebas locales.
 
 ## Implementado

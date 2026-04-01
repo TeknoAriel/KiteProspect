@@ -217,7 +217,8 @@ export default async function AccountSettingsHubPage() {
           </li>
           <li>
             <strong>Cron inventario KiteProp:</strong> <code>GET {baseUrl}/api/cron/kiteprop-property-feed</code> — misma
-            auth; agenda en Vercel cada 6 h UTC (cuentas con feed habilitado y URL).
+            auth; agenda en Vercel 1×/día UTC (02:00; cuentas con feed habilitado y URL). Sync manual desde la cuenta si
+            hace falta antes.
           </li>
         </ul>
       </Section>

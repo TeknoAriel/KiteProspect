@@ -61,7 +61,7 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 6. **Formulario `/lead` (opcional):** si quieres probar captura sin curl, pon `ENABLE_PUBLIC_LEAD_FORM=true` en `.env`. No sustituye a landings externas: para eso usa un proxy serverless (ver `docs/capture-integration.md`).
 
-7. **Crons de servidor (`CRON_SECRET`):** define `CRON_SECRET` en `.env` (mismo patrón que `AUTH_SECRET`). Sin esto, `GET /api/cron/follow-up-due` y `GET /api/cron/kiteprop-property-feed` responden **503**. Las pruebas manuales usan `Authorization: Bearer …`. En Vercel, los crons oficiales envían `x-vercel-cron: 1` (seguimientos: `docs/decisions/slice-s07-follow-up-cron.md`; inventario: `docs/decisions/slice-s22-kiteprop-property-feed.md`).
+7. **Crons de servidor (`CRON_SECRET`):** define `CRON_SECRET` en `.env` (mismo patrón que `AUTH_SECRET`). Sin esto, `GET /api/cron/follow-up-due` y `GET /api/cron/kiteprop-property-feed` responden **503**. Las pruebas manuales usan `Authorization: Bearer …`. En Vercel, los crons oficiales envían `x-vercel-cron: 1` (seguimientos: `docs/decisions/slice-s07-follow-up-cron.md`; inventario: `docs/decisions/slice-s22-kiteprop-property-feed.md`). En **Vercel Hobby** el feed KiteProp va **1×/día** en el `vercel.json` del repo; frecuencia mayor requiere **Pro** o sync manual (`docs/decisions/vercel-hobby-cron-daily-kiteprop-feed.md`).
 
 8. **Feeds de inventario KiteProp (URLs reales):** como admin, en `https://TU-DOMINIO/dashboard/account/property-feeds` (también enlazado desde el centro de configuración) pegar las URLs **HTTPS** del JSON Proppit y/o del XML OpenNavent que entrega el proveedor/CRM. Activar el feed y, si aplica, usar **Sincronizar ahora** para probar antes del próximo cron.
 

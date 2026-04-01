@@ -159,12 +159,16 @@ export default async function FollowUpsPage() {
           <code>FOLLOW_UP_FROM_EMAIL</code> están en el entorno; si no, crea una tarea en la ficha.{" "}
           <code>instagram</code> u otros canales generan tarea para acción manual.
         </p>
-        <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
+        <p style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>
           <strong>Editar planes (admin):</strong>{" "}
           <Link href="/dashboard/account/follow-up-plans" style={{ color: "#0070f3" }}>
             Centro de configuración → Planes de seguimiento
           </Link>
           .
+        </p>
+        <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
+          <strong>Pausar / reanudar:</strong> desde la ficha del contacto (admin o coordinador). Las secuencias en pausa no
+          entran en el cron y no se listan aquí como activas.
         </p>
       </div>
     </div>

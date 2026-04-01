@@ -6,14 +6,14 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 | Área | Qué hay |
 |------|---------|
-| **Multi-tenant** | Datos filtrados por `accountId` de sesión; login con **slug de cuenta** + email + contraseña. |
+| **Multi-tenant** | Datos filtrados por `accountId` de sesión; login con **slug de cuenta** + email + contraseña. Seed demo opcional: `slice-demo-showcase-tour.md`. |
 | **Configuración cuenta (F1-E2 MVP)** | Centro admin `/dashboard/account` (módulos, conexión Vercel, endpoints, IA, seguimientos) + ajustes generales + prompt IA + edición planes de seguimiento (`/dashboard/account/follow-up-plans`) + feeds inventario (`/dashboard/account/property-feeds`); S13, S17, S21, S22. |
 | **Inventario propiedades (F1-E4)** | ABM `/dashboard/properties` + API; mutaciones admin/coordinator; lectura asesor; ingesta KiteProp XML/JSON + cron + sync manual (`slice-s22-kiteprop-property-feed.md`); `slice-s14-properties-abm.md`. |
 | **Auth** | NextAuth (credenciales), JWT, `SessionProvider`, `/dashboard/*` protegido con `auth()` en middleware (Auth.js v5). |
 | **Usuarios (F1-E3)** | ABM de usuario por tenant en `/dashboard/users` + API; hash bcrypt en alta/edición; no borrar usuario autenticado; `slice-s15-users-abm.md`. |
 | **Asesores (F1-E3)** | ABM `/dashboard/advisors` + API; vínculo opcional usuario del tenant (un usuario → un asesor); `slice-s16-advisors-abm.md`. |
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
-| **CRM básico** | Lista y ficha de contacto (`/dashboard/contacts`, `/dashboard/contacts/[id]`); alta de **nota** y **tarea** en ficha (server actions; auditoría `contact_note_created`, `contact_task_created`; post-L1). |
+| **CRM básico** | Lista y ficha de contacto; **búsqueda + filtros por etapa** + paginación en lista; alta de **nota** y **tarea** en ficha; **reasignación a asesor** y **pausa/reanudar** secuencia de seguimiento (admin/coordinator; `slice-crm-contacts-filters-assignment-followup-pause.md`). |
 | **Inbox** | Lista (`/dashboard/inbox`) con filtros (S18), búsqueda y paginación (S19) + hilo (`/dashboard/inbox/[id]`) con asistencia IA y envío manual del borrador por WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
