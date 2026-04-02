@@ -97,11 +97,11 @@
 - [x] Próximos intentos
 - [x] Cron `/api/cron/follow-up-due` + `processDueFollowUps`; pasos `channel: whatsapp` envían texto (Meta en env)
 - [x] Edición de planes (secuencia JSON) en `/dashboard/account/follow-up-plans` (S21, admin)
+- [x] Inicio de secuencia desde ficha de contacto + historial de intentos (S30; `slice-s30-follow-up-start-from-contact.md`)
 
 **TODO Fase 2:**
 - Worker con BullMQ (escalado; ver `slice-s06`)
 - Envío email u otros canales
-- Pausar/reanudar
 - Notificaciones
 
 ### ✅ Slice 8: Dashboard base

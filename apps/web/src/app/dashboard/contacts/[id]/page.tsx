@@ -15,6 +15,7 @@ import { ContactTaskRow } from "./contact-task-row";
 import { ContactAssignmentForm } from "./contact-assignment-form";
 import { ContactStagesForm } from "./contact-stages-form";
 import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
+import { StartFollowUpSequenceForm } from "./start-follow-up-sequence-form";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
 
@@ -37,7 +38,7 @@ export default async function ContactDetailPage({
   const accountId = session.user.accountId;
   const { id } = await params;
 
-  const [contact, advisors] = await Promise.all([
+  const [contact, advisors, followUpPlans, activeFollowUpSequence] = await Promise.all([
     prisma.contact.findFirst({
     where: {
       id,
@@ -101,10 +102,14 @@ export default async function ContactDetailPage({
       },
       followUpSequences: {
         include: {
-          plan: { select: { name: true } },
+          plan: { select: { name: true, maxAttempts: true } },
+          attemptsList: {
+            orderBy: { attemptedAt: "desc" },
+            take: 20,
+          },
         },
         orderBy: { startedAt: "desc" },
-        take: 5,
+        take: 10,
       },
     },
   }),
@@ -112,6 +117,15 @@ export default async function ContactDetailPage({
       where: { accountId, status: "active" },
       select: { id: true, name: true },
       orderBy: { name: "asc" },
+    }),
+    prisma.followUpPlan.findMany({
+      where: { accountId, status: "active" },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
+    prisma.followUpSequence.findFirst({
+      where: { contactId: id, status: "active" },
+      select: { id: true },
     }),
   ]);
 
@@ -151,6 +165,7 @@ export default async function ContactDetailPage({
   const canMutateAssign =
     session.user.role === "admin" || session.user.role === "coordinator";
   const canMutateStages = canMutateAssign;
+  const canMutateFollowUp = canMutateAssign;
   const hasPhoneForWa = Boolean(contact.phone?.trim());
   const activeAssignment = contact.assignments[0];
   const currentAdvisorId = activeAssignment?.advisorId ?? null;
@@ -363,6 +378,73 @@ export default async function ContactDetailPage({
             </section>
           )}
 
+          <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
+            <h3 style={{ marginTop: 0 }}>Seguimiento automático</h3>
+            <p style={{ margin: "0 0 0.5rem", fontSize: "0.78rem", color: "#666" }}>
+              El cron del servidor ejecuta pasos con fecha vencida (ver configuración de cuenta). Podés iniciar un plan
+              para este contacto si no hay otro seguimiento activo.
+            </p>
+            <StartFollowUpSequenceForm
+              contactId={id}
+              plans={followUpPlans}
+              canMutate={canMutateFollowUp}
+              hasActiveSequence={Boolean(activeFollowUpSequence)}
+            />
+            {contact.followUpSequences.length > 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1rem", marginTop: "1rem" }}>
+                {contact.followUpSequences.map((seq) => (
+                  <div
+                    key={seq.id}
+                    style={{
+                      padding: "0.75rem",
+                      backgroundColor: "#fafafa",
+                      borderRadius: "6px",
+                      border: "1px solid #eee",
+                    }}
+                  >
+                    <p style={{ margin: 0, fontSize: "0.85rem" }}>
+                      <strong>{seq.plan.name}</strong> · estado <code>{seq.status}</code> · paso {seq.currentStep} ·
+                      intentos {seq.attempts}/{seq.plan.maxAttempts}
+                    </p>
+                    <p style={{ margin: "0.25rem 0 0", fontSize: "0.78rem", color: "#666" }}>
+                      Próximo paso:{" "}
+                      {seq.nextAttemptAt
+                        ? new Date(seq.nextAttemptAt).toLocaleString()
+                        : seq.status === "active"
+                          ? "—"
+                          : "—"}
+                    </p>
+                    <FollowUpSequenceControls
+                      sequenceId={seq.id}
+                      status={seq.status}
+                      planName={seq.plan.name}
+                      canMutate={canMutateFollowUp}
+                    />
+                    {seq.attemptsList.length > 0 ? (
+                      <ul
+                        style={{
+                          margin: "0.5rem 0 0",
+                          paddingLeft: "1.1rem",
+                          fontSize: "0.78rem",
+                          color: "#444",
+                        }}
+                      >
+                        {seq.attemptsList.map((a) => (
+                          <li key={a.id} style={{ marginBottom: "0.25rem" }}>
+                            {new Date(a.attemptedAt).toLocaleString()} · {a.channel} · paso {a.step}
+                            {a.outcome ? ` · ${a.outcome}` : ""}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ margin: "0.75rem 0 0", fontSize: "0.8rem", color: "#666" }}>Sin secuencias en este contacto.</p>
+            )}
+          </section>
+
           {/* Matching inventario (v0) */}
           <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
             <h3 style={{ marginTop: 0 }}>Propiedades recomendadas (matching v0)</h3>
@@ -447,7 +529,8 @@ export default async function ContactDetailPage({
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          <strong>MVP:</strong> Matching v0, asignación y pausa de seguimiento desde esta ficha (admin/coordinador).
+          <strong>MVP:</strong> Matching v0, asignación, inicio y pausa de seguimiento desde esta ficha
+          (admin/coordinador).
         </p>
       </div>
     </div>

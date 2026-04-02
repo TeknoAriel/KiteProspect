@@ -17,7 +17,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Inbox** | Lista con filtros (S18), búsqueda y paginación (S19), rango por fecha UTC `from`/`to` en `updatedAt` (S25); **no leído** si hay entrante posterior a `Conversation.lastReadAt` (S29) + hilo con IA y borrador WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`): lectura del perfil más reciente (matching) + **edición del perfil declarado** (`SearchProfile` `source=declared`) y sincronización de `Contact.declaredProfile` para IA; S26. |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
-| **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
+| **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`); **inicio de secuencia desde ficha** (admin/coordinator) + historial de intentos (`slice-s30-follow-up-start-from-contact.md`). |
 | **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`: **WhatsApp** (Meta), **email** (Resend si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, tarea en ficha), **Instagram/otros** → tarea manual; ver `docs/decisions/slice-follow-up-channels-email-manual.md`. |
 | **WhatsApp** | Entrada: webhook `/api/webhooks/whatsapp`; `slice-s08`. Saliente: `POST /api/whatsapp/send` (admin), Graph API; `slice-s09`. |
 | **IA conversacional (base)** | `POST /api/ai/conversation/next-action` (admin/coordinator); proveedor dual S10; reglas handoff + versionado prompt S11 (`slice-s11-conversational-handoff-rules.md`). |
