@@ -57,11 +57,13 @@
 - [x] Búsqueda de texto y paginación en la lista de inbox (S19)
 
 **TODO Fase 2:**
-- Marcar como leído
 - Rango de fechas con timezone de cuenta (hoy: UTC en `updatedAt`)
 
 **Hecho (S25):**
 - Filtro por rango `from`/`to` en lista inbox (`slice-s25-inbox-dates-stages-structured-log.md`).
+
+**Hecho (S29):**
+- Indicador no leído + `lastReadAt` al abrir hilo (`slice-s29-inbox-read-state.md`).
 
 ### ✅ Slice 5: Perfil declarado
 - [x] Vista del perfil de búsqueda

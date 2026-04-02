@@ -44,7 +44,7 @@ Account (tenant)
 | Entidad | Descripción |
 |---------|-------------|
 | **Contact** | Núcleo del lead. Identificadores (`email`, `phone`, `name`), `declaredProfile` JSON (Fase 1), etapas de funnel. |
-| **Conversation** | Hilo por canal (`web_widget`, `landing`, `whatsapp`, `form`). Enlaza `Contact` y `Account`. |
+| **Conversation** | Hilo por canal (`web_widget`, `landing`, `whatsapp`, `form`). Enlaza `Contact` y `Account`. `lastReadAt`: última lectura del hilo por el equipo en inbox (S29). |
 | **Message** | Mensaje entrante/saliente; metadata para WhatsApp (estado, plantilla). |
 | **Task** | Tarea comercial asociada al contacto. |
 | **Note** | Nota libre; `authorId` referencia lógica a usuario/asesor; `updatedAt` para ediciones desde ficha (S27). |

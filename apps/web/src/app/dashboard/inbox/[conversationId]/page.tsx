@@ -1,6 +1,7 @@
 import { ConversationAiPanel } from "./conversation-ai-panel";
 import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
+import { ConversationReadMarker } from "./conversation-read-marker";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -50,6 +51,7 @@ export default async function InboxConversationPage({
         margin: "0 auto",
       }}
     >
+      <ConversationReadMarker conversationId={conv.id} />
       <header style={{ marginBottom: "1.5rem" }}>
         <Link
           href="/dashboard/inbox"

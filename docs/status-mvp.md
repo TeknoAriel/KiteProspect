@@ -14,7 +14,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Asesores (F1-E3)** | ABM `/dashboard/advisors` + API; vínculo opcional usuario del tenant (un usuario → un asesor); `slice-s16-advisors-abm.md`. |
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
 | **CRM básico** | Lista y ficha; búsqueda/filtros/paginación; **notas y tareas con edición** (S27); **tareas cerradas recientes** en ficha (S28); reasignación y pausa de seguimiento (`slice-crm-contacts-filters-assignment-followup-pause.md`); **edición etapas** comercial/conversacional en ficha (S25). |
-| **Inbox** | Lista con filtros (S18), búsqueda y paginación (S19), rango por fecha UTC `from`/`to` en `updatedAt` (S25) + hilo con IA y borrador WhatsApp (S12). |
+| **Inbox** | Lista con filtros (S18), búsqueda y paginación (S19), rango por fecha UTC `from`/`to` en `updatedAt` (S25); **no leído** si hay entrante posterior a `Conversation.lastReadAt` (S29) + hilo con IA y borrador WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`): lectura del perfil más reciente (matching) + **edición del perfil declarado** (`SearchProfile` `source=declared`) y sincronización de `Contact.declaredProfile` para IA; S26. |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
@@ -40,6 +40,8 @@ Sprint **L1** cerrado (2026-03-30): backlog L1 en `docs/execution-plan-sprints.m
 **Sprint S27 (F1-E13 + observabilidad):** edición de notas/tareas en ficha, logs estructurados CRM; ver `docs/decisions/slice-s27-crm-edit-observability.md`.
 
 **Sprint S28 (F1-E13 + captura):** tareas completadas/canceladas recientes en ficha; log `lead_captured` en servicio de captura; ver `docs/decisions/slice-s28-crm-closed-tasks-capture-log.md`.
+
+**Sprint S29 (F1-E8):** estado leído/no leído en inbox (`lastReadAt`); ver `docs/decisions/slice-s29-inbox-read-state.md`.
 
 ## Pendiente respecto a Fase 1 (producto)
 

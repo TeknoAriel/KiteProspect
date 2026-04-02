@@ -143,6 +143,31 @@ export default async function InboxPage(props: {
     },
   });
 
+  const conversationIds = conversations.map((c) => c.id);
+  let lastInboundAtByConversation = new Map<string, Date>();
+  if (conversationIds.length > 0) {
+    const grouped = await prisma.message.groupBy({
+      by: ["conversationId"],
+      where: {
+        conversationId: { in: conversationIds },
+        direction: "inbound",
+      },
+      _max: { createdAt: true },
+    });
+    for (const g of grouped) {
+      if (g._max.createdAt) {
+        lastInboundAtByConversation.set(g.conversationId, g._max.createdAt);
+      }
+    }
+  }
+
+  function isUnreadInbound(conv: (typeof conversations)[0]): boolean {
+    const lastIn = lastInboundAtByConversation.get(conv.id);
+    if (!lastIn) return false;
+    if (!conv.lastReadAt) return true;
+    return lastIn.getTime() > conv.lastReadAt.getTime();
+  }
+
   const commonQs = {
     channel: channelFilter === "all" ? undefined : channelFilter,
     status: statusFilter === "active" && !statusParam ? undefined : statusFilter,
@@ -267,6 +292,7 @@ export default async function InboxPage(props: {
         {conversations.map((conv) => {
           const lastMessage = conv.messages[0];
           const contact = conv.contact;
+          const unread = isUnreadInbound(conv);
 
           return (
             <div
@@ -275,6 +301,7 @@ export default async function InboxPage(props: {
                 padding: "1.5rem",
                 border: "1px solid #e0e0e0",
                 borderRadius: "8px",
+                boxShadow: unread ? "inset 4px 0 0 #0070f3" : "none",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "flex-start",
@@ -282,6 +309,7 @@ export default async function InboxPage(props: {
               }}
             >
               <Link
+                prefetch={false}
                 href={`/dashboard/inbox/${conv.id}`}
                 style={{ textDecoration: "none", color: "inherit", flex: 1 }}
               >
@@ -290,6 +318,20 @@ export default async function InboxPage(props: {
                     <h3 style={{ margin: 0 }}>
                       {contact.name || contact.email || contact.phone || "Sin nombre"}
                     </h3>
+                    {unread && (
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          padding: "0.2rem 0.45rem",
+                          backgroundColor: "#e8f0fe",
+                          color: "#0b57d0",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        No leído
+                      </span>
+                    )}
                     <span style={{ fontSize: "0.75rem", padding: "0.25rem 0.5rem", backgroundColor: "#e0e0e0", borderRadius: "4px" }}>
                       {conv.channel}
                     </span>
@@ -350,7 +392,8 @@ export default async function InboxPage(props: {
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
           <strong>MVP:</strong> Hilo por conversación + sugerencia IA y envío manual del borrador por
           WhatsApp (S12). Filtros por canal/estado (S18), búsqueda y paginación (S19), rango por{" "}
-          <code>updatedAt</code> en UTC (S25).
+          <code>updatedAt</code> en UTC (S25). Indicador “No leído” si hay mensaje entrante posterior a{" "}
+          <code>lastReadAt</code>; al abrir el hilo se marca lectura (S29).
         </p>
       </div>
     </div>
