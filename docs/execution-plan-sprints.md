@@ -251,3 +251,4 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-s30-follow-up-start-from-contact.md` | F1-E12: iniciar secuencia desde ficha + intentos visibles. |
 | `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |
 | `docs/decisions/vercel-404-diagnostico.md` | Checklist si la URL de Vercel devuelve 404. |
+| `docs/demo-simulated-inquiries-avalon-metro-level-innova.md` | Demo narrativo: 5 consultas × líneas comerciales, 15 días simulados (sin ejecución). |

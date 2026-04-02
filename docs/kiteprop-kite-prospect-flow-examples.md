@@ -159,6 +159,10 @@ flowchart LR
 
 ---
 
+## Otros demos narrativos
+
+- Cinco consultas ficticias por líneas **Avalon / Metro / Level / Innova** con recorrido simulado a **15 días**: [`demo-simulated-inquiries-avalon-metro-level-innova.md`](./demo-simulated-inquiries-avalon-metro-level-innova.md).
+
 ## Referencias
 
 - `docs/decisions/follow-up-plans-real-estate-templates.md`
