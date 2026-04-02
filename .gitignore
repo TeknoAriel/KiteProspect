@@ -10,6 +10,9 @@ dist
 build
 *.tsbuildinfo
 
+# MCP local (API key KiteProp; ver .mcp.json.example)
+.mcp.json
+
 # Environment
 .env
 .env.local
