@@ -31,7 +31,9 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 ## Plan de trabajo actual
 
-Sprint **L1** cerrado (2026-03-30): backlog L1 en `docs/execution-plan-sprints.md` completado; resumen `docs/decisions/slice-l1-batch-completion.md`. Siguiente: priorizar deuda F1-E13 u otros ítems de Fase 1 según roadmap.
+Sprint **L1** cerrado (2026-03-30): backlog L1 en `docs/execution-plan-sprints.md` completado; resumen `docs/decisions/slice-l1-batch-completion.md`. **S25** cerrado (inbox fechas/etapas/logs). Siguiente: priorizar deuda F1-E13 u otros ítems de Fase 1 según `docs/roadmap.md`.
+
+**Entorno dev (Git):** push/fetch por SSH en Windows documentado en `docs/decisions/github-ssh-windows-dev.md` (registro de clave pública en GitHub: `docs/manual-actions-required.md` ítem 11).
 
 ## Pendiente respecto a Fase 1 (producto)
 

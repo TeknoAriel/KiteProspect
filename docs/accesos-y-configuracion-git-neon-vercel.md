@@ -38,6 +38,16 @@ Git “en la nube” casi siempre se usa con **GitHub**. Aquí no guardas la bas
 
 - En Vercel: **Add New** → **Project** → **Import Git Repository** → autoriza **GitHub** y elige el repositorio.
 
+### SSH (GitHub) — push/fetch desde tu PC (Windows)
+
+Si usas URL **`git@github.com:…`** y ves `Permission denied (publickey)`:
+
+1. Clave dedicada + `~/.ssh/config` (ver decisión **`docs/decisions/github-ssh-windows-dev.md`**).
+2. En GitHub: [SSH and GPG keys](https://github.com/settings/keys) → pegar solo el archivo **`.pub`**.
+3. Probar: `ssh -T git@github.com` y luego `git fetch` en el clon.
+
+**Remoto de este monorepo (ejemplo):** `git@github.com:kiteprop/ia-kiteprospects.git`
+
 ---
 
 ## 2) Neon — base de datos PostgreSQL

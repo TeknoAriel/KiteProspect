@@ -69,6 +69,8 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 10. **Email de seguimiento (Resend):** para que los pasos con `channel: "email"` en los planes JSON envíen correo real, crear API key en [Resend](https://resend.com), verificar dominio/remitente, y en Vercel (o `.env`) definir `RESEND_API_KEY` y `FOLLOW_UP_FROM_EMAIL` (ej. `Nombre <notificaciones@tudominio.com>`). Opcional: `FOLLOW_UP_EMAIL_SUBJECT_PREFIX`. **Sin estas variables**, el cron igual avanza la secuencia y crea una **tarea** en la ficha del contacto para envío manual. Detalle: `docs/decisions/slice-follow-up-channels-email-manual.md`.
 
+11. **Git / GitHub — clave SSH (si `git push` por SSH da `Permission denied (publickey)`):** en la cuenta de GitHub que tenga acceso al repo, [Settings → SSH and GPG keys](https://github.com/settings/keys) → **New SSH key** → pegar **solo** el contenido del archivo **público** (p. ej. `%USERPROFILE%\.ssh\id_ed25519_github.pub`, una línea que empieza por `ssh-ed25519`). **No** subas ni compartas la clave **privada** (archivo sin `.pub`). Tras guardar, probar `ssh -T git@github.com` y luego `git fetch` / `git push`. Si usas `~/.ssh/config` con `Host github.com`, `IdentityFile` debe apuntar a la **clave privada** que corresponde a esa `.pub`. **Contexto técnico y convención de claves:** `docs/decisions/github-ssh-windows-dev.md`.
+
 ---
 
 ### 3. Actualizar instalación tras el bootstrap monorepo (una sola vez)

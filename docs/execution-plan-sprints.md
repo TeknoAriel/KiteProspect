@@ -238,3 +238,4 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/sprint-l1-long-block.md` | Modo sprint largo L1 (bloque continuo). |
 | `docs/manual-actions-required.md` | Acciones solo humanas. |
 | `docs/agent-workflow-and-errors.md` | Política de errores. |
+| `docs/decisions/github-ssh-windows-dev.md` | SSH GitHub en Windows (clave dedicada + `~/.ssh/config`); checklist humano en `manual-actions-required.md` §11. |
