@@ -15,7 +15,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
 | **CRM básico** | Lista y ficha; búsqueda/filtros/paginación; notas y tareas; reasignación y pausa de seguimiento (`slice-crm-contacts-filters-assignment-followup-pause.md`); **edición etapas** comercial/conversacional en ficha (S25). |
 | **Inbox** | Lista con filtros (S18), búsqueda y paginación (S19), rango por fecha UTC `from`/`to` en `updatedAt` (S25) + hilo con IA y borrador WhatsApp (S12). |
-| **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`). |
+| **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`): lectura del perfil más reciente (matching) + **edición del perfil declarado** (`SearchProfile` `source=declared`) y sincronización de `Contact.declaredProfile` para IA; S26. |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`). |
 | **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`: **WhatsApp** (Meta), **email** (Resend si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, tarea en ficha), **Instagram/otros** → tarea manual; ver `docs/decisions/slice-follow-up-channels-email-manual.md`. |
@@ -34,6 +34,8 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 Sprint **L1** cerrado (2026-03-30): backlog L1 en `docs/execution-plan-sprints.md` completado; resumen `docs/decisions/slice-l1-batch-completion.md`. **S25** cerrado (inbox fechas/etapas/logs). Siguiente: priorizar deuda F1-E13 u otros ítems de Fase 1 según `docs/roadmap.md`.
 
 **Entorno dev (Git):** push/fetch por SSH en Windows documentado en `docs/decisions/github-ssh-windows-dev.md` (registro de clave pública en GitHub: `docs/manual-actions-required.md` ítem 11).
+
+**Sprint S26 (F1-E10):** perfil declarado editable en UI; ver `docs/decisions/slice-s26-declared-search-profile-ui.md`.
 
 ## Pendiente respecto a Fase 1 (producto)
 

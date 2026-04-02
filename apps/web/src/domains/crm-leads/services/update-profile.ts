@@ -1,81 +1,49 @@
 /**
- * Servicio: actualizar perfil declarado del contacto
- * MVP: lógica básica
- * TODO Fase 2: validaciones más estrictas, inferencia automática
+ * Perfil de búsqueda declarado (SearchProfile source=declared) + espejo en Contact.declaredProfile
+ * para IA (`plan-next-conversation-action`). F1-E10.
  */
-import type { Prisma } from "@kite-prospect/db";
-import { prisma } from "@kite-prospect/db";
+import { Prisma, prisma } from "@kite-prospect/db";
 
-interface UpdateProfileInput {
-  contactId: string;
-  intent?: string;
-  propertyType?: string;
-  zone?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  bedrooms?: number;
-  bathrooms?: number;
-  extra?: Record<string, unknown>;
+export interface DeclaredSearchProfileFields {
+  intent: string | null;
+  propertyType: string | null;
+  zone: string | null;
+  minPrice: number | null;
+  maxPrice: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  extra: Record<string, unknown> | null;
 }
 
-function toProfileFields(input: UpdateProfileInput): Omit<UpdateProfileInput, "contactId"> {
-  const { contactId: _c, ...rest } = input;
-  return rest;
+function toDecimal(n: number | null): Prisma.Decimal | null {
+  if (n === null) return null;
+  return new Prisma.Decimal(n);
 }
 
-function jsonExtra(
-  extra: Record<string, unknown> | undefined,
-): Prisma.InputJsonValue | undefined {
-  if (extra === undefined) return undefined;
-  return extra as Prisma.InputJsonValue;
-}
-
-export async function updateSearchProfile(input: UpdateProfileInput) {
-  const { contactId } = input;
-  const profileData = toProfileFields(input);
-
-  // Buscar perfil existente o crear nuevo
-  const existing = await prisma.searchProfile.findFirst({
-    where: {
-      contactId,
-      source: "declared",
-    },
+async function syncContactDeclaredProfileJson(contactId: string) {
+  const sp = await prisma.searchProfile.findFirst({
+    where: { contactId, source: "declared" },
     orderBy: { updatedAt: "desc" },
   });
+  if (!sp) return;
 
-  if (existing) {
-    // Actualizar existente
-    const { extra, ...scalarFields } = profileData;
-    const updated = await prisma.searchProfile.update({
-      where: { id: existing.id },
-      data: {
-        ...scalarFields,
-        ...(extra !== undefined ? { extra: jsonExtra(extra) } : {}),
-        updatedAt: new Date(),
-      },
-    });
+  const payload: Prisma.InputJsonValue = {
+    intent: sp.intent,
+    propertyType: sp.propertyType,
+    zone: sp.zone,
+    minPrice: sp.minPrice != null ? Number(sp.minPrice) : null,
+    maxPrice: sp.maxPrice != null ? Number(sp.maxPrice) : null,
+    bedrooms: sp.bedrooms,
+    bathrooms: sp.bathrooms,
+    extra: sp.extra === null ? null : sp.extra,
+    source: "declared",
+    updatedAt: sp.updatedAt.toISOString(),
+  };
 
-    // Actualizar estado conversacional si hay datos útiles
-    await updateConversationalStage(contactId);
-
-    return updated;
-  } else {
-    // Crear nuevo
-    const { extra, ...scalarFields } = profileData;
-    const created = await prisma.searchProfile.create({
-      data: {
-        contactId,
-        source: "declared",
-        ...scalarFields,
-        ...(extra !== undefined ? { extra: jsonExtra(extra) } : {}),
-      },
-    });
-
-    // Actualizar estado conversacional
-    await updateConversationalStage(contactId);
-
-    return created;
-  }
+  await prisma.contact.update({
+    where: { id: contactId },
+    data: { declaredProfile: payload },
+  });
 }
 
 async function updateConversationalStage(contactId: string) {
@@ -86,7 +54,6 @@ async function updateConversationalStage(contactId: string) {
 
   if (!profile) return;
 
-  // Determinar si el perfil es "útil" (tiene datos suficientes)
   const hasUsefulData =
     profile.intent ||
     profile.propertyType ||
@@ -105,4 +72,54 @@ async function updateConversationalStage(contactId: string) {
       data: { conversationalStage: "profiled_partial" },
     });
   }
+}
+
+/**
+ * Crea o actualiza el SearchProfile `declared` del contacto y sincroniza `Contact.declaredProfile`.
+ */
+export async function upsertDeclaredSearchProfile(
+  contactId: string,
+  fields: DeclaredSearchProfileFields,
+) {
+  const existing = await prisma.searchProfile.findFirst({
+    where: { contactId, source: "declared" },
+    orderBy: { updatedAt: "desc" },
+  });
+
+  const data = {
+    intent: fields.intent,
+    propertyType: fields.propertyType,
+    zone: fields.zone,
+    minPrice: toDecimal(fields.minPrice),
+    maxPrice: toDecimal(fields.maxPrice),
+    bedrooms: fields.bedrooms,
+    bathrooms: fields.bathrooms,
+    extra:
+      fields.extra === null
+        ? Prisma.DbNull
+        : (fields.extra as Prisma.InputJsonValue),
+  };
+
+  if (existing) {
+    await prisma.searchProfile.update({
+      where: { id: existing.id },
+      data,
+    });
+  } else {
+    await prisma.searchProfile.create({
+      data: {
+        contactId,
+        source: "declared",
+        ...data,
+      },
+    });
+  }
+
+  await updateConversationalStage(contactId);
+  await syncContactDeclaredProfileJson(contactId);
+
+  return prisma.searchProfile.findFirst({
+    where: { contactId, source: "declared" },
+    orderBy: { updatedAt: "desc" },
+  });
 }
