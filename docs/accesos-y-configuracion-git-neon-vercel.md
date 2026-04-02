@@ -2,7 +2,7 @@
 
 Guía de **enlaces oficiales** y **valores exactos** para este proyecto (**monorepo** en la raíz del repositorio).
 
-Tu app en producción (ejemplo): **`https://kiteprospect.vercel.app`**
+Tu app en Vercel (reemplazá por tu URL real: **Deployments → Visit**): **`https://TU-DEPLOYMENT.vercel.app`**
 
 ---
 
@@ -135,7 +135,7 @@ Marca el entorno **Production** (y **Preview** si quieres lo mismo en ramas de p
 |----------------------|-------------------|
 | `DATABASE_URL` | La URI **completa** de Neon (`postgresql://...`) |
 | `AUTH_SECRET` | Secreto largo (ej. desde https://generate-secret.vercel.app/32 ) |
-| `AUTH_URL` | `https://kiteprospect.vercel.app` — **sin** `/` al final |
+| `AUTH_URL` | `https://TU-DEPLOYMENT.vercel.app` — **sin** `/` al final |
 | `CAPTURE_API_SECRET` | Otro secreto distinto (opcional; para API de captura) |
 | `ENABLE_PUBLIC_LEAD_FORM` | `true` o no crear la variable |
 
@@ -145,7 +145,7 @@ Marca el entorno **Production** (y **Preview** si quieres lo mismo en ramas de p
 
 | Dónde | Qué hacer |
 |-------|-----------|
-| **Settings** → **Domains** | Verás `kiteprospect.vercel.app` o el dominio que asignó Vercel; puedes añadir dominio propio más adelante. |
+| **Settings** → **Domains** | Verás tu `*.vercel.app` (ej. `TU-DEPLOYMENT.vercel.app`) o el dominio custom; puedes añadir dominio propio más adelante. |
 
 ---
 
@@ -165,8 +165,8 @@ Marca el entorno **Production** (y **Preview** si quieres lo mismo en ramas de p
 | GitHub | https://github.com/login |
 | Neon | https://console.neon.tech |
 | Vercel | https://vercel.com/dashboard |
-| Tu sitio (ejemplo) | https://kiteprospect.vercel.app |
-| Login app | https://kiteprospect.vercel.app/login |
+| Tu sitio (ejemplo) | https://TU-DEPLOYMENT.vercel.app |
+| Login app | https://TU-DEPLOYMENT.vercel.app/login |
 | Generar secreto | https://generate-secret.vercel.app/32 |
 
 ---
@@ -174,5 +174,5 @@ Marca el entorno **Production** (y **Preview** si quieres lo mismo en ramas de p
 ## 6) Documentos relacionados en este repo
 
 - `docs/paso-a-paso-sin-programar.md` — guía detallada sin saber programar.  
-- `docs/paso-a-paso-vercel-kiteprospect.md` — checklist enfocado en `kiteprospect.vercel.app`.  
+- `docs/paso-a-paso-vercel-kiteprospect.md` — checklist con placeholder `TU-DEPLOYMENT.vercel.app`.  
 - `.env.example` — nombres de variables que debe respetar el hosting.

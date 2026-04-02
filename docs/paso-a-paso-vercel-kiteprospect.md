@@ -1,8 +1,8 @@
-# Paso a paso — producción en Vercel (`kiteprospect.vercel.app`)
+# Paso a paso — demo en Vercel (URL de tu proyecto)
 
 Usa esta guía como checklist. Tu URL pública de la app es:
 
-**`https://kiteprospect.vercel.app`**
+**`https://TU-DEPLOYMENT.vercel.app`**
 
 > Si en el navegador ves otra variante (mayúsculas, etc.), usa **exactamente** la que muestre la barra de direcciones.
 
@@ -26,7 +26,7 @@ Para cada fila: **Key** = nombre exacto · **Value** = lo que completes tú · *
 |---|------------------------|-------------------------|-------------|
 | 1 | `DATABASE_URL` | La cadena completa de conexión **PostgreSQL** que te da Neon, Supabase, Vercel Postgres, Railway, etc. Suele empezar por `postgresql://...` | **Sí** |
 | 2 | `AUTH_SECRET` | Un texto secreto largo (puedes generar uno en tu PC: `openssl rand -base64 32` o un generador seguro). **No** uses el mismo que en tu `.env` local si quieres separar entornos. | **Sí** |
-| 3 | `AUTH_URL` | Pega **exactamente** esto (sin espacio al final, sin `/` al final): `https://kiteprospect.vercel.app` | **Sí** |
+| 3 | `AUTH_URL` | Pega **exactamente** esto (sin espacio al final, sin `/` al final): `https://TU-DEPLOYMENT.vercel.app` | **Sí** |
 | 4 | `CAPTURE_API_SECRET` | Otro secreto distinto de `AUTH_SECRET` (solo si vas a usar la API de captura de leads). Si no la usarás aún, puedes omitirla. | No |
 | 5 | `ENABLE_PUBLIC_LEAD_FORM` | Si quieres el formulario público: `true`. Si no: no la pongas o pon `false`. | No |
 
@@ -58,21 +58,21 @@ Copia y pega en la barra de direcciones.
 
 | Paso | Qué compruebas | URL completa |
 |------|----------------|--------------|
-| 1 | Que la app carga | https://kiteprospect.vercel.app/ |
-| 2 | Pantalla de login | https://kiteprospect.vercel.app/login |
-| 3 | Panel (tras iniciar sesión) | https://kiteprospect.vercel.app/dashboard |
-| 4 | Contactos | https://kiteprospect.vercel.app/dashboard/contacts |
-| 5 | Inbox | https://kiteprospect.vercel.app/dashboard/inbox |
-| 6 | Seguimiento | https://kiteprospect.vercel.app/dashboard/followups |
-| 7 | Auditoría (solo admin) | https://kiteprospect.vercel.app/dashboard/audit |
-| 8 | Formulario lead (solo si `ENABLE_PUBLIC_LEAD_FORM=true`) | https://kiteprospect.vercel.app/lead |
-| 9 | Mismo formulario fijando cuenta `demo` | https://kiteprospect.vercel.app/lead?slug=demo |
+| 1 | Que la app carga | https://TU-DEPLOYMENT.vercel.app/ |
+| 2 | Pantalla de login | https://TU-DEPLOYMENT.vercel.app/login |
+| 3 | Panel (tras iniciar sesión) | https://TU-DEPLOYMENT.vercel.app/dashboard |
+| 4 | Contactos | https://TU-DEPLOYMENT.vercel.app/dashboard/contacts |
+| 5 | Inbox | https://TU-DEPLOYMENT.vercel.app/dashboard/inbox |
+| 6 | Seguimiento | https://TU-DEPLOYMENT.vercel.app/dashboard/followups |
+| 7 | Auditoría (solo admin) | https://TU-DEPLOYMENT.vercel.app/dashboard/audit |
+| 8 | Formulario lead (solo si `ENABLE_PUBLIC_LEAD_FORM=true`) | https://TU-DEPLOYMENT.vercel.app/lead |
+| 9 | Mismo formulario fijando cuenta `demo` | https://TU-DEPLOYMENT.vercel.app/lead?slug=demo |
 
 ---
 
 ## Parte 4 — Pantalla de login: qué escribir en cada campo
 
-Abre: **https://kiteprospect.vercel.app/login**
+Abre: **https://TU-DEPLOYMENT.vercel.app/login**
 
 | Campo en pantalla | Qué escribir |
 |-------------------|--------------|
@@ -91,7 +91,7 @@ Solo si configuraste `CAPTURE_API_SECRET` en Vercel y redeploy.
 Sustituye `TU_SECRETO` por el valor real de `CAPTURE_API_SECRET`:
 
 ```powershell
-$base = "https://kiteprospect.vercel.app"
+$base = "https://TU-DEPLOYMENT.vercel.app"
 $secret = "TU_SECRETO"
 $body = '{"accountSlug":"demo","email":"prueba@example.com","name":"Prueba","message":"Hola","channel":"form"}'
 Invoke-RestMethod -Uri "$base/api/contacts/create" -Method POST -Headers @{

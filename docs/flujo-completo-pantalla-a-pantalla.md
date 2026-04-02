@@ -76,7 +76,7 @@ Están en `.gitignore` (`.env`) y en el panel de **Vercel** / **Neon**.
 | 3 | **Configure Project** (antes de Deploy) | **Root Directory:** ` ` (vacío / raíz del repo). **Install:** `npm install`. **Build:** `npm run build`. **Framework:** Next.js si lo detecta. |
 | 4 | **Environment Variables** (mismo asistente o **Settings → Environment Variables**) | Añades filas de la tabla de abajo (Production). |
 | 5 | **Deploy** | Esperas a **Ready**. |
-| 6 | **Deployments** → último → **Visit** | Copias la URL real (ej. `https://kiteprospect.vercel.app`). |
+| 6 | **Deployments** → último → **Visit** | Copias la URL real (ej. `https://TU-DEPLOYMENT.vercel.app`). |
 | 7 | **Settings** → **General** → **Node.js Version** | **20.x** si existe la opción. |
 | 8 | Tras cambiar variables | **Redeploy** del último deployment. |
 

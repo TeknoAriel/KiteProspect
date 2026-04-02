@@ -3,7 +3,7 @@
 Esta guía te dice **qué hacer**, **en qué orden**, **qué página abrir** y **qué texto copiar o pegar**.  
 Tu sitio en internet es:
 
-**`https://kiteprospect.vercel.app`**
+**`https://TU-DEPLOYMENT.vercel.app`**
 
 ---
 
@@ -80,13 +80,13 @@ Para **cada fila** de la tabla de abajo:
 |----------------------|----------------------------|
 | `DATABASE_URL` | El texto largo **postgresql://...** que copiaste de Neon (Parte A). **Todo en una sola línea.** |
 | `AUTH_SECRET` | Un secreto largo. **Opción fácil:** abre **https://generate-secret.vercel.app/32** , copia el texto que sale y pégalo aquí. |
-| `AUTH_URL` | Pega **exactamente** esto (sin espacio al final, sin barra `/` al final): `https://kiteprospect.vercel.app` |
+| `AUTH_URL` | Pega **exactamente** esto (sin espacio al final, sin barra `/` al final): `https://TU-DEPLOYMENT.vercel.app` |
 | `CAPTURE_API_SECRET` | Otro secreto distinto del anterior. Puedes generar **otro** en **https://generate-secret.vercel.app/32** y pegarlo. (Sirve si más adelante usas captura de leads por API.) |
 | `ENABLE_PUBLIC_LEAD_FORM` | Si quieres el formulario de contacto público en la web, escribe: `true` . Si no lo quieres aún, puedes **no** crear esta variable. |
 
 **Resumen de lo que NO debes inventar mal:**
 
-- `AUTH_URL` debe ser exactamente: `https://kiteprospect.vercel.app`
+- `AUTH_URL` debe ser exactamente: `https://TU-DEPLOYMENT.vercel.app`
 - `DATABASE_URL` debe ser el texto completo de Neon, sin cortarlo.
 
 ### B4. Volver a desplegar (obligatorio)
@@ -172,24 +172,24 @@ Cuando esto termine bien, **continúa en la Parte D**.
 
 # PARTE D — Probar en el navegador (solo enlaces)
 
-Abre cada enlace **en orden**. Sustituye solo si tu Vercel te muestra otra dirección; si usas **`kiteprospect.vercel.app`**, estos son correctos.
+Abre cada enlace **en orden**, reemplazando `TU-DEPLOYMENT.vercel.app` por la URL que muestre **Vercel → Deployments → Visit** (o **Domains**).
 
 | Paso | Qué deberías ver | Enlace (copiar y pegar) |
 |------|------------------|-------------------------|
-| 1 | Página de inicio de Kite Prospect | https://kiteprospect.vercel.app/ |
-| 2 | Pantalla de inicio de sesión | https://kiteprospect.vercel.app/login |
-| 3 | Panel (solo si ya iniciaste sesión en el paso 2) | https://kiteprospect.vercel.app/dashboard |
-| 4 | Lista de contactos | https://kiteprospect.vercel.app/dashboard/contacts |
-| 5 | Inbox | https://kiteprospect.vercel.app/dashboard/inbox |
-| 6 | Seguimiento | https://kiteprospect.vercel.app/dashboard/followups |
-| 7 | Auditoría (solo si tu usuario es administrador) | https://kiteprospect.vercel.app/dashboard/audit |
-| 8 | Formulario público (solo si pusiste `ENABLE_PUBLIC_LEAD_FORM` = `true`) | https://kiteprospect.vercel.app/lead |
+| 1 | Página de inicio de Kite Prospect | https://TU-DEPLOYMENT.vercel.app/ |
+| 2 | Pantalla de inicio de sesión | https://TU-DEPLOYMENT.vercel.app/login |
+| 3 | Panel (solo si ya iniciaste sesión en el paso 2) | https://TU-DEPLOYMENT.vercel.app/dashboard |
+| 4 | Lista de contactos | https://TU-DEPLOYMENT.vercel.app/dashboard/contacts |
+| 5 | Inbox | https://TU-DEPLOYMENT.vercel.app/dashboard/inbox |
+| 6 | Seguimiento | https://TU-DEPLOYMENT.vercel.app/dashboard/followups |
+| 7 | Auditoría (solo si tu usuario es administrador) | https://TU-DEPLOYMENT.vercel.app/dashboard/audit |
+| 8 | Formulario público (solo si pusiste `ENABLE_PUBLIC_LEAD_FORM` = `true`) | https://TU-DEPLOYMENT.vercel.app/lead |
 
 ---
 
 # PARTE E — Iniciar sesión: qué escribir en cada casilla
 
-Abre: **https://kiteprospect.vercel.app/login**
+Abre: **https://TU-DEPLOYMENT.vercel.app/login**
 
 **Solo funciona si** en la base de datos ejecutaste **`npm run db:seed`** (Camino 1 o 2 de la Parte C) y existe la cuenta demo.
 
@@ -208,7 +208,7 @@ Si **no** hiciste seed, esos datos **no** entrarán: hace falta crear usuarios d
 | Problema | Qué revisar |
 |----------|-------------|
 | La página no carga | Espera unos minutos tras el Redeploy; recarga con **F5**. |
-| Error al iniciar sesión | `AUTH_URL` en Vercel = `https://kiteprospect.vercel.app` (sin `/` final); `AUTH_SECRET` definido; **Redeploy** hecho. |
+| Error al iniciar sesión | `AUTH_URL` en Vercel = `https://TU-DEPLOYMENT.vercel.app` (sin `/` final); `AUTH_SECRET` definido; **Redeploy** hecho. |
 | Error de base de datos / “can’t reach” | `DATABASE_URL` en Vercel = el texto **completo** de Neon; la base encendida en Neon. |
 | Panel vacío o errores raros | ¿Se ejecutó **`db:migrate:deploy`** sin error? Sin tablas, la app falla. |
 | `/lead` no aparece o no envía | Variable `ENABLE_PUBLIC_LEAD_FORM` = `true` y **Redeploy**. |
@@ -223,9 +223,9 @@ Si **no** hiciste seed, esos datos **no** entrarán: hace falta crear usuarios d
 | Crear base PostgreSQL (Neon) | https://neon.tech |
 | Generar un secreto (AUTH / captura) | https://generate-secret.vercel.app/32 |
 | Descargar Node.js (solo si haces Camino 2) | https://nodejs.org |
-| Tu sitio (inicio) | https://kiteprospect.vercel.app/ |
-| Login | https://kiteprospect.vercel.app/login |
-| Panel | https://kiteprospect.vercel.app/dashboard |
+| Tu sitio (inicio) | https://TU-DEPLOYMENT.vercel.app/ |
+| Login | https://TU-DEPLOYMENT.vercel.app/login |
+| Panel | https://TU-DEPLOYMENT.vercel.app/dashboard |
 
 ---
 
@@ -235,7 +235,7 @@ Si **no** hiciste seed, esos datos **no** entrarán: hace falta crear usuarios d
 2. En **Vercel** → **Settings** → **Environment Variables** pegas `DATABASE_URL`, `AUTH_SECRET`, `AUTH_URL`, y lo demás según la tabla.  
 3. Haces **Redeploy**.  
 4. Alguien ejecuta **`npm run db:migrate:deploy`** (y opcionalmente **`db:seed`**) con esa base.  
-5. Abres **https://kiteprospect.vercel.app/login** y pruebas usuario demo **solo si** hiciste seed.  
+5. Abres **https://TU-DEPLOYMENT.vercel.app/login** y pruebas usuario demo **solo si** hiciste seed.  
 6. Si falla, usa la **Parte F** de esta misma página.
 
 ---

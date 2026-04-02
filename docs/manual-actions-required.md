@@ -10,7 +10,7 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Solo pruebas en producción (URL pública):** checklist con rutas y ejemplos → **[produccion-checklist-usuario.md](./produccion-checklist-usuario.md)**.
 
-**Vercel `kiteprospect.vercel.app` — paso a paso con URLs y campos a completar:** **[paso-a-paso-vercel-kiteprospect.md](./paso-a-paso-vercel-kiteprospect.md)**.
+**Vercel (demo) — paso a paso:** usa la URL que muestre **tu** proyecto (**Deployments → Visit**). Guía con placeholder `https://TU-DEPLOYMENT.vercel.app`: **[paso-a-paso-vercel-kiteprospect.md](./paso-a-paso-vercel-kiteprospect.md)**. Si ves **404**, ver **[vercel-404-diagnostico.md](./decisions/vercel-404-diagnostico.md)**.
 
 **Sin saber programar — guía larga con todas las URLs y textos a copiar:** **[paso-a-paso-sin-programar.md](./paso-a-paso-sin-programar.md)**.
 
@@ -164,7 +164,7 @@ Si tenías una versión anterior del repo (Next y Prisma en la raíz, sin `apps/
 
 **Resumen:** la configuración recomendada es **`%USERPROFILE%\.cursor\mcp.json`** (Windows) o **`~/.cursor/mcp.json`** (Mac/Linux), con el bloque `kiteprop` y tu `KITEPROP_API_TOKEN` personal (`kp_…`). Plantilla sin secretos: [`.mcp.json.example`](../.mcp.json.example) o [`docs/templates/kiteprop-cursor-mcp.json.example`](./templates/kiteprop-cursor-mcp.json.example).
 
-**No compartas la API key en el chat**; rotala en KiteProp si se filtró.
+**No compartas la API key en el chat**; rotala si se filtró. **No** uses `www.kiteprop.com` como URL por defecto: solo API **demo/staging** acordada (`docs/decisions/kiteprop-frontera-demo-y-produccion.md`).
 
 ---
 

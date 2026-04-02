@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "github:kiteprop/crm-mcp"],
       "env": {
-        "KITEPROP_API_URL": "https://www.kiteprop.com",
+        "KITEPROP_API_URL": "",
         "KITEPROP_API_TOKEN": "REEMPLAZAR_CON_TU_CLAVE_kp_"
       }
     }

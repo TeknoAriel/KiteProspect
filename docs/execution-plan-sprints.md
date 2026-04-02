@@ -249,3 +249,5 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-s28-crm-closed-tasks-capture-log.md` | F1-E13: historial tareas cerradas; log `lead_captured` post-captura. |
 | `docs/decisions/slice-s29-inbox-read-state.md` | F1-E8: `lastReadAt` + indicador no leído en inbox. |
 | `docs/decisions/slice-s30-follow-up-start-from-contact.md` | F1-E12: iniciar secuencia desde ficha + intentos visibles. |
+| `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |
+| `docs/decisions/vercel-404-diagnostico.md` | Checklist si la URL de Vercel devuelve 404. |

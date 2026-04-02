@@ -38,6 +38,11 @@ Plataforma SaaS multi-tenant de prospección inmobiliaria **asistida** (no bot g
 
 No inventar features fuera de `PRODUCT_DEFINITION.md` sin actualizar ese archivo.
 
+## KiteProp (CRM) y entornos
+
+- **No** fijar `www.kiteprop.com` ni subdominios de **producción** de la plataforma KiteProp como URL por defecto en plantillas o ejemplos de API. Usar instancias **demo/staging** acordadas; doble aprobación antes de producción. Ver `docs/decisions/kiteprop-frontera-demo-y-produccion.md`.
+- La app **Kite Prospect** en la nube: URL siempre la de **Vercel → Deployments → Visit** (no asumir un hostname fijo en guías).
+
 ## Monorepo
 
 - `apps/web` → `@kite-prospect/web`

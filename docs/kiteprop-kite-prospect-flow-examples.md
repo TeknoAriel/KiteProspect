@@ -2,7 +2,7 @@
 
 **Propósito:** entender la **lógica** de punta a punta: qué haría **Kite Prospect** ante consultas típicas del mundo KiteProp, **sin ejecutar envíos reales**. Incluye **roadmap temporal** (horas entre pasos) alineado a `processDueFollowUps` y a las plantillas de `docs/decisions/follow-up-plans-real-estate-templates.md`.
 
-**Fecha de snapshot KiteProp (API):** 2026-04-01. Los códigos y títulos de abajo salieron de `GET /api/v1/properties?limit=15&page=1` y `GET /api/v1/statistics/dashboard` con clave personal; pueden cambiar en el CRM.
+**Datos de ejemplo:** los códigos y títulos siguientes ilustran un snapshot tomado desde una **API CRM de demo** (no documentamos ni fijamos `www.kiteprop.com` como origen). Los números pueden no coincidir con tu entorno. Política: `docs/decisions/kiteprop-frontera-demo-y-produccion.md`.
 
 ---
 

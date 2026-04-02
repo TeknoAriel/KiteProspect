@@ -36,6 +36,16 @@ Derivado de **PRODUCT_DEFINITION.md** (fuente de verdad). Las reglas de implemen
 
 ---
 
+## Integración con KiteProp / CRM externo (límites)
+
+- **Kite Prospect** se desarrolla y prueba contra **deployments en Vercel (demo / preview)** hasta acuerdo explícito de **doble aprobación** para un dominio de producción propio.
+- **No** usar como referencia por defecto el sitio público de producción de KiteProp (`www.kiteprop.com` y subdominios operativos de la plataforma) en plantillas, variables de ejemplo ni documentación que pueda inducir tráfico o cambios contra ese entorno. La base de API CRM (`KITEPROP_API_URL`) debe ser la **instancia demo/staging** que defina el equipo.
+- Los **feeds de inventario** (`Account.config.kitepropFeed`) siguen siendo URLs **por tenant** configuradas por el admin; no sustituyen esta regla sobre documentación y defaults del repo.
+
+Decisión detallada: `docs/decisions/kiteprop-frontera-demo-y-produccion.md`.
+
+---
+
 ## Usuarios y roles internos
 
 | Rol | Expectativa |

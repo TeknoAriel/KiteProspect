@@ -29,3 +29,4 @@ Si `vercel deploy` falla con una ruta inexistente tipo `.../apps/web/apps/web`, 
 
 - `package.json` — scripts `build:vercel`, `db:migrate:deploy:raw`, `db:seed:raw`
 - `apps/web/vercel.json`
+- Si la URL pública devuelve 404: `docs/decisions/vercel-404-diagnostico.md`

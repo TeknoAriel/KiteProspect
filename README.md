@@ -53,6 +53,13 @@ npm run dev
 
 Abrir [http://localhost:3000](http://localhost:3000).
 
+## Deploy en Vercel (demo)
+
+1. En el proyecto de Vercel: **Settings → General → Root Directory** = **`apps/web`** (monorepo).
+2. Build e install usan `apps/web/vercel.json` (`npm run build:vercel` desde la raíz del repo).
+3. La URL pública es la que muestre **Deployments → Visit** (placeholder en guías: `https://TU-DEPLOYMENT.vercel.app`). Si todo devuelve **404**, ver [docs/decisions/vercel-404-diagnostico.md](./docs/decisions/vercel-404-diagnostico.md).
+4. No usar `www.kiteprop.com` como API por defecto: [docs/decisions/kiteprop-frontera-demo-y-produccion.md](./docs/decisions/kiteprop-frontera-demo-y-produccion.md).
+
 ## Scripts (raíz)
 
 | Script | Descripción |
