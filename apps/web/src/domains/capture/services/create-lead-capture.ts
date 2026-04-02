@@ -5,6 +5,7 @@
 import { prisma } from "@kite-prospect/db";
 import { validateLeadCaptureFields } from "@/lib/capture-validation";
 import { recordAuditEvent } from "@/lib/audit";
+import { logStructured } from "@/lib/structured-log";
 
 const ALLOWED_CHANNELS = new Set([
   "web_widget",
@@ -92,6 +93,7 @@ export async function createLeadCapture(
     },
   });
 
+  let createdNewContact = false;
   if (!contact) {
     contact = await prisma.contact.create({
       data: {
@@ -103,6 +105,7 @@ export async function createLeadCapture(
         commercialStage: "exploratory",
       },
     });
+    createdNewContact = true;
   } else if (nameStr && !contact.name) {
     await prisma.contact.update({
       where: { id: contact.id },
@@ -168,6 +171,15 @@ export async function createLeadCapture(
   } catch (e) {
     console.error("[audit] lead_captured failed", e);
   }
+
+  logStructured("lead_captured", {
+    accountId,
+    contactId: contact.id,
+    channel,
+    newContact: createdNewContact,
+    hasInboundMessage: Boolean(messageStr),
+    source: input.source === "public_form" ? "public_form" : "api",
+  });
 
   return {
     ok: true,

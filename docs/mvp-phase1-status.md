@@ -29,12 +29,12 @@
 
 **TODO Fase 2:**
 - Formularios de edición ampliados
-- Editar tareas y notas existentes
 - Vista de pipeline (kanban)
 - Más filtros (fechas, asesor, etc.)
 
 **Hecho post-slice inicial:**
 - Búsqueda y filtros por etapa en lista de contactos; reasignación y pausa de seguimiento (`slice-crm-contacts-filters-assignment-followup-pause.md`).
+- Edición de tareas y notas (S27); historial de tareas cerradas en ficha (S28).
 
 ### ✅ Slice 3: Contactos y conversaciones
 - [x] Endpoint API para crear contactos

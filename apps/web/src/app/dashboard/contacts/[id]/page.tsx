@@ -18,6 +18,16 @@ import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
 
+function crmTaskTypeLabel(type: string): string {
+  const map: Record<string, string> = {
+    call: "Llamada",
+    visit: "Visita",
+    followup: "Seguimiento",
+    other: "Otro",
+  };
+  return map[type] ?? type;
+}
+
 export default async function ContactDetailPage({
   params,
 }: {
@@ -108,6 +118,24 @@ export default async function ContactDetailPage({
   if (!contact) {
     notFound();
   }
+
+  const completedTasks = await prisma.task.findMany({
+    where: {
+      contactId: id,
+      status: { in: ["completed", "cancelled"] },
+    },
+    orderBy: [{ updatedAt: "desc" }],
+    take: 15,
+    select: {
+      id: true,
+      title: true,
+      description: true,
+      type: true,
+      status: true,
+      completedAt: true,
+      updatedAt: true,
+    },
+  });
 
   const commercialForSelect = isCommercialStage(contact.commercialStage)
     ? contact.commercialStage
@@ -233,6 +261,50 @@ export default async function ContactDetailPage({
               <p style={{ color: "#666", marginTop: 0 }}>Sin tareas pendientes.</p>
             )}
           </section>
+
+          {completedTasks.length > 0 ? (
+            <section
+              style={{
+                padding: "1.5rem",
+                border: "1px solid #e8e8e8",
+                borderRadius: "8px",
+                backgroundColor: "#fcfcfc",
+              }}
+            >
+              <h2 style={{ marginTop: 0, fontSize: "1.05rem" }}>Tareas cerradas recientes</h2>
+              <p style={{ margin: "0 0 0.75rem", fontSize: "0.78rem", color: "#666" }}>
+                Hasta 15 últimas completadas o canceladas (solo lectura).
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                {completedTasks.map((t) => (
+                  <div
+                    key={t.id}
+                    style={{
+                      padding: "0.55rem 0.65rem",
+                      backgroundColor: "#f2f2f2",
+                      borderRadius: "4px",
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    <p style={{ margin: 0 }}>
+                      <strong>{t.title}</strong>
+                      <span style={{ marginLeft: "0.5rem", color: "#666" }}>
+                        ({crmTaskTypeLabel(t.type)} · {t.status === "completed" ? "Hecha" : "Cancelada"})
+                      </span>
+                    </p>
+                    {t.description ? (
+                      <p style={{ margin: "0.2rem 0 0", color: "#444" }}>{t.description}</p>
+                    ) : null}
+                    <p style={{ margin: "0.25rem 0 0", fontSize: "0.72rem", color: "#888" }}>
+                      {t.completedAt
+                        ? `Cerrada: ${new Date(t.completedAt).toLocaleString()}`
+                        : `Actualizada: ${new Date(t.updatedAt).toLocaleString()}`}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           {/* Notas */}
           <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
