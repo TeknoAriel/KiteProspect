@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { logStructured } from "@/lib/structured-log";
 import { revalidatePath } from "next/cache";
 import {
   upsertDeclaredSearchProfile,
@@ -113,6 +114,14 @@ export async function updateDeclaredSearchProfileAction(
   };
 
   await upsertDeclaredSearchProfile(contactId, fields);
+
+  logStructured("contact_search_profile_declared_saved", {
+    accountId: session.user.accountId,
+    contactId,
+    hasIntent: Boolean(intent),
+    hasZone: Boolean(zone),
+    hasPriceRange: minPrice != null || maxPrice != null,
+  });
 
   try {
     await recordAuditEvent({

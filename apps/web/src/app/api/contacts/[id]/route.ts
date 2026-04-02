@@ -5,6 +5,7 @@ import { prisma } from "@kite-prospect/db";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { recordAuditEvent } from "@/lib/audit";
+import { logStructured } from "@/lib/structured-log";
 import {
   isCommercialStage,
   isConversationalStage,
@@ -96,6 +97,13 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
         conversationalStage: updated.conversationalStage,
       },
     },
+  });
+
+  logStructured("contact_stages_patched", {
+    accountId,
+    contactId,
+    commercialChanged: patch.commercialStage !== undefined,
+    conversationalChanged: patch.conversationalStage !== undefined,
   });
 
   return NextResponse.json({ ok: true, contact: updated });

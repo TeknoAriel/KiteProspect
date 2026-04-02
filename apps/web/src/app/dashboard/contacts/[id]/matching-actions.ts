@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { syncPropertyMatchesForContact } from "@/domains/matching/services/sync-property-matches";
+import { logStructured } from "@/lib/structured-log";
 import { revalidatePath } from "next/cache";
 
 export type RecalculateMatchesResult =
@@ -15,6 +16,11 @@ export async function recalculatePropertyMatchesAction(
   if (!session?.user?.accountId) {
     return { ok: false, error: "No autorizado." };
   }
+
+  logStructured("contact_matches_recalc_started", {
+    accountId: session.user.accountId,
+    contactId,
+  });
 
   const result = await syncPropertyMatchesForContact(
     contactId,

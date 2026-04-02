@@ -9,22 +9,14 @@ import {
   isConversationalStage,
 } from "@/domains/crm-leads/contact-stage-constants";
 import { ContactNotesForm } from "./contact-notes-form";
+import { ContactNoteRow } from "./contact-note-row";
 import { ContactTasksForm } from "./contact-tasks-form";
+import { ContactTaskRow } from "./contact-task-row";
 import { ContactAssignmentForm } from "./contact-assignment-form";
 import { ContactStagesForm } from "./contact-stages-form";
 import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
-
-function taskTypeLabel(type: string): string {
-  const map: Record<string, string> = {
-    call: "Llamada",
-    visit: "Visita",
-    followup: "Seguimiento",
-    other: "Otro",
-  };
-  return map[type] ?? type;
-}
 
 export default async function ContactDetailPage({
   params,
@@ -66,8 +58,8 @@ export default async function ContactDetailPage({
         take: 20,
       },
       notes: {
-        orderBy: { createdAt: "desc" },
-        take: 10,
+        orderBy: [{ updatedAt: "desc" }, { createdAt: "desc" }],
+        take: 20,
       },
       assignments: {
         where: { status: "active" },
@@ -225,20 +217,16 @@ export default async function ContactDetailPage({
             {contact.tasks.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {contact.tasks.map((task) => (
-                  <div key={task.id} style={{ padding: "0.75rem", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
-                    <p style={{ margin: 0 }}>
-                      <strong>{task.title}</strong>
-                      <span style={{ marginLeft: "0.5rem", fontSize: "0.75rem", color: "#666" }}>
-                        ({taskTypeLabel(task.type)})
-                      </span>
-                    </p>
-                    {task.description && <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.875rem" }}>{task.description}</p>}
-                    {task.dueAt && (
-                      <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.875rem", color: "#666" }}>
-                        Vence: {new Date(task.dueAt).toLocaleString()}
-                      </p>
-                    )}
-                  </div>
+                  <ContactTaskRow
+                    key={task.id}
+                    task={{
+                      id: task.id,
+                      title: task.title,
+                      description: task.description,
+                      type: task.type,
+                      dueAtIso: task.dueAt ? task.dueAt.toISOString() : null,
+                    }}
+                  />
                 ))}
               </div>
             ) : (
@@ -253,12 +241,15 @@ export default async function ContactDetailPage({
             {contact.notes.length > 0 ? (
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {contact.notes.map((note) => (
-                  <div key={note.id} style={{ padding: "0.75rem", backgroundColor: "#f9f9f9", borderRadius: "4px" }}>
-                    <p style={{ margin: 0, fontSize: "0.875rem" }}>{note.content}</p>
-                    <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.75rem", color: "#666" }}>
-                      {new Date(note.createdAt).toLocaleString()}
-                    </p>
-                  </div>
+                  <ContactNoteRow
+                    key={note.id}
+                    note={{
+                      id: note.id,
+                      content: note.content,
+                      createdAtIso: note.createdAt.toISOString(),
+                      updatedAtIso: note.updatedAt.toISOString(),
+                    }}
+                  />
                 ))}
               </div>
             ) : (

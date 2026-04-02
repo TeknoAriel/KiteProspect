@@ -29,11 +29,11 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **S26 — F1-E10 perfil declarado editable** (`/dashboard/contacts/[id]/profile`). Ver `docs/decisions/slice-s26-declared-search-profile-ui.md`. |
+| **Sprint activo** | **S27 — CRM edición tareas/notas + logs estructurados**. Ver `docs/decisions/slice-s27-crm-edit-observability.md`. |
 | **Inicio (ISO)** | 2026-03-30 (sugerido; ajustar si el equipo arranca otro día). |
 | **Fin objetivo (ISO)** | +10 a +14 días desde inicio (ventana de trabajo continuo). |
 | **Objetivo del sprint** | Inbox operable por rango de fechas; edición de etapas comercial/conversacional en ficha; trazas JSON mínimas en jobs/captura/matching. |
-| **Última verificación agente** | 2026-04-01: `npm run verify` en verde; decisión S26 (perfil declarado UI). |
+| **Última verificación agente** | 2026-04-02: `npm run verify` en verde; decisión S27 (CRM edit + observabilidad). |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -241,3 +241,4 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/agent-workflow-and-errors.md` | Política de errores. |
 | `docs/decisions/github-ssh-windows-dev.md` | SSH GitHub en Windows (clave dedicada + `~/.ssh/config`); checklist humano en `manual-actions-required.md` §11. |
 | `docs/decisions/slice-s26-declared-search-profile-ui.md` | F1-E10: edición `SearchProfile` declarado + espejo `Contact.declaredProfile`. |
+| `docs/decisions/slice-s27-crm-edit-observability.md` | F1-E13: edición tareas/notas; logs `crm_*`, `contact_*` sin PII. |

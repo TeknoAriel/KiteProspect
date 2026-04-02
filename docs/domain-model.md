@@ -47,7 +47,7 @@ Account (tenant)
 | **Conversation** | Hilo por canal (`web_widget`, `landing`, `whatsapp`, `form`). Enlaza `Contact` y `Account`. |
 | **Message** | Mensaje entrante/saliente; metadata para WhatsApp (estado, plantilla). |
 | **Task** | Tarea comercial asociada al contacto. |
-| **Note** | Nota libre; `authorId` referencia lógica a usuario/asesor. |
+| **Note** | Nota libre; `authorId` referencia lógica a usuario/asesor; `updatedAt` para ediciones desde ficha (S27). |
 | **Assignment** | Asignación de `Contact` a `Advisor`. |
 
 ### Perfil y búsqueda

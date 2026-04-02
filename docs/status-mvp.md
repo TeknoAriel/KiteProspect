@@ -13,7 +13,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Usuarios (F1-E3)** | ABM de usuario por tenant en `/dashboard/users` + API; hash bcrypt en alta/edición; no borrar usuario autenticado; `slice-s15-users-abm.md`. |
 | **Asesores (F1-E3)** | ABM `/dashboard/advisors` + API; vínculo opcional usuario del tenant (un usuario → un asesor); `slice-s16-advisors-abm.md`. |
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
-| **CRM básico** | Lista y ficha; búsqueda/filtros/paginación; notas y tareas; reasignación y pausa de seguimiento (`slice-crm-contacts-filters-assignment-followup-pause.md`); **edición etapas** comercial/conversacional en ficha (S25). |
+| **CRM básico** | Lista y ficha; búsqueda/filtros/paginación; **notas y tareas con edición** (S27); reasignación y pausa de seguimiento (`slice-crm-contacts-filters-assignment-followup-pause.md`); **edición etapas** comercial/conversacional en ficha (S25). |
 | **Inbox** | Lista con filtros (S18), búsqueda y paginación (S19), rango por fecha UTC `from`/`to` en `updatedAt` (S25) + hilo con IA y borrador WhatsApp (S12). |
 | **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`): lectura del perfil más reciente (matching) + **edición del perfil declarado** (`SearchProfile` `source=declared`) y sincronización de `Contact.declaredProfile` para IA; S26. |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
@@ -36,6 +36,8 @@ Sprint **L1** cerrado (2026-03-30): backlog L1 en `docs/execution-plan-sprints.m
 **Entorno dev (Git):** push/fetch por SSH en Windows documentado en `docs/decisions/github-ssh-windows-dev.md` (registro de clave pública en GitHub: `docs/manual-actions-required.md` ítem 11).
 
 **Sprint S26 (F1-E10):** perfil declarado editable en UI; ver `docs/decisions/slice-s26-declared-search-profile-ui.md`.
+
+**Sprint S27 (F1-E13 + observabilidad):** edición de notas/tareas en ficha, logs estructurados CRM; ver `docs/decisions/slice-s27-crm-edit-observability.md`.
 
 ## Pendiente respecto a Fase 1 (producto)
 
