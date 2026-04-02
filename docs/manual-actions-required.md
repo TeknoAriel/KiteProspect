@@ -158,19 +158,13 @@ Si tenías una versión anterior del repo (Next y Prisma en la raíz, sin `apps/
 
 ### 9. MCP de KiteProp (Cursor / Claude Code)
 
-**Qué es:** servidor [MCP](https://github.com/kiteprop/crm-mcp) que expone el CRM KiteProp como herramientas para el asistente (propiedades, contactos, estadísticas, etc.). **No forma parte del runtime de Kite Prospect**; es configuración de tu IDE.
+**Qué es:** servidor [MCP](https://github.com/kiteprop/crm-mcp) que expone el CRM KiteProp como herramientas para el asistente. **No forma parte del runtime de Kite Prospect**; es configuración del IDE.
 
-**Qué hacer:**
+**Guía completa (global para todos los proyectos, variables, prueba API, fallback por repo):** [kiteprop-mcp-setup.md](./kiteprop-mcp-setup.md).
 
-1. En KiteProp, generá tu **clave personal de API** (formato `kp_…`; es por usuario/organización, no global).
-2. En la **raíz** de este monorepo, copiá `.mcp.json.example` a `.mcp.json` (`.mcp.json` está en `.gitignore` para no subir secretos).
-3. Reemplazá `REEMPLAZAR_CON_TU_CLAVE_kp_` por tu token en `KITEPROP_API_TOKEN`.
-4. Si tu instancia no es la pública, ajustá `KITEPROP_API_URL` en el mismo archivo.
-5. En **Cursor:** `Settings → MCP` y confirmá que el proyecto carga el `mcp.json` de la raíz, o añadí el mismo bloque `kiteprop` manualmente en la configuración MCP del editor. Reiniciá Cursor o recargá ventana si no aparece el servidor.
+**Resumen:** la configuración recomendada es **`%USERPROFILE%\.cursor\mcp.json`** (Windows) o **`~/.cursor/mcp.json`** (Mac/Linux), con el bloque `kiteprop` y tu `KITEPROP_API_TOKEN` personal (`kp_…`). Plantilla sin secretos: [`.mcp.json.example`](../.mcp.json.example) o [`docs/templates/kiteprop-cursor-mcp.json.example`](./templates/kiteprop-cursor-mcp.json.example).
 
-**Repositorio upstream:** [https://github.com/kiteprop/crm-mcp](https://github.com/kiteprop/crm-mcp).
-
-**Cuándo avisar a la IA con la API key:** solo hace falta pegarla en **tu** `.mcp.json` local; no la compartas en el chat. Si querés que pruebe herramientas MCP desde esta sesión, Cursor ya tiene que tener el servidor conectado con tu clave en tu máquina (la IA no puede leer tu `.mcp.json` salvo que lo pegues, y **no conviene** pegar secretos en el chat).
+**No compartas la API key en el chat**; rotala en KiteProp si se filtró.
 
 ---
 
