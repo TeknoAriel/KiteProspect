@@ -260,7 +260,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-s29-inbox-read-state.md` | F1-E8: `lastReadAt` + indicador no leído en inbox. |
 | `docs/decisions/slice-s30-follow-up-start-from-contact.md` | F1-E12: iniciar secuencia desde ficha + intentos visibles. |
 | `docs/decisions/slice-s31-production-readiness-health.md` | Cierre ops F1: health público + integraciones configuradas (booleanos). |
-| `docs/decisions/slice-s32-kiteprop-incremental-json-cron.md` | Feed KiteProp: 304, manifiesto id+fecha, withdraw/delete, cron 30 min. |
+| `docs/decisions/slice-s32-kiteprop-incremental-json-cron.md` | Feed KiteProp: 304, manifiesto id+fecha, withdraw/delete, cron ajustable (~2 días en prueba). |
 | `docs/decisions/slice-s33-dashboard-ops-visibility.md` | Dashboard operaciones + filtros listado propiedades. |
 | `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |
 | `docs/decisions/vercel-404-diagnostico.md` | Checklist si la URL de Vercel devuelve 404. |
