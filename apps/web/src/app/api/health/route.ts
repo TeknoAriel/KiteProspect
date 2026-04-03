@@ -27,6 +27,34 @@ export async function GET() {
   /** NextAuth recomienda secreto fuerte; si falta o es corto, las sesiones JWT fallan o se invalidan al redeploy. */
   const authSecretLongEnough = authSecret.length >= 32;
 
+  const authUrl = process.env.AUTH_URL?.trim() ?? "";
+  const authUrlConfigured = authUrl.length > 0;
+  const isDeployed =
+    process.env.VERCEL === "1" || process.env.NODE_ENV === "production";
+
+  /** Solo presencia de variables (sin valores); útil en producción para ver qué falta configurar. */
+  const captureSecretConfigured =
+    (process.env.CAPTURE_API_SECRET?.trim() ?? "").length > 0;
+  const cronSecretConfigured = (process.env.CRON_SECRET?.trim() ?? "").length > 0;
+  const resendConfigured =
+    (process.env.RESEND_API_KEY?.trim() ?? "").length > 0 &&
+    (process.env.FOLLOW_UP_FROM_EMAIL?.trim() ?? "").length > 0;
+  const whatsAppWebhookConfigured =
+    (process.env.WHATSAPP_VERIFY_TOKEN?.trim() ?? "").length > 0 &&
+    (process.env.WHATSAPP_ACCOUNT_SLUG?.trim() ?? "").length > 0;
+  const whatsAppOutboundConfigured =
+    (process.env.WHATSAPP_PHONE_NUMBER_ID?.trim() ?? "").length > 0 &&
+    (process.env.WHATSAPP_ACCESS_TOKEN?.trim() ?? "").length > 0;
+  const aiProvider = (
+    process.env.AI_PROVIDER?.trim().toLowerCase() || "gemini"
+  ) as "gemini" | "openai";
+  const aiConfigured =
+    aiProvider === "openai"
+      ? (process.env.OPENAI_API_KEY?.trim() ?? "").length > 0
+      : (process.env.GEMINI_API_KEY?.trim() ?? "").length > 0;
+
+  const deployCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
+
   const demoAccount = await prisma.account.findUnique({
     where: { slug: "demo" },
     select: { id: true, status: true },
@@ -57,6 +85,9 @@ export async function GET() {
   } else if (!authSecretLongEnough) {
     issues.push("auth_secret_muy_corto");
   }
+  if (isDeployed && !authUrlConfigured) {
+    issues.push("auth_url_falta_produccion");
+  }
   if (demoUserRow && !demoPasswordLooksBcrypt) {
     issues.push("password_demo_no_es_bcrypt");
   }
@@ -76,6 +107,9 @@ export async function GET() {
   } else if (!demoPasswordLooksBcrypt) {
     hint =
       "El password del usuario demo en BD no parece un hash bcrypt; ejecutá de nuevo db:seed o reset de usuario.";
+  } else if (isDeployed && !authUrlConfigured) {
+    hint =
+      "Falta AUTH_URL con la URL pública exacta de la app (sin barra final). En Vercel suele ser https://TU-PROYECTO.vercel.app — sin esto el login puede fallar en producción.";
   } else {
     hint =
       "Demo listo. Si la sesión se cerró sola: suele ser redeploy o cambio de AUTH_SECRET (normal). Login: demo / admin@demo.local / demo123.";
@@ -90,7 +124,18 @@ export async function GET() {
     demoUserStatus: demoUserRow?.status ?? null,
     authSecretConfigured,
     authSecretLongEnough,
+    authUrlConfigured,
     demoPasswordLooksBcrypt: demoUserRow ? demoPasswordLooksBcrypt : null,
+    integrations: {
+      captureApi: captureSecretConfigured,
+      cron: cronSecretConfigured,
+      followUpEmailResend: resendConfigured,
+      whatsAppWebhook: whatsAppWebhookConfigured,
+      whatsAppOutbound: whatsAppOutboundConfigured,
+      aiConversational: aiConfigured,
+      aiProviderExpected: aiProvider,
+    },
+    deploy: deployCommit ? { commit: deployCommit } : {},
     issues,
     hint,
   });

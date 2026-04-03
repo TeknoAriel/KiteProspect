@@ -44,9 +44,10 @@
 
 **TODO Fase 2:**
 - API key por cuenta
-- Rate limiting
 - Validación más estricta
 - Webhooks
+
+**Hecho (S01):** rate limit por IP en `POST /api/contacts/create` (memoria); ver `docs/decisions/slice-capture-api-hardening.md`.
 
 ### ✅ Slice 4: Inbox unificado
 - [x] Vista de todas las conversaciones activas
@@ -156,6 +157,8 @@
 
 ## Pendiente para MVP completo
 
+**Código Fase 1:** cerrado según `docs/execution-plan-sprints.md` y este documento (slices marcados ✅). Lo que resta es **configuración y credenciales** en cada entorno (Vercel, Meta, proveedor IA, etc.): `docs/manual-actions-required.md`, `docs/produccion-checklist-usuario.md`, diagnóstico rápido en `/api/health`.
+
 ### Canales de captura (Fase 1 según PRODUCT_DEFINITION.md)
 - [x] Widget web (`kite-lead-widget.js` + `/embed/lead` — ver `docs/capture-integration.md`)
 - [x] Patrón landings / proxy (`docs/capture-integration.md`, `docs/examples/`)
@@ -212,3 +215,10 @@ Ejecutar: `npm run db:seed`
 - `docs/decisions/slice-s22-kiteprop-property-feed.md`
 - `docs/decisions/slice-s23-dashboard-kpis.md`
 - `docs/decisions/slice-s24-matching-tests-scoring-fit.md`
+- `docs/decisions/slice-s25-inbox-dates-stages-structured-log.md`
+- `docs/decisions/slice-s26-declared-search-profile-ui.md`
+- `docs/decisions/slice-s27-crm-edit-observability.md`
+- `docs/decisions/slice-s28-crm-closed-tasks-capture-log.md`
+- `docs/decisions/slice-s29-inbox-read-state.md`
+- `docs/decisions/slice-s30-follow-up-start-from-contact.md`
+- `docs/decisions/slice-s31-production-readiness-health.md`

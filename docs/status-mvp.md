@@ -31,17 +31,11 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 ## Plan de trabajo actual
 
-Sprint **L1** cerrado (2026-03-30): backlog L1 en `docs/execution-plan-sprints.md` completado; resumen `docs/decisions/slice-l1-batch-completion.md`. **S25** cerrado (inbox fechas/etapas/logs). Siguiente: priorizar deuda F1-E13 u otros ítems de Fase 1 según `docs/roadmap.md`.
+**Fase 1 (código):** los hitos S01–S30 y L1 están cerrados en `docs/execution-plan-sprints.md`. **S31** refuerza diagnóstico de producción vía `/api/health` (`docs/decisions/slice-s31-production-readiness-health.md`).
 
-**Entorno dev (Git):** push/fetch por SSH en Windows documentado en `docs/decisions/github-ssh-windows-dev.md` (registro de clave pública en GitHub: `docs/manual-actions-required.md` ítem 11).
+**Producción operativa:** variables en Vercel/hosting, Meta, Resend e IA siguen en **`docs/manual-actions-required.md`** y **`docs/produccion-checklist-usuario.md`** (primera URL pública, `AUTH_URL`, demo seed vía `build:vercel`, etc.).
 
-**Sprint S26 (F1-E10):** perfil declarado editable en UI; ver `docs/decisions/slice-s26-declared-search-profile-ui.md`.
-
-**Sprint S27 (F1-E13 + observabilidad):** edición de notas/tareas en ficha, logs estructurados CRM; ver `docs/decisions/slice-s27-crm-edit-observability.md`.
-
-**Sprint S28 (F1-E13 + captura):** tareas completadas/canceladas recientes en ficha; log `lead_captured` en servicio de captura; ver `docs/decisions/slice-s28-crm-closed-tasks-capture-log.md`.
-
-**Sprint S29 (F1-E8):** estado leído/no leído en inbox (`lastReadAt`); ver `docs/decisions/slice-s29-inbox-read-state.md`.
+**Entorno dev (Git):** `docs/decisions/github-ssh-windows-dev.md`; checklist humano ítem 11 en `docs/manual-actions-required.md`.
 
 ## Pendiente respecto a Fase 1 (producto)
 

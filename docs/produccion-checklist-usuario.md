@@ -14,6 +14,17 @@ Esta página usa **dos “bases” de URL** que sí funcionan; solo cambia el **
 
 > **Importante:** en producción suele ser **https://**. En local, Next.js usa **http://** y el puerto **3000** salvo que hayas cambiado el puerto.
 
+## 0) Salud del sitio (`/api/health`)
+
+Abre **`TU_BASE/api/health`** (ej. `https://tu-app.vercel.app/api/health`). Es **público** y **no** muestra secretos.
+
+- **`ok` / `database`:** si la app llega a PostgreSQL.
+- **`demoUser`:** si en **esa** base existe el usuario demo (el deploy con `build:vercel` corre seed; si no, verás `false`).
+- **`issues`:** en **producción** (Vercel) puede listar `auth_url_falta_produccion` si falta `AUTH_URL` con la URL pública exacta.
+- **`integrations`:** solo **sí/no** (¿está definida la variable?) para captura API, cron, email Resend, WhatsApp webhook/saliente, IA. No comprueba que Meta o Resend respondan.
+
+Detalle técnico: `docs/decisions/slice-s31-production-readiness-health.md`.
+
 ### Despliegue en Vercel (tras `git push`)
 
 Si el repo está conectado a Vercel, cada push a la rama de producción (p. ej. `main`) **dispara un deploy** automático. Revisá **Deployments** en el panel del proyecto hasta ver **Ready**.
@@ -33,6 +44,9 @@ En el panel de tu proveedor (Vercel, Railway, Fly.io, …) configura:
 | `AUTH_URL` | Sí en producción | **Exactamente** la URL pública de la app, **sin barra al final**. Ejemplo: `https://mi-app.vercel.app` |
 | `CAPTURE_API_SECRET` | Si usarás la API de captura | Otro secreto (no el mismo que `AUTH_SECRET`). |
 | `ENABLE_PUBLIC_LEAD_FORM` | Opcional | `true` si quieres que funcione el formulario en `/lead`. |
+| `CRON_SECRET` | Recomendado | Para probar a mano los crons (`Authorization: Bearer …`); en Vercel los crons oficiales usan cabecera propia. |
+| `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL` | Opcional | Si faltan, los pasos `email` del seguimiento crean **tarea** en ficha en lugar de enviar mail. |
+| `WHATSAPP_*` / `GEMINI_API_KEY` o `OPENAI_API_KEY` | Opcional | Según canales que uses; ver `docs/manual-actions-required.md`. |
 
 Migraciones sobre la base de producción (una vez, con `DATABASE_URL` apuntando ahí):
 
@@ -50,6 +64,7 @@ Estas son las **rutas** (lo que va después del dominio). Funcionan igual en loc
 
 | # | Ruta | Para qué sirve |
 |---|------|----------------|
+| 0 | `/api/health` | Diagnóstico público: BD, demo, variables clave (sin secretos). Ver §0 arriba. |
 | 1 | `/` | Portada: enlaces a login y al formulario demo. |
 | 2 | `/login` | Pantalla de login (slug de cuenta + email + contraseña). |
 | 3 | `/dashboard` | Panel principal (requiere sesión). |
