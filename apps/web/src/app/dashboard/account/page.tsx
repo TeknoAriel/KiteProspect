@@ -217,9 +217,9 @@ export default async function AccountSettingsHubPage() {
           </li>
           <li>
             <strong>Cron inventario KiteProp:</strong> <code>GET {baseUrl}/api/cron/kiteprop-property-feed</code> — misma
-            auth; en <code>vercel.json</code> está cada 30 minutos UTC (en plan Hobby de Vercel el deploy puede exigir
-            frecuencia diaria — ver <code>docs/decisions/vercel-hobby-cron-daily-kiteprop-feed.md</code>). Sync manual
-            desde la cuenta si hace falta.
+            auth; en <code>vercel.json</code> está <strong>cada ~2 días</strong> (02:00 UTC, días impares del mes; ajustar
+            en pruebas). Ver <code>docs/decisions/slice-s32-kiteprop-incremental-json-cron.md</code>. Sync manual desde
+            property-feeds si hace falta antes.
           </li>
         </ul>
       </Section>

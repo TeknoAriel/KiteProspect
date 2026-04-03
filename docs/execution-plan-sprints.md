@@ -88,7 +88,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | Sprint | Enfoque | Ref | Tareas |
 |--------|---------|-----|--------|
 | **S14** | API + UI inventario | F1-E4 | [x] `GET/POST /api/properties`, `GET/PATCH/DELETE /api/properties/[id]`; `/dashboard/properties` (+ new, edit); roles mutación admin/coordinator; auditoría; `slice-s14-properties-abm.md`. |
-| **S22** | Ingesta KiteProp (feeds) | F1-E4 | [x] `Account.config.kitepropFeed`; parsers OpenNavent XML + JSON flexible; `syncKitepropFeedForAccount` (fingerprint, withdrawn/delete si falta en snapshot); `GET/PATCH /api/account/kiteprop-feed-config`, `POST /api/account/kiteprop-feed-sync`; `GET /api/cron/kiteprop-property-feed` + Vercel cron (`*/30 * * * *` UTC objetivo; Hobby puede exigir 1×/día); `slice-s22-kiteprop-property-feed.md`, `slice-s32-kiteprop-incremental-json-cron.md`. |
+| **S22** | Ingesta KiteProp (feeds) | F1-E4 | [x] `Account.config.kitepropFeed`; parsers OpenNavent XML + JSON flexible; `syncKitepropFeedForAccount` (fingerprint, withdrawn/delete si falta en snapshot); `GET/PATCH /api/account/kiteprop-feed-config`, `POST /api/account/kiteprop-feed-sync`; `GET /api/cron/kiteprop-property-feed` + Vercel cron (`0 2 */2 * *` ≈ cada 2 días en prueba; ajustable); `slice-s22-kiteprop-property-feed.md`, `slice-s32-kiteprop-incremental-json-cron.md`. |
 
 **Bloqueos 👤:** URLs de feed reales las pega el admin en la UI (HTTPS en producción).
 

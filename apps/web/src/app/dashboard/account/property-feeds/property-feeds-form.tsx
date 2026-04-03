@@ -39,6 +39,8 @@ export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
           proppitJsonUrl: proppitJsonUrl.trim() || null,
           zonapropXmlUrl: zonapropXmlUrl.trim() || null,
           delistMissing,
+          removalPolicy,
+          skipManifestIfUnchanged,
         }),
       });
       const data = (await res.json()) as { error?: string };
@@ -87,7 +89,8 @@ export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
         <div style={{ marginBottom: "1rem" }}>
           <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}>
             <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
-            Sincronización automática habilitada (cron en servidor, cada 30 minutos UTC en Vercel)
+            Sincronización automática habilitada (cron en servidor: cada ~2 días, 02:00 UTC — ver{" "}
+            <code>vercel.json</code>)
           </label>
         </div>
 
@@ -103,9 +106,16 @@ export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
             type="url"
             value={proppitJsonUrl}
             onChange={(e) => setProppitJsonUrl(e.target.value)}
-            placeholder="https://…"
+            placeholder="https://static.kiteprop.com/kp/difusions/…/properstar.json"
             style={{ width: "100%", padding: "0.5rem", fontSize: "0.875rem" }}
           />
+          <p style={{ fontSize: "0.75rem", color: "#666", margin: "0.35rem 0 0" }}>
+            Ejemplo actual (ProperStar vía KiteProp):{" "}
+            <code style={{ wordBreak: "break-all" }}>
+              https://static.kiteprop.com/kp/difusions/f89cbd8ca785fc34317df63d29ab8ea9d68a7b1c/properstar.json
+            </code>
+            . La URL la define cada cuenta; más adelante: carga manual y otras fuentes (backlog).
+          </p>
         </div>
 
         <div style={{ marginBottom: "1rem" }}>

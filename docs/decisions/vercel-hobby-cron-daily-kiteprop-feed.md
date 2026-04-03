@@ -7,13 +7,13 @@ En el plan **Hobby** de Vercel, cada cron configurado solo puede ejecutarse **co
 ## Decisión
 
 - En **Vercel Hobby**, cada cron configurado solo puede ejecutarse **como máximo una vez por día**; expresiones más frecuentes suelen **fallar el deploy**.
-- El repo apunta a **producción con alta frecuencia** usando **`*/30 * * * *`** en `apps/web/vercel.json` para `/api/cron/kiteprop-property-feed` (ver `docs/decisions/slice-s32-kiteprop-incremental-json-cron.md`). Eso **requiere plan Pro** (o equivalente que permita crons cada 30 min).
-- Si el proyecto sigue en **Hobby** y el deploy falla por el cron, sustituir temporalmente por **`0 2 * * *`** (1×/día UTC) o usar solo **sync manual** desde `/dashboard/account/property-feeds`.
+- El repo usa **`0 2 */2 * *`** para `/api/cron/kiteprop-property-feed` (≈ cada **2 días**, 02:00 UTC en días impares del mes — ver `docs/decisions/slice-s32-kiteprop-incremental-json-cron.md`). Suele ser compatible con **Hobby**; si aun así falla el deploy, usar **`0 2 * * *`** (1×/día) o solo **sync manual**.
+- Para **cada 30 minutos** u otra cadencia alta, suele hacer falta **Pro** y cambiar el schedule en `vercel.json`.
 - El cron de seguimientos (`/api/cron/follow-up-due`) permanece en horario distinto (`0 13 * * *`).
 
 ## Implementado
 
-- Límite Hobby documentado; schedule “objetivo producción” en `vercel.json` (30 min) sujeto al plan de Vercel.
+- Límite Hobby documentado; schedule en `vercel.json` alineado a fase de prueba (~2 días).
 
 ## Pendiente
 
