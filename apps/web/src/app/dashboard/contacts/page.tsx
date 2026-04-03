@@ -1,4 +1,5 @@
 import { requireAuth } from "@/lib/server-utils";
+import { formatChannelLabel } from "@/domains/analytics/channel-label";
 import {
   COMMERCIAL_STAGES,
   CONVERSATIONAL_STAGES,
@@ -85,6 +86,11 @@ export default async function ContactsPage(props: {
     skip: (page - 1) * pageSize,
     take: pageSize,
     include: {
+      conversations: {
+        select: { channel: true },
+        orderBy: { createdAt: "asc" },
+        take: 1,
+      },
       _count: {
         select: {
           conversations: true,
@@ -212,7 +218,9 @@ export default async function ContactsPage(props: {
       )}
 
       <div style={{ display: "grid", gap: "1rem" }}>
-        {contacts.map((contact) => (
+        {contacts.map((contact) => {
+          const firstChannel = contact.conversations[0]?.channel;
+          return (
           <Link
             key={contact.id}
             href={`/dashboard/contacts/${contact.id}`}
@@ -230,7 +238,26 @@ export default async function ContactsPage(props: {
               }}
             >
               <div style={{ flex: 1 }}>
-                <h3 style={{ margin: "0 0 0.5rem 0" }}>{contact.name || contact.email || contact.phone || "Sin nombre"}</h3>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap", marginBottom: "0.35rem" }}>
+                  <h3 style={{ margin: 0 }}>{contact.name || contact.email || contact.phone || "Sin nombre"}</h3>
+                  {firstChannel ? (
+                    <span
+                      style={{
+                        fontSize: "0.72rem",
+                        fontWeight: 600,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.02em",
+                        padding: "0.2rem 0.5rem",
+                        borderRadius: 999,
+                        background: "#e8f4ff",
+                        color: "#0066cc",
+                        border: "1px solid #cce4ff",
+                      }}
+                    >
+                      {formatChannelLabel(firstChannel)}
+                    </span>
+                  ) : null}
+                </div>
                 <div style={{ display: "flex", gap: "1rem", fontSize: "0.875rem", color: "#666", marginBottom: "0.5rem" }}>
                   {contact.email && <span>📧 {contact.email}</span>}
                   {contact.phone && <span>📱 {contact.phone}</span>}
@@ -255,7 +282,8 @@ export default async function ContactsPage(props: {
               </div>
             </div>
           </Link>
-        ))}
+        );
+        })}
       </div>
 
       {contacts.length === 0 && (

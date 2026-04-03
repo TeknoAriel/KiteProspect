@@ -33,6 +33,9 @@ export default async function DashboardPage() {
           <Link href="/dashboard/followups" style={{ textDecoration: "none", color: "#0070f3" }}>
             Seguimiento
           </Link>
+          <Link href="/dashboard/reportes" style={{ textDecoration: "none", color: "#0070f3" }}>
+            Reportes
+          </Link>
           <Link href="/dashboard/properties" style={{ textDecoration: "none", color: "#0070f3" }}>
             Propiedades
           </Link>
@@ -68,6 +71,26 @@ export default async function DashboardPage() {
       </p>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1rem", marginBottom: "1.5rem" }}>
+        <Link
+          href="/dashboard/reportes"
+          style={{
+            padding: "1.5rem",
+            border: "1px solid #e0e0e0",
+            borderRadius: "8px",
+            textDecoration: "none",
+            color: "inherit",
+            display: "block",
+            background: "linear-gradient(135deg, #f8fbff 0%, #fff 100%)",
+          }}
+        >
+          <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#666" }}>Reportes</h3>
+          <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, color: "#0070f3" }}>
+            Ver resumen operativo →
+          </p>
+          <p style={{ margin: "0.35rem 0 0", fontSize: "0.78rem", color: "#666" }}>
+            Canales, embudo conversacional, tareas y seguimientos
+          </p>
+        </Link>
         <Link
           href="/dashboard/contacts"
           style={{
@@ -209,6 +232,12 @@ export default async function DashboardPage() {
             lineHeight: 1.45,
           }}
         >
+          <li>
+            <Link href="/dashboard/reportes" style={{ color: "#0070f3" }}>
+              Reportes operativos
+            </Link>{" "}
+            — canales (nuevos 7 días), embudo conversacional, tareas pendientes y seguimientos activos.
+          </li>
           <li>
             <Link href="/dashboard/inbox" style={{ color: "#0070f3" }}>
               Inbox

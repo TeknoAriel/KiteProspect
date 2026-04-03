@@ -1,20 +1,10 @@
 import Link from "next/link";
+import { formatChannelLabel } from "@/domains/analytics/channel-label";
 import type { DashboardKpis } from "@/domains/analytics/get-dashboard-kpis";
 
 const ACCENT = "#0070f3";
 const MUTED = "#666";
 const BAR_BG = "#e8f4ff";
-
-function channelLabel(ch: string): string {
-  const m: Record<string, string> = {
-    whatsapp: "WhatsApp",
-    form: "Formulario",
-    web_widget: "Widget web",
-    landing: "Landing",
-    web: "Web",
-  };
-  return m[ch] ?? ch;
-}
 
 export function DashboardPipelineBars(props: { rows: { stage: string; count: number }[] }) {
   if (props.rows.length === 0) return null;
@@ -82,7 +72,7 @@ export function DashboardChannelChips(props: { rows: { channel: string; count: n
             gap: "0.4rem",
           }}
         >
-          <span>{channelLabel(row.channel)}</span>
+          <span>{formatChannelLabel(row.channel)}</span>
           <span style={{ fontWeight: 700, color: ACCENT }}>{row.count}</span>
           <span style={{ width: 48, height: 4, background: "#ddeeff", borderRadius: 2, overflow: "hidden" }}>
             <span
