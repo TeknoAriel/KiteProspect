@@ -1,3 +1,9 @@
+import {
+  DashboardChannelChips,
+  DashboardContactsTrend,
+  DashboardPipelineBars,
+  DashboardRecentContacts,
+} from "./dashboard-panels";
 import { getDashboardKpisForAccount } from "@/domains/analytics/get-dashboard-kpis";
 import { requireAuth } from "@/lib/server-utils";
 import Link from "next/link";
@@ -12,8 +18,10 @@ export default async function DashboardPage() {
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1200px", margin: "0 auto" }}>
       <header style={{ marginBottom: "2rem", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h1>Dashboard</h1>
-          <p style={{ color: "#666" }}>Cuenta: {session.user.accountSlug}</p>
+          <h1 style={{ marginBottom: "0.25rem" }}>Operaciones</h1>
+          <p style={{ color: "#666", margin: 0, fontSize: "0.9rem" }}>
+            Vista rápida del tenant <strong>{session.user.accountSlug}</strong> — embudo, canales y actividad reciente.
+          </p>
         </div>
         <nav style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
           <Link href="/dashboard/inbox" style={{ textDecoration: "none", color: "#0070f3" }}>
@@ -113,35 +121,80 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {kpis.commercialStageCounts.length > 0 && (
-        <section style={{ marginBottom: "2rem" }}>
-          <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>Pipeline comercial (por etapa)</h2>
-          <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
-            Distribución de <code>commercialStage</code> en contactos del tenant. Alineado a funnel en{" "}
-            <code>docs/product-rules.md</code>.
-          </p>
-          <div style={{ overflowX: "auto", border: "1px solid #e8e8e8", borderRadius: "8px" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-              <thead>
-                <tr style={{ background: "#fafafa", textAlign: "left" }}>
-                  <th style={{ padding: "0.5rem 0.75rem", borderBottom: "1px solid #eee" }}>Etapa</th>
-                  <th style={{ padding: "0.5rem 0.75rem", borderBottom: "1px solid #eee" }}>Contactos</th>
-                </tr>
-              </thead>
-              <tbody>
-                {kpis.commercialStageCounts.map((row) => (
-                  <tr key={row.stage}>
-                    <td style={{ padding: "0.45rem 0.75rem", borderBottom: "1px solid #f0f0f0", fontFamily: "monospace" }}>
-                      {row.stage}
-                    </td>
-                    <td style={{ padding: "0.45rem 0.75rem", borderBottom: "1px solid #f0f0f0" }}>{row.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      <section style={{ marginBottom: "2rem" }}>
+        <h2 style={{ fontSize: "1.1rem", marginBottom: "0.35rem" }}>Embudo y canales</h2>
+        <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "1rem", maxWidth: "48rem" }}>
+          Barras proporcionales al máximo de la serie. Etapas según <code>commercialStage</code>; conversaciones agrupadas
+          por <code>Conversation.channel</code> (primera interacción por hilo).
+        </p>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+            gap: "1.25rem",
+            alignItems: "start",
+          }}
+        >
+          <div
+            style={{
+              border: "1px solid #e8e8e8",
+              borderRadius: 12,
+              padding: "1.25rem",
+              background: "#fff",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3 style={{ margin: "0 0 0.75rem 0", fontSize: "0.95rem" }}>Pipeline comercial</h3>
+            {kpis.commercialStageCounts.length > 0 ? (
+              <DashboardPipelineBars rows={kpis.commercialStageCounts} />
+            ) : (
+              <p style={{ fontSize: "0.85rem", color: "#666", margin: 0 }}>Sin contactos con etapa aún.</p>
+            )}
           </div>
-        </section>
-      )}
+          <div
+            style={{
+              border: "1px solid #e8e8e8",
+              borderRadius: 12,
+              padding: "1.25rem",
+              background: "#fff",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3 style={{ margin: "0 0 0.75rem 0", fontSize: "0.95rem" }}>Conversaciones por canal</h3>
+            <DashboardChannelChips rows={kpis.channelCounts} />
+          </div>
+        </div>
+      </section>
+
+      <section style={{ marginBottom: "2rem" }}>
+        <h2 style={{ fontSize: "1.1rem", marginBottom: "0.35rem" }}>Alta de contactos (14 días, UTC)</h2>
+        <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.5rem" }}>
+          Un contacto nuevo por día (eje = día del mes en UTC).
+        </p>
+        <div
+          style={{
+            border: "1px solid #e8e8e8",
+            borderRadius: 12,
+            padding: "1rem 1.25rem 0.5rem",
+            background: "#fafbff",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
+          }}
+        >
+          <DashboardContactsTrend days={kpis.newContactsByDay} />
+        </div>
+      </section>
+
+      <section style={{ marginBottom: "2rem" }}>
+        <h2 style={{ fontSize: "1.1rem", marginBottom: "0.35rem" }}>Últimos contactos</h2>
+        <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
+          Los {kpis.recentContacts.length} más recientes por fecha de creación.{" "}
+          <Link href="/dashboard/contacts" style={{ color: "#0070f3" }}>
+            Ver listado completo
+          </Link>
+          .
+        </p>
+        <DashboardRecentContacts contacts={kpis.recentContacts} />
+      </section>
 
       <section style={{ marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.1rem", marginBottom: "0.75rem" }}>Dónde probar lo que ya está en el MVP</h2>
@@ -173,7 +226,7 @@ export default async function DashboardPage() {
             <Link href="/dashboard/properties" style={{ color: "#0070f3" }}>
               Propiedades
             </Link>{" "}
-            — ABM de inventario (base del matching).
+            — ABM de inventario; filtros por texto, estado y origen (manual vs feed).
           </li>
           <li>
             <Link href="/dashboard/followups" style={{ color: "#0070f3" }}>

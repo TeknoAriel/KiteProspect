@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **—** (S31 cerrado). Próxima cola: **Fase 2** por prioridad de negocio (`docs/roadmap.md`). |
-| **Último sprint cerrado** | **S31** — `docs/decisions/slice-s31-production-readiness-health.md` (health + checklist prod + status MVP). |
-| **Última verificación agente** | 2026-04-01: `npm run verify` OK post-S31. |
+| **Sprint activo** | **L2 / S33** — Visibilidad operativa (dashboard + filtros inventario). `docs/decisions/slice-s33-dashboard-ops-visibility.md`. |
+| **Último sprint largo cerrado** | **L1** (matching/scoring/CRM UX). |
+| **Última verificación agente** | 2026-04-03: `npm run verify` OK post-S33. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -50,6 +50,17 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | 5 | Trazas | — | Logs estructurados en sync de matches (accountId, contactId, counts) sin PII | [x] |
 
 **Cierre L1:** filas 1–5 `[x]`; tabla y `docs/status-mvp.md` actualizados; sprint activo rotado (ver arriba). Detalle: `docs/decisions/slice-l1-batch-completion.md`.
+
+---
+
+## Sprint largo L2 — Visibilidad en producto (S33)
+
+| # | Área | Ref roadmap | Entregable | Estado |
+|---|------|-------------|------------|--------|
+| 1 | Dashboard | F1-E16, F2-E7 (paso) | Embudo en barras, canales, tendencia 14 días UTC, últimos contactos | [x] |
+| 2 | Inventario UI | F1-E4 | Filtros GET en `/dashboard/properties` (texto, estado, origen manual vs feed) | [x] |
+
+**Cierre L2:** verify verde; decisión `slice-s33-dashboard-ops-visibility.md`; `docs/status-mvp.md` actualizado.
 
 ---
 
@@ -250,6 +261,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-s30-follow-up-start-from-contact.md` | F1-E12: iniciar secuencia desde ficha + intentos visibles. |
 | `docs/decisions/slice-s31-production-readiness-health.md` | Cierre ops F1: health público + integraciones configuradas (booleanos). |
 | `docs/decisions/slice-s32-kiteprop-incremental-json-cron.md` | Feed KiteProp: 304, manifiesto id+fecha, withdraw/delete, cron 30 min. |
+| `docs/decisions/slice-s33-dashboard-ops-visibility.md` | Dashboard operaciones + filtros listado propiedades. |
 | `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |
 | `docs/decisions/vercel-404-diagnostico.md` | Checklist si la URL de Vercel devuelve 404. |
 | `docs/demo-simulated-inquiries-avalon-metro-level-innova.md` | Demo narrativo: 5 consultas × líneas comerciales, 15 días simulados (sin ejecución). |
