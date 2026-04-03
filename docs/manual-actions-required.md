@@ -8,7 +8,7 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Misma guía en lenguaje muy simple (pasos 1–7, sin tecnicismos):** [configuracion-paso-a-paso-humano.md](./configuracion-paso-a-paso-humano.md).
 
-**Solo pruebas en producción (URL pública):** checklist con rutas y ejemplos → **[produccion-checklist-usuario.md](./produccion-checklist-usuario.md)**.
+**Solo pruebas en producción (URL pública):** checklist con rutas y ejemplos → **[produccion-checklist-usuario.md](./produccion-checklist-usuario.md)**. Diagnóstico rápido sin secretos: **`https://TU-DOMINIO/api/health`** (ver §0 de esa guía y `docs/decisions/slice-s31-production-readiness-health.md`).
 
 **Vercel (demo) — paso a paso:** usa la URL que muestre **tu** proyecto (**Deployments → Visit**). Guía con placeholder `https://TU-DEPLOYMENT.vercel.app`: **[paso-a-paso-vercel-kiteprospect.md](./paso-a-paso-vercel-kiteprospect.md)**. Si ves **404**, ver **[vercel-404-diagnostico.md](./decisions/vercel-404-diagnostico.md)**.
 
