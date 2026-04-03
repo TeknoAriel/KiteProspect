@@ -29,8 +29,8 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **L2 / S34** — Reportes + canal en lista contactos. `docs/decisions/slice-s34-reports-and-contact-channel-badge.md`. |
-| **Último sprint largo cerrado** | **L1** (matching/scoring/CRM UX). |
+| **Sprint activo** | **—** (L2 cerrado). Próximo bloque: priorizar con `docs/roadmap.md` — ej. **F2-E7** (SLA / export ligero) o deuda F1 según `docs/status-mvp.md`. |
+| **Último sprint largo cerrado** | **L2** (S33–S34: dashboard operativo, filtros inventario, reportes, badge canal en contactos). Antes: **L1** (matching/scoring/CRM UX). |
 | **Última verificación agente** | 2026-04-01: `npm run verify` OK post-S34. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
