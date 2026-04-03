@@ -6,14 +6,14 @@ Las inmobiliarias publican avisos en portales con formatos estándar (OpenNavent
 
 ## Decisión
 
-1. **Modelo `Property`** (migración `20260329233000_property_kiteprop_feed`): campos `externalSource`, `externalId`, `importFingerprint`, `amenities`, ubicación extendida, superficies, `rooms`, coordenadas, `feedLastSeenAt`, `feedRemovedAt`, estado `withdrawn` para bajas de feed.
+1. **Modelo `Property`** (migraciones feed): `externalSource`, `externalId`, `importFingerprint`, `externalFeedUpdatedAt` (fecha del aviso en el feed), `amenities`, ubicación extendida, superficies, `rooms`, coordenadas, `feedLastSeenAt`, `feedRemovedAt`, estado `withdrawn` para bajas de feed.
 2. **Clave única** por tenant: `(accountId, externalSource, externalId)` con `externalSource = "kiteprop"`.
 3. **Configuración** en `Account.config.kitepropFeed`: `enabled`, `proppitJsonUrl`, `zonapropXmlUrl`, `delistMissing` (default true).
 4. **Fusión de fuentes**: si hay JSON y XML, se construye un `Map` por `codigoAviso`; el XML **pisa** al JSON para el mismo id (más detalle y amenities).
 5. **Idempotencia**: `importFingerprint` = SHA-256 de un payload estable (título, precio, amenities serializadas ordenadas, etc.). Si no cambia, solo se actualiza `feedLastSeenAt`.
 6. **Delist**: con `delistMissing`, las filas `kiteprop` en `available` o `reserved` cuyo `externalId` no está en el snapshot pasan a `withdrawn` y `feedRemovedAt`. Snapshot vacío pero descarga válida implica baja de todas las activas importadas.
 7. **Estados terminales manuales**: si `status` es `sold` o `rented`, el sync **no** lo fuerza a `available` (respeta cierre manual).
-8. **Cron**: `GET /api/cron/kiteprop-property-feed` con la misma auth que otros crons (`CRON_SECRET` / `x-vercel-cron`). En Vercel **Hobby** el schedule es **1×/día** (`0 2 * * *` UTC); ver `docs/decisions/vercel-hobby-cron-daily-kiteprop-feed.md`. Sync manual sigue disponible.
+8. **Cron**: `GET /api/cron/kiteprop-property-feed` con la misma auth que otros crons (`CRON_SECRET` / `x-vercel-cron`). Schedule objetivo **cada 30 min** (`*/30 * * * *` UTC); incremental/manifiesto: `docs/decisions/slice-s32-kiteprop-incremental-json-cron.md`; límite **Hobby**: `docs/decisions/vercel-hobby-cron-daily-kiteprop-feed.md`. Sync manual sigue disponible.
 9. **URLs**: en producción solo `https:`; `http` permitido en desarrollo para pruebas locales.
 
 ## Implementado

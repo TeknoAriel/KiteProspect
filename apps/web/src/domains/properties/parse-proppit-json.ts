@@ -24,6 +24,38 @@ function mapIntent(v: string): string {
   return "venta";
 }
 
+/** Normaliza a ISO 8601 la fecha de última actualización del aviso en el JSON. */
+function feedUpdatedAtFromPlainObject(o: Record<string, unknown>): string | null {
+  const candidates: unknown[] = [
+    o.fechaModificacion,
+    o.fechaUltimaModificacion,
+    o.fechaActualizacion,
+    o.ultimaActualizacion,
+    o.updatedAt,
+    o.modifiedAt,
+    o.fechaUltimaModificacionAviso,
+    o.fechaPublicacion,
+  ];
+  for (const c of candidates) {
+    const iso = toIso8601OrNull(c);
+    if (iso) return iso;
+  }
+  return null;
+}
+
+function toIso8601OrNull(v: unknown): string | null {
+  if (v === null || v === undefined) return null;
+  if (typeof v === "number" && Number.isFinite(v)) {
+    const ms = v > 1e12 ? v : v * 1000;
+    const d = new Date(ms);
+    return Number.isNaN(d.getTime()) ? null : d.toISOString();
+  }
+  const s = String(v).trim();
+  if (!s) return null;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
 function mapType(v: string): string {
   const t = v.toLowerCase();
   if (t.includes("casa")) return "casa";
@@ -86,9 +118,11 @@ function fromPlainObject(o: Record<string, unknown>): FeedListing | null {
   }
 
   const referenceKey = str(o.claveReferencia) || str(o.reference) || "";
+  const feedUpdatedAt = feedUpdatedAtFromPlainObject(o);
 
   return {
     externalId,
+    feedUpdatedAt,
     title,
     description,
     type,

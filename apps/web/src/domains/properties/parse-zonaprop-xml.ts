@@ -165,8 +165,19 @@ function parseOneAviso(aviso: unknown): FeedListing | null {
   const ref = parseCaracteristicas(a.caracteristicas);
   const referenceKey = xmlText(a.claveReferencia);
 
+  const feedUpdatedAtRaw =
+    xmlText(a.fechaModificacion) ||
+    xmlText(a.fechaUltimaModificacion) ||
+    xmlText(a.fechaPublicacion);
+  let feedUpdatedAt: string | null = null;
+  if (feedUpdatedAtRaw) {
+    const d = new Date(feedUpdatedAtRaw);
+    if (!Number.isNaN(d.getTime())) feedUpdatedAt = d.toISOString();
+  }
+
   return {
     externalId,
+    feedUpdatedAt,
     title,
     description,
     type,

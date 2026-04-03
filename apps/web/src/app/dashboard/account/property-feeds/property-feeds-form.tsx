@@ -7,6 +7,8 @@ export type KitepropFeedFormInitial = {
   proppitJsonUrl: string;
   zonapropXmlUrl: string;
   delistMissing: boolean;
+  removalPolicy: "withdraw" | "delete";
+  skipManifestIfUnchanged: boolean;
 };
 
 export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
@@ -14,6 +16,10 @@ export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
   const [proppitJsonUrl, setProppitJsonUrl] = useState(props.initial.proppitJsonUrl);
   const [zonapropXmlUrl, setZonapropXmlUrl] = useState(props.initial.zonapropXmlUrl);
   const [delistMissing, setDelistMissing] = useState(props.initial.delistMissing);
+  const [removalPolicy, setRemovalPolicy] = useState<"withdraw" | "delete">(props.initial.removalPolicy);
+  const [skipManifestIfUnchanged, setSkipManifestIfUnchanged] = useState(
+    props.initial.skipManifestIfUnchanged,
+  );
   const [loading, setLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -58,14 +64,17 @@ export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
         updated?: number;
         skipped?: number;
         delisted?: number;
+        deleted?: number;
         errors?: number;
+        skippedDownload304?: number;
+        skippedManifestUnchanged?: number;
       };
       if (!res.ok) {
         setError(data.error ?? "Error al sincronizar");
         return;
       }
       setMessage(
-        `Sincronizado: +${data.created ?? 0} ~${data.updated ?? 0} omitidas ${data.skipped ?? 0} · bajas ${data.delisted ?? 0} · errores ${data.errors ?? 0}`,
+        `Sincronizado: +${data.created ?? 0} ~${data.updated ?? 0} omitidas ${data.skipped ?? 0} · bajas ${data.delisted ?? 0} · borradas ${data.deleted ?? 0} · 304 ${data.skippedDownload304 ?? 0} · manifiesto sin cambios ${data.skippedManifestUnchanged ?? 0} · errores ${data.errors ?? 0}`,
       );
     } finally {
       setSyncLoading(false);
@@ -78,7 +87,7 @@ export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
         <div style={{ marginBottom: "1rem" }}>
           <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}>
             <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} />
-            Sincronización automática habilitada (cron en servidor, cada 6 h UTC)
+            Sincronización automática habilitada (cron en servidor, cada 30 minutos UTC en Vercel)
           </label>
         </div>
 
@@ -120,10 +129,35 @@ export function PropertyFeedsForm(props: { initial: KitepropFeedFormInitial }) {
           </p>
         </div>
 
-        <div style={{ marginBottom: "1.25rem" }}>
+        <div style={{ marginBottom: "1rem" }}>
           <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}>
             <input type="checkbox" checked={delistMissing} onChange={(e) => setDelistMissing(e.target.checked)} />
-            Dar de baja (<code>withdrawn</code>) las importadas que ya no figuren en el snapshot del feed
+            Aplicar retiro a avisos que ya no vengan en el snapshot del feed
+          </label>
+        </div>
+
+        <div style={{ marginBottom: "1rem" }}>
+          <label style={{ display: "block", marginBottom: "0.35rem", fontSize: "0.875rem" }}>
+            Política si falta en el feed (con la opción anterior activada)
+          </label>
+          <select
+            value={removalPolicy}
+            onChange={(e) => setRemovalPolicy(e.target.value as "withdraw" | "delete")}
+            style={{ padding: "0.5rem", fontSize: "0.875rem" }}
+          >
+            <option value="withdraw">Marcar como withdrawn (histórico en BD)</option>
+            <option value="delete">Borrar de la base (matches/recomendaciones en cascade)</option>
+          </select>
+        </div>
+
+        <div style={{ marginBottom: "1.25rem" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.875rem" }}>
+            <input
+              type="checkbox"
+              checked={skipManifestIfUnchanged}
+              onChange={(e) => setSkipManifestIfUnchanged(e.target.checked)}
+            />
+            Si el manifiesto id + fecha del feed no cambió, omitir escrituras (y bajas) en esta corrida
           </label>
         </div>
 

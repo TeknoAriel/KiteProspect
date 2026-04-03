@@ -49,6 +49,8 @@ export async function PATCH(request: NextRequest) {
     proppitJsonUrl?: string | null;
     zonapropXmlUrl?: string | null;
     delistMissing?: boolean;
+    removalPolicy?: "withdraw" | "delete";
+    skipManifestIfUnchanged?: boolean;
   };
   try {
     body = await request.json();
@@ -82,11 +84,21 @@ export async function PATCH(request: NextRequest) {
     );
   }
 
+  if (
+    body.removalPolicy !== undefined &&
+    body.removalPolicy !== "withdraw" &&
+    body.removalPolicy !== "delete"
+  ) {
+    return NextResponse.json({ error: "removalPolicy inválido" }, { status: 400 });
+  }
+
   const nextConfig = mergeKitepropFeedIntoAccountConfig(account.config, {
     enabled: body.enabled,
     proppitJsonUrl: body.proppitJsonUrl !== undefined ? body.proppitJsonUrl : undefined,
     zonapropXmlUrl: body.zonapropXmlUrl !== undefined ? body.zonapropXmlUrl : undefined,
     delistMissing: body.delistMissing,
+    removalPolicy: body.removalPolicy,
+    skipManifestIfUnchanged: body.skipManifestIfUnchanged,
   });
 
   const updated = await prisma.account.update({

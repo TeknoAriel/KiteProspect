@@ -36,9 +36,9 @@ export default async function AccountPropertyFeedsPage() {
       </Link>
       <h1 style={{ marginTop: "1rem" }}>Feeds de inventario (KiteProp)</h1>
       <p style={{ color: "#666", fontSize: "0.875rem", maxWidth: "40rem", lineHeight: 1.5 }}>
-        Configuración en <code>Account.config.kitepropFeed</code>. El job del servidor descarga el JSON y/o el XML,
-        actualiza propiedades con <code>externalSource = kiteprop</code> y opcionalmente marca{" "}
-        <code>withdrawn</code> las que dejaron de venir en el feed.
+        Configuración en <code>Account.config.kitepropFeed</code>. El job usa HTTP condicional (304), manifiesto
+        id+fecha para omitir trabajo si no hubo cambios, y política de baja (withdrawn o borrado) para avisos que ya
+        no figuren en el snapshot.
       </p>
       <div style={{ marginTop: "1.5rem" }}>
         <PropertyFeedsForm
@@ -47,6 +47,8 @@ export default async function AccountPropertyFeedsPage() {
             proppitJsonUrl: kiteprop.proppitJsonUrl,
             zonapropXmlUrl: kiteprop.zonapropXmlUrl,
             delistMissing: kiteprop.delistMissing,
+            removalPolicy: kiteprop.removalPolicy,
+            skipManifestIfUnchanged: kiteprop.skipManifestIfUnchanged,
           }}
         />
       </div>

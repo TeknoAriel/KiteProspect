@@ -5,6 +5,7 @@
 import { prisma } from "@kite-prospect/db";
 import { NextRequest, NextResponse } from "next/server";
 import {
+  applyKitepropFeedSyncStatePatch,
   extractKitepropFeedFromConfig,
   kitepropFeedIsRunnable,
 } from "@/domains/auth-tenancy/account-kiteprop-feed-config";
@@ -45,7 +46,7 @@ export async function GET(request: NextRequest) {
   const results: {
     accountId: string;
     ran: boolean;
-    stats?: Awaited<ReturnType<typeof syncKitepropFeedForAccount>>;
+    stats?: Awaited<ReturnType<typeof syncKitepropFeedForAccount>>["stats"];
   }[] = [];
 
   for (const acc of accounts) {
@@ -55,14 +56,28 @@ export async function GET(request: NextRequest) {
       continue;
     }
 
-    const stats = await syncKitepropFeedForAccount({
+    const outcome = await syncKitepropFeedForAccount({
       accountId: acc.id,
       proppitJsonUrl: cfg.proppitJsonUrl,
       zonapropXmlUrl: cfg.zonapropXmlUrl,
       delistMissing: cfg.delistMissing,
+      removalPolicy: cfg.removalPolicy,
+      skipManifestIfUnchanged: cfg.skipManifestIfUnchanged,
+      lastMergedManifestSha256: cfg.lastMergedManifestSha256,
+      lastProppitEtag: cfg.lastProppitEtag,
+      lastProppitLastModified: cfg.lastProppitLastModified,
+      lastXmlEtag: cfg.lastXmlEtag,
+      lastXmlLastModified: cfg.lastXmlLastModified,
     });
 
-    results.push({ accountId: acc.id, ran: true, stats });
+    if (Object.keys(outcome.syncStatePatch).length > 0) {
+      await prisma.account.update({
+        where: { id: acc.id },
+        data: { config: applyKitepropFeedSyncStatePatch(acc.config, outcome.syncStatePatch) },
+      });
+    }
+
+    results.push({ accountId: acc.id, ran: true, stats: outcome.stats });
 
     try {
       await recordAuditEvent({
@@ -71,7 +86,7 @@ export async function GET(request: NextRequest) {
         entityId: acc.id,
         action: "kiteprop_inventory_synced",
         actorType: "system",
-        metadata: { source: "cron", ...stats },
+        metadata: { source: "cron", ...outcome.stats },
       });
     } catch (e) {
       console.error("[audit] kiteprop_inventory_synced", e);

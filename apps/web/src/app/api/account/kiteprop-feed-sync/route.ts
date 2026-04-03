@@ -5,6 +5,7 @@ import { prisma } from "@kite-prospect/db";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import {
+  applyKitepropFeedSyncStatePatch,
   extractKitepropFeedFromConfig,
   kitepropFeedIsRunnable,
 } from "@/domains/auth-tenancy/account-kiteprop-feed-config";
@@ -40,12 +41,26 @@ export async function POST() {
     );
   }
 
-  const stats = await syncKitepropFeedForAccount({
+  const outcome = await syncKitepropFeedForAccount({
     accountId: account.id,
     proppitJsonUrl: cfg.proppitJsonUrl,
     zonapropXmlUrl: cfg.zonapropXmlUrl,
     delistMissing: cfg.delistMissing,
+    removalPolicy: cfg.removalPolicy,
+    skipManifestIfUnchanged: cfg.skipManifestIfUnchanged,
+    lastMergedManifestSha256: cfg.lastMergedManifestSha256,
+    lastProppitEtag: cfg.lastProppitEtag,
+    lastProppitLastModified: cfg.lastProppitLastModified,
+    lastXmlEtag: cfg.lastXmlEtag,
+    lastXmlLastModified: cfg.lastXmlLastModified,
   });
+
+  if (Object.keys(outcome.syncStatePatch).length > 0) {
+    await prisma.account.update({
+      where: { id: account.id },
+      data: { config: applyKitepropFeedSyncStatePatch(account.config, outcome.syncStatePatch) },
+    });
+  }
 
   try {
     await recordAuditEvent({
@@ -55,11 +70,11 @@ export async function POST() {
       action: "kiteprop_inventory_synced",
       actorType: "user",
       actorId: session.user.id,
-      metadata: { source: "manual", ...stats },
+      metadata: { source: "manual", ...outcome.stats },
     });
   } catch (e) {
     console.error("[audit] kiteprop_inventory_synced manual", e);
   }
 
-  return NextResponse.json({ ok: true, ...stats });
+  return NextResponse.json({ ok: true, ...outcome.stats });
 }
