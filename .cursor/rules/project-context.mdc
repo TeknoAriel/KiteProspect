@@ -53,8 +53,8 @@ Raíz: `npm run dev`, `npm run db:*`.
 
 ## Git (remotos)
 
-- **Trabajo diario:** `origin` → repo **Tekno** (`git push origin main`).
-- **Org kiteprop (auditoría / cuando lo pidan):** remoto `kiteprop` → `git@github.com:kiteprop/ia-kiteprospects.git`, `npm run git:push:kiteprop` o `git push kiteprop main`.
+- **`origin`** → [TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect) — `git push origin main`; **Vercel** debe usar este repo (`main`, root `apps/web`).
+- **`kiteprop`** → org `kiteprop/ia-kiteprospects` — solo para **auditoría**: `npm run git:push:kiteprop` o `git push kiteprop main` cuando lo pidan.
 - Detalle: `docs/decisions/git-dual-remote-tekno-kiteprop.md`.
 
 ## Ejecución (agente, no el humano para lo rutinario)

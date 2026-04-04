@@ -1,19 +1,20 @@
-# Repositorio oficial GitHub (organización kiteprop)
+# Repositorio GitHub org kiteprop (auditoría)
 
-## Remoto canónico (organización / auditoría)
+## Remoto (espejo bajo demanda)
 
 ```
 git@github.com:kiteprop/ia-kiteprospects.git
 ```
 
-En el clon local suele registrarse como remoto **`kiteprop`** (ver `git-dual-remote-tekno-kiteprop.md`). Rama: **`main`**.
+En el clon local: remoto **`kiteprop`**. Rama: **`main`**.
 
-## Política (actualizada)
+**No** es el repo que debe conectar Vercel para el día a día: el deploy oficial va contra **[TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect)** (`origin`). Ver **`git-dual-remote-tekno-kiteprop.md`**.
 
-- **Trabajo diario:** `git push origin main` al repo **Tekno** (remoto `origin`), hasta que la org y Vercel queden alineados.
-- **Copia en org:** `git push kiteprop main` cuando corresponda auditoría o lo pida el equipo (o `npm run git:push:kiteprop`).
-- CI en **kiteprop** (`.github/workflows/`) corre cuando hay push a ese remoto; el repo Tekno puede tener su propio CI o ninguno.
+## Política
+
+- **Origen + CI + Vercel:** [TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect).
+- **Org:** `git push kiteprop main` cuando pidan **auditoría** o alineación con la org.
 
 ## Historial
 
-- Migración hacia org **kiteprop** para auditoría; integración Vercel puede estar desalineada → `vercel-deploy-lag-behind-github.md`, `deploy-vercel-collaborator-without-owner.md`, `git-dual-remote-tekno-kiteprop.md`.
+- Repo org para auditoría; Vercel productivo debe apuntar a Tekno → `git-dual-remote-tekno-kiteprop.md`, `vercel-deploy-lag-behind-github.md`.

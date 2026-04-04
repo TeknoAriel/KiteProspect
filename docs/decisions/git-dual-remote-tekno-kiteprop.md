@@ -1,70 +1,66 @@
-# Git dual: trabajo diario (Tekno) + copia org (kiteprop)
+# Git dual: Tekno (origen + Vercel) + kiteprop (auditoría)
 
-## Contexto
+## Repositorios
 
-Mientras el **owner** de la org no autoriza la integración Vercel/GitHub en `kiteprop/ia-kiteprospects`, el flujo productivo usa un remoto **Tekno** (cuenta o equipo con control total). El repo de **kiteprop** queda como **espejo bajo demanda** para auditoría y futura conexión oficial.
+| Rol | Repo GitHub | Remoto local | Uso |
+|-----|-------------|----------------|-----|
+| **Origen de trabajo y deploy** | **[TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect)** | **`origin`** | `git push origin main` diario; **Vercel debe estar conectado a este repo**. |
+| **Copia org (auditoría)** | [kiteprop/ia-kiteprospects](https://github.com/kiteprop/ia-kiteprospects) | **`kiteprop`** | `git push kiteprop main` o `npm run git:push:kiteprop` **cuando pidan auditoría** (no reemplaza el flujo Tekno). |
 
-## Nombres de remotos (convención del repo)
+**SSH (Tekno):** `git@github.com:TeknoAriel/KiteProspect.git`
 
-| Remoto     | URL típica | Uso |
-|------------|------------|-----|
-| **`origin`** | Repo **Tekno** (SSH HTTPS según prefieras) | `git push` / `git pull` **diario** |
-| **`kiteprop`** | `git@github.com:kiteprop/ia-kiteprospects.git` | **Solo cuando** haya que alinear la org o lo pidas explícitamente |
+## Vercel ↔ Git (oficial para esta app)
 
-En este clon, `origin` se configuró apuntando al remoto que usabas antes como `origin`; el de org pasó a llamarse **`kiteprop`**.
+1. En [Vercel](https://vercel.com) → proyecto de **Kite Prospect** → **Settings → Git**.
+2. **Connected Git Repository** = **`TeknoAriel/KiteProspect`** (mismo que `origin`).
+3. **Production Branch:** `main`.
+4. **Root Directory:** `apps/web` (ver `deploy-automation-one-time-setup.md`).
 
-## Configuración inicial (una vez por máquina)
+Cada `git push` a `main` en **Tekno** dispara build. El repo **kiteprop** no tiene por qué estar conectado a Vercel para el día a día.
 
-Si todavía no tenés `origin` apuntando al repo Tekno:
+## Remotos en el clon
 
-```powershell
-cd "ruta\al\Kite Prospect"
-git remote add origin git@github.com:TU_USUARIO_O_ORG/TU_REPO_TEKNO.git
-git fetch origin
-git branch --set-upstream-to=origin/main main
+```text
+origin    → git@github.com:TeknoAriel/KiteProspect.git
+kiteprop  → git@github.com:kiteprop/ia-kiteprospects.git
 ```
 
-Si el remoto `origin` ya existía con otra URL:
+La rama `main` sigue a **`origin/main`** (Tekno).
+
+## Configuración inicial en otra máquina
 
 ```powershell
-git remote set-url origin git@github.com:TU_USUARIO_O_ORG/TU_REPO_TEKNO.git
-git fetch origin
-git branch --set-upstream-to=origin/main main
+git clone git@github.com:TeknoAriel/KiteProspect.git
+cd KiteProspect
+git remote add kiteprop git@github.com:kiteprop/ia-kiteprospects.git
 ```
 
-Comprobar:
+(Si el clon ya existe solo con `kiteprop`, agregar `origin` con la URL Tekno y `git branch --set-upstream-to=origin/main main`.)
 
-```powershell
-git remote -v
-```
+## Flujo diario
 
-## Flujo diario (agente y humano)
+1. Commits en `main`.
+2. **`git push origin main`** → GitHub Tekno + (si Vercel está bien conectado) deploy automático.
 
-1. Commits en `main` como siempre.
-2. **`git push origin main`** → sube a **Tekno** (CI local / Actions en ese repo si aplica).
-
-## Copiar a kiteprop (bajo demanda)
-
-Cuando el owner lo autorice o lo pidas explícitamente:
+## Copia a kiteprop (auditoría)
 
 ```powershell
 git push kiteprop main
 ```
 
-O desde la raíz del monorepo:
+o:
 
 ```powershell
 npm run git:push:kiteprop
 ```
 
-(ver `package.json`).
-
 ## Notas
 
-- Los dos remotos pueden apuntar al **mismo historial**; `kiteprop` es un push adicional del mismo `main`.
-- Si `kiteprop` está vacío o desfasado, el primer `git push kiteprop main` puede requerir acordar con el owner (force solo si lo acordaron; **no** forzar por defecto).
+- Los dos remotos suelen llevar el **mismo `main`**; `kiteprop` es un push explícito cuando la org necesita revisar el código.
+- **No** forzar push a `kiteprop` sin acordar con quien administra la org.
 
 ## Referencias
 
-- `docs/decisions/github-official-remote-kiteprop.md` — remoto canónico de la **organización** (auditoría).
-- `docs/deploy-vercel-collaborator-without-owner.md` — Vercel sin ser owner.
+- `docs/deploy-automation-one-time-setup.md` — Root `apps/web`, variables, build.
+- `docs/decisions/github-official-remote-kiteprop.md` — rol del repo org.
+- `docs/deploy-vercel-collaborator-without-owner.md` — si alguien sin acceso a Vercel necesita disparar deploys.

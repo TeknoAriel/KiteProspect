@@ -11,32 +11,33 @@ Eso indica que **el build automático por push no está ligado al mismo repo/ram
 
 | Dónde | Qué mirar |
 |--------|-----------|
-| Git local | `git remote -v` → debe ser `kiteprop/ia-kiteprospects` (o el repo canónico del equipo). |
-| GitHub | Rama `main` → último commit (hash corto) y fecha. |
-| Vercel | Deployment **Ready** → abrir el deployment → sección **Source** / **Git** → **commit** y mensaje. Debe coincidir con GitHub `main`. |
+| Git local | `git remote -v` → **`origin`** = [TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect) (origen de deploy). |
+| GitHub Tekno | Rama `main` en **TeknoAriel/KiteProspect** → último commit (hash) y fecha. |
+| Vercel | Deployment → **Source** / **Git** → debe mostrar **TeknoAriel/KiteProspect** y el **mismo commit** que `main` en ese repo. |
 
-Si el hash en Vercel **no** coincide con GitHub `main`, el proyecto de Vercel **no** está desplegando ese repositorio o esa rama.
+Si el hash en Vercel **no** coincide con **Tekno** `main`, el proyecto no está conectado al repo correcto o la integración falló.
 
 ## Causas habituales
 
-1. **Proyecto de Vercel conectado a otro repo o fork** (nombre parecido, org distinta).
-2. **Rama de producción** distinta de `main` (p. ej. `master` vacía o vieja).
-3. **Integración GitHub desconectada** (revocación de permisos, cambio de org, reinstalar app de Vercel en GitHub).
-4. **Solo deploys manuales** (“Redeploy”) sin nuevos eventos desde Git — la app queda en un commit viejo aunque Git avance.
+1. **Proyecto de Vercel conectado al repo equivocado** (p. ej. org `kiteprop` en lugar del origen **[TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect)**). El deploy oficial debe seguir el repo **`origin`** / Tekno — ver `git-dual-remote-tekno-kiteprop.md`.
+2. **Proyecto de Vercel conectado a otro fork** (nombre parecido, org distinta).
+3. **Rama de producción** distinta de `main` (p. ej. `master` vacía o vieja).
+4. **Integración GitHub desconectada** (revocación de permisos, cambio de org, reinstalar app de Vercel en GitHub).
+5. **Solo deploys manuales** (“Redeploy”) sin nuevos eventos desde Git — la app queda en un commit viejo aunque Git avance.
 
 ## Pasos para alinear (una vez)
 
-1. [Vercel](https://vercel.com) → proyecto **kite-prospect** (o el que use la URL de pruebas).
+1. [Vercel](https://vercel.com) → proyecto de la app (p. ej. **kite-prospect**).
 2. **Settings → Git**:
-   - **Connected Git Repository:** debe ser **`kiteprop/ia-kiteprospects`** (mismo que `git remote`).
-   - Si no coincide: **Disconnect** y **Connect** de nuevo el repo correcto (pedir acceso GitHub si hace falta).
+   - **Connected Git Repository:** debe ser **`TeknoAriel/KiteProspect`** (mismo que `git remote` `origin` — no el repo de solo-auditoría org).
+   - Si no coincide: **Disconnect** y **Connect** [TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect).
 3. **Production Branch:** `main`.
 4. **Root Directory:** `apps/web` (monorepo; ver `deploy-automation-one-time-setup.md`).
 5. Guardar y, en **Deployments**, disparar un deploy:
    - **Redeploy** del último commit **o**
-   - un push vacío desde la máquina: `git commit --allow-empty -m "chore: trigger Vercel deploy"` y `git push origin main`.
+   - `git commit --allow-empty -m "chore: trigger Vercel deploy"` y **`git push origin main`** (Tekno).
 
-6. Verificar que el nuevo deployment lista el **mismo commit** que GitHub `main`.
+6. Verificar que el deployment lista el **mismo commit** que [Tekno `main`](https://github.com/TeknoAriel/KiteProspect/commits/main).
 
 ## Tras alinear
 

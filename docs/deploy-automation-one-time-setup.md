@@ -8,11 +8,13 @@
 
 ## 1) GitHub ↔ Vercel (imprescindible)
 
-1. [Vercel](https://vercel.com) → **Add New** → **Project** → importar el repo **KiteProspect** (GitHub).
-2. **Production Branch** = `main` (o la que uses).
+**Repo conectado a Vercel (origen de código y deploy):** **[TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect)** — no el repo de solo-auditoría de la org. Ver `docs/decisions/git-dual-remote-tekno-kiteprop.md`.
+
+1. [Vercel](https://vercel.com) → **Add New** → **Project** → importar **`TeknoAriel/KiteProspect`** (GitHub).
+2. **Production Branch** = `main`.
 3. Activar **Automatic deployments** para Production al hacer push a esa rama (viene por defecto al importar).
 
-**Después de esto:** cada push del agente a `main` → nuevo deployment. No tenés que pulsar “Deploy”.
+**Después de esto:** cada `git push origin main` a **Tekno** → nuevo deployment. No tenés que pulsar “Deploy”.
 
 ---
 

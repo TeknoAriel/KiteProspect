@@ -22,7 +22,7 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Vercel muestra commits viejos pero GitHub `main` está al día:** la integración o el repo conectado en Vercel no coincide con el remoto del equipo → **[vercel-deploy-lag-behind-github.md](./decisions/vercel-deploy-lag-behind-github.md)** (reconectar repo, rama `main`, Root `apps/web`, redeploy o push vacío).
 
-**Remoto org (auditoría / kiteprop):** `git@github.com:kiteprop/ia-kiteprospects.git` — en el clon suele llamarse **`kiteprop`**; push bajo demanda: `npm run git:push:kiteprop` → **[git-dual-remote-tekno-kiteprop.md](./decisions/git-dual-remote-tekno-kiteprop.md)**. **Trabajo diario:** remoto **`origin`** = repo Tekno (configurar URL una vez en cada máquina).
+**Git — Tekno (origen + Vercel):** [github.com/TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect) → remoto **`origin`**. **Org (auditoría):** `git@github.com:kiteprop/ia-kiteprospects.git` → **`kiteprop`**, `npm run git:push:kiteprop` → **[git-dual-remote-tekno-kiteprop.md](./decisions/git-dual-remote-tekno-kiteprop.md)**. **Vercel:** conectar el proyecto al repo **TeknoAriel/KiteProspect**, rama `main`, root `apps/web` → **[deploy-automation-one-time-setup.md](./deploy-automation-one-time-setup.md)**.
 
 **Sos colaborador y no podés tocar Vercel:** **[deploy-vercel-collaborator-without-owner.md](./deploy-vercel-collaborator-without-owner.md)** (deploy hook + workflow opcional, o pedir al owner que reconecte el repo).
 
