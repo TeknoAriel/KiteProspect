@@ -297,6 +297,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-l3-f2e7-sla-export-commercial-funnel.md` | SLA primera respuesta, embudo comercial, CSV reportes. |
 | `docs/decisions/slice-l4-f2e1-inferred-profile-heuristics.md` | Perfil inferido heurístico + prioridad declarado. |
 | `docs/decisions/vercel-deploy-lag-behind-github.md` | Si Vercel no despliega el mismo commit que GitHub `main`. |
+| `docs/decisions/git-dual-remote-tekno-kiteprop.md` | Tekno (`origin`) diario; `kiteprop` copia bajo demanda. |
 | `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |
 | `docs/decisions/vercel-404-diagnostico.md` | Checklist si la URL de Vercel devuelve 404. |
 | `docs/demo-simulated-inquiries-avalon-metro-level-innova.md` | Demo narrativo: 5 consultas × líneas comerciales, 15 días simulados (sin ejecución). |

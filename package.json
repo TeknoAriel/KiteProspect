@@ -27,7 +27,8 @@
     "db:studio": "dotenv -e .env -- npm run studio -w @kite-prospect/db",
     "db:reset": "dotenv -e .env -- npm run reset -w @kite-prospect/db",
     "postinstall": "npm run db:generate",
-    "test:ai": "dotenv -e .env -- npx tsx --tsconfig apps/web/tsconfig.json apps/web/scripts/test-ai-next-action.ts"
+    "test:ai": "dotenv -e .env -- npx tsx --tsconfig apps/web/tsconfig.json apps/web/scripts/test-ai-next-action.ts",
+    "git:push:kiteprop": "git push kiteprop main"
   },
   "devDependencies": {
     "dotenv-cli": "^7.4.4",

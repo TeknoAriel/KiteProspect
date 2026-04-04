@@ -51,6 +51,12 @@ No inventar features fuera de `PRODUCT_DEFINITION.md` sin actualizar ese archivo
 
 Raíz: `npm run dev`, `npm run db:*`.
 
+## Git (remotos)
+
+- **Trabajo diario:** `origin` → repo **Tekno** (`git push origin main`).
+- **Org kiteprop (auditoría / cuando lo pidan):** remoto `kiteprop` → `git@github.com:kiteprop/ia-kiteprospects.git`, `npm run git:push:kiteprop` o `git push kiteprop main`.
+- Detalle: `docs/decisions/git-dual-remote-tekno-kiteprop.md`.
+
 ## Ejecución (agente, no el humano para lo rutinario)
 
 - El **agente ejecuta** en el repo `npm run verify`, cambios de código y deja documentación.
