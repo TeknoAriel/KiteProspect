@@ -236,7 +236,7 @@ export default async function DashboardPage() {
             <Link href="/dashboard/reportes" style={{ color: "#0070f3" }}>
               Reportes operativos
             </Link>{" "}
-            — canales (nuevos 7 días), embudo conversacional, tareas pendientes y seguimientos activos.
+            — canales (nuevos 7 días), SLA primera respuesta, embudos conversacional y comercial, CSV.
           </li>
           <li>
             <Link href="/dashboard/inbox" style={{ color: "#0070f3" }}>

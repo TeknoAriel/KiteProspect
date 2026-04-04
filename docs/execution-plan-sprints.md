@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **—** (L2 cerrado). Próximo bloque: priorizar con `docs/roadmap.md` — ej. **F2-E7** (SLA / export ligero) o deuda F1 según `docs/status-mvp.md`. |
-| **Último sprint largo cerrado** | **L2** (S33–S34: dashboard operativo, filtros inventario, reportes, badge canal en contactos). Antes: **L1** (matching/scoring/CRM UX). |
-| **Última verificación agente** | 2026-04-01: `npm run verify` OK post-S34. |
+| **Sprint activo** | **—** (L3 cerrado). Próximo: **F2-E1** (perfil inferido) u otra épica F2 según `docs/roadmap.md` / negocio. |
+| **Último sprint largo cerrado** | **L3** (F2-E7: SLA primera respuesta, embudo comercial en reportes, CSV). Antes: **L2** (S33–S34). Antes: **L1**. |
+| **Última verificación agente** | 2026-04-01: `npm run verify` OK post-L3. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -63,6 +63,21 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | 4 | CRM lista | F1-E13 | Badge de canal (primera conversación) en tarjetas de `/dashboard/contacts` | [x] |
 
 **Cierre L2 (S33–S34):** verify verde; decisiones `slice-s33-*`, `slice-s34-*`; `docs/status-mvp.md` actualizado.
+
+---
+
+## Sprint largo L3 — Reportes F2-E7 (SLA + comercial + CSV)
+
+**Objetivo:** completar un paso sólido de **F2-E7** sin analytics enterprise.
+
+| # | Área | Ref roadmap | Entregable | Estado |
+|---|------|-------------|------------|--------|
+| 1 | SLA inbox | F2-E7 | Mediana/promedio minutos primera respuesta (primer outbound tras primer inbound), ventana alineada a 7 días UTC | [x] |
+| 2 | Embudo comercial | F2-E7 | `commercialStage` en `/dashboard/reportes` (groupBy contactos) | [x] |
+| 3 | Export | F2-E7 | `GET /api/exports/operational-reports` → CSV UTF-8 (BOM) | [x] |
+| 4 | Tests | — | Vitest `mean` / `median` en `stats-median.ts` | [x] |
+
+**Cierre L3:** verify verde; `docs/decisions/slice-l3-f2e7-sla-export-commercial-funnel.md`; `docs/status-mvp.md` actualizado.
 
 ---
 
@@ -265,6 +280,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-s32-kiteprop-incremental-json-cron.md` | Feed KiteProp: 304, manifiesto id+fecha, withdraw/delete, cron ajustable (~2 días en prueba). |
 | `docs/decisions/slice-s33-dashboard-ops-visibility.md` | Dashboard operaciones + filtros listado propiedades. |
 | `docs/decisions/slice-s34-reports-and-contact-channel-badge.md` | `/dashboard/reportes` + badge canal en contactos. |
+| `docs/decisions/slice-l3-f2e7-sla-export-commercial-funnel.md` | SLA primera respuesta, embudo comercial, CSV reportes. |
 | `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |
 | `docs/decisions/vercel-404-diagnostico.md` | Checklist si la URL de Vercel devuelve 404. |
 | `docs/demo-simulated-inquiries-avalon-metro-level-innova.md` | Demo narrativo: 5 consultas × líneas comerciales, 15 días simulados (sin ejecución). |

@@ -75,7 +75,8 @@ Estas son las **rutas** (lo que va después del dominio). Funcionan igual en loc
 | 8 | `/dashboard/account` | Configuración de la cuenta (**solo admin**): datos del tenant + enlace a IA. |
 | 9 | `/lead` | Formulario público (**solo si** `ENABLE_PUBLIC_LEAD_FORM=true`). |
 | 10 | `/lead?slug=demo` | Igual que `/lead` pero fija la cuenta `demo` por URL. |
-| 11 | `/dashboard/reportes` | Reportes operativos: nuevos por canal (7 días), embudo conversacional, tareas pendientes y seguimientos activos. |
+| 11 | `/dashboard/reportes` | Reportes operativos: nuevos por canal (7 días), SLA primera respuesta, embudos conversacional y comercial, tareas y seguimientos; botón **Descargar CSV**. |
+| 12 | `/api/exports/operational-reports` | Misma data que reportes en CSV (requiere **sesión**; abrir estando logueado o usar el botón en la página). |
 
 ---
 
@@ -89,6 +90,7 @@ Con la app en marcha (`npm run dev`), estas direcciones **sí responden** en tu 
 | Login | [http://localhost:3000/login](http://localhost:3000/login) |
 | Panel | [http://localhost:3000/dashboard](http://localhost:3000/dashboard) |
 | Reportes | [http://localhost:3000/dashboard/reportes](http://localhost:3000/dashboard/reportes) |
+| Export CSV reportes | [http://localhost:3000/api/exports/operational-reports](http://localhost:3000/api/exports/operational-reports) (con sesión) |
 | Contactos | [http://localhost:3000/dashboard/contacts](http://localhost:3000/dashboard/contacts) |
 | Inbox | [http://localhost:3000/dashboard/inbox](http://localhost:3000/dashboard/inbox) |
 | Seguimiento | [http://localhost:3000/dashboard/followups](http://localhost:3000/dashboard/followups) |
@@ -121,6 +123,7 @@ Ejemplo si tu base es `https://kite-prospect.vercel.app`:
 | Login | `https://kite-prospect.vercel.app/login` |
 | Panel | `https://kite-prospect.vercel.app/dashboard` |
 | Reportes | `https://kite-prospect.vercel.app/dashboard/reportes` |
+| Export CSV (sesión) | `https://kite-prospect.vercel.app/api/exports/operational-reports` |
 | Contactos | `https://kite-prospect.vercel.app/dashboard/contacts` |
 
 Sustituye `https://kite-prospect.vercel.app` por **tu** URL real (la que ves en el navegador).

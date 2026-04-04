@@ -21,7 +21,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`: **WhatsApp** (Meta), **email** (Resend si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, tarea en ficha), **Instagram/otros** → tarea manual; ver `docs/decisions/slice-follow-up-channels-email-manual.md`. |
 | **WhatsApp** | Entrada: webhook `/api/webhooks/whatsapp`; `slice-s08`. Saliente: `POST /api/whatsapp/send` (admin), Graph API; `slice-s09`. |
 | **IA conversacional (base)** | `POST /api/ai/conversation/next-action` (admin/coordinator); proveedor dual S10; reglas handoff + versionado prompt S11 (`slice-s11-conversational-handoff-rules.md`). |
-| **Dashboard (F1-E16)** | KPIs + **S33** en `/dashboard` (barras, canales, tendencia 14d, recientes) + **S34** enlace y tarjeta a **`/dashboard/reportes`** (canales nuevos 7d, embudo conversacional, tareas/seg. activos) (`slice-s23`, `slice-s33`, `slice-s34`). |
+| **Dashboard (F1-E16)** | KPIs + **S33** en `/dashboard` + **S34/L3** en **`/dashboard/reportes`**: nuevos 7d por canal, embudo conversacional y **comercial**, **SLA** (mediana/promedio minutos primera respuesta en ventana UTC), tareas/seg. activos, **CSV** vía `GET /api/exports/operational-reports` (`slice-s23`, `slice-s33`, `slice-s34`, `slice-l3`). |
 | **Auditoría** | `recordAuditEvent` + evento `session_started` en login + evento de seed; UI admin (`/dashboard/audit`). |
 | **Captura (API)** | `POST /api/contacts/create` con `CAPTURE_API_SECRET` + `accountSlug` (o `accountId`), email o teléfono; validación de campos + rate limit por IP (memoria); evento `lead_captured`; log estructurado `lead_captured` tras éxito (S28). |
 | **Captura (formulario)** | `/lead` opcional con `ENABLE_PUBLIC_LEAD_FORM=true`; misma lógica vía server action (auditoría `via: public_lead_form`). |
@@ -31,7 +31,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 ## Plan de trabajo actual
 
-**Fase 1 (código):** los hitos S01–S30 y L1 están cerrados en `docs/execution-plan-sprints.md`. **S31** refuerza diagnóstico de producción vía `/api/health`. **L2 / S33–S34:** `/dashboard` operativo, filtros en `/dashboard/properties` (`slice-s33`), **`/dashboard/reportes`** y badge de **canal** en lista de contactos (`slice-s34`).
+**Fase 1 (código):** los hitos S01–S30 y L1 están cerrados en `docs/execution-plan-sprints.md`. **S31** refuerza diagnóstico de producción vía `/api/health`. **L2 / S33–S34:** `/dashboard` operativo, filtros en `/dashboard/properties` (`slice-s33`), **`/dashboard/reportes`** y badge de **canal** en lista de contactos (`slice-s34`). **L3:** mismos reportes ampliados con **SLA primera respuesta**, **embudo comercial** y **export CSV** autenticado (`slice-l3-f2e7-sla-export-commercial-funnel.md`).
 
 **Producción operativa:** variables en Vercel/hosting, Meta, Resend e IA siguen en **`docs/manual-actions-required.md`** y **`docs/produccion-checklist-usuario.md`** (primera URL pública, `AUTH_URL`, demo seed vía `build:vercel`, etc.).
 
