@@ -1,0 +1,22 @@
+# Opcional: dispara un deployment en Vercel vía Deploy Hook (sin ser owner del proyecto Vercel).
+# El owner crea el hook en Vercel y agrega el secreto VERCEL_DEPLOY_HOOK_URL en GitHub.
+# Si el secreto no existe, el job solo imprime un mensaje y no falla.
+name: Trigger Vercel (deploy hook)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  hook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST deploy hook
+        env:
+          HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK" ]; then
+            echo "VERCEL_DEPLOY_HOOK_URL no configurado — omitiendo (ver docs/deploy-vercel-collaborator-without-owner.md)."
+            exit 0
+          fi
+          curl -fsS -X POST "$HOOK"

@@ -22,6 +22,10 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Vercel muestra commits viejos pero GitHub `main` está al día:** la integración o el repo conectado en Vercel no coincide con el remoto del equipo → **[vercel-deploy-lag-behind-github.md](./decisions/vercel-deploy-lag-behind-github.md)** (reconectar repo, rama `main`, Root `apps/web`, redeploy o push vacío).
 
+**Remoto Git oficial del producto:** `git@github.com:kiteprop/ia-kiteprospects.git` → rama **`main`** → **[github-official-remote-kiteprop.md](./decisions/github-official-remote-kiteprop.md)**.
+
+**Sos colaborador y no podés tocar Vercel:** **[deploy-vercel-collaborator-without-owner.md](./deploy-vercel-collaborator-without-owner.md)** (deploy hook + workflow opcional, o pedir al owner que reconecte el repo).
+
 ---
 
 ## Ahora (desarrollo local)
