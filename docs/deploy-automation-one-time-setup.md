@@ -65,7 +65,10 @@ En **Settings → Environment Variables** (ambiente **Production**), replicá lo
 ## 5) Comprobar que todo anda
 
 1. Tras un push: Vercel → **Deployments** → último = **Ready**.
-2. `GET https://TU_DOMINIO/api/health` → `ok: true`.
+2. Abrir ese deployment y confirmar que el **commit** coincide con GitHub → rama `main` (mismo hash que el último push).
+3. `GET https://TU_DOMINIO/api/health` → `ok: true`.
+
+Si el paso 2 falla (Vercel sigue en un commit viejo): **no es un problema del repo** — revisar conexión Git en Vercel → `docs/decisions/vercel-deploy-lag-behind-github.md`.
 
 ---
 

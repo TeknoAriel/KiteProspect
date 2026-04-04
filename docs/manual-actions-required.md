@@ -20,6 +20,8 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Deploy automático (configuración única en Vercel + GitHub; después solo `git push`):** **[deploy-automation-one-time-setup.md](./deploy-automation-one-time-setup.md)**.
 
+**Vercel muestra commits viejos pero GitHub `main` está al día:** la integración o el repo conectado en Vercel no coincide con el remoto del equipo → **[vercel-deploy-lag-behind-github.md](./decisions/vercel-deploy-lag-behind-github.md)** (reconectar repo, rama `main`, Root `apps/web`, redeploy o push vacío).
+
 ---
 
 ## Ahora (desarrollo local)
