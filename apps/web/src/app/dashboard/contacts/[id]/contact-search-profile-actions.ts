@@ -15,6 +15,15 @@ const MAX_ZONE = 300;
 const MAX_INTENT = 80;
 const MAX_PROP_TYPE = 80;
 
+const CUID_LIKE = /^[a-z0-9]{20,32}$/i;
+
+function parseExcludedPropertyIdsField(raw: unknown): string[] {
+  const s = String(raw ?? "").trim();
+  if (!s) return [];
+  const parts = s.split(/[\s,]+/).map((p) => p.trim()).filter(Boolean);
+  return parts.filter((id) => CUID_LIKE.test(id));
+}
+
 export type UpdateDeclaredSearchProfileResult =
   | { ok: true }
   | { ok: false; error: string };
@@ -101,6 +110,16 @@ export async function updateDeclaredSearchProfileAction(
     } catch {
       return { ok: false, error: "Requisitos adicionales: JSON inválido." };
     }
+  }
+
+  if (extra && "excludedPropertyIds" in extra) {
+    const { excludedPropertyIds: _drop, ...rest } = extra;
+    extra = Object.keys(rest).length > 0 ? rest : null;
+  }
+
+  const excludedIds = parseExcludedPropertyIdsField(formData.get("excludedPropertyIds"));
+  if (excludedIds.length > 0) {
+    extra = { ...(extra ?? {}), excludedPropertyIds: excludedIds };
   }
 
   const fields: DeclaredSearchProfileFields = {

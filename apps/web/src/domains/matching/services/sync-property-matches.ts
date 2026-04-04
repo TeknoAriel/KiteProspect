@@ -2,9 +2,11 @@
  * Persiste PropertyMatch para un contacto según inventario `available` y perfil actual.
  */
 import { prisma } from "@kite-prospect/db";
+import { extractMatchingWeightsFromAccountConfig } from "@/domains/auth-tenancy/account-matching-config";
 import { selectPreferredSearchProfile } from "@/domains/crm-leads/search-profile-preference";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
+import { parseExcludedPropertyIdsFromProfileExtra } from "./search-profile-matching-extras";
 import { scorePropertyAgainstProfile } from "./score-property-match";
 
 /** Por debajo de este umbral no guardamos fila (evita ruido en UI). */
@@ -19,15 +21,20 @@ export async function syncPropertyMatchesForContact(
   accountId: string,
   actorUserId: string | null,
 ): Promise<SyncPropertyMatchesResult> {
-  const contact = await prisma.contact.findFirst({
-    where: { id: contactId, accountId },
-    include: {
-      searchProfiles: {
-        orderBy: { updatedAt: "desc" },
-        take: 1,
+  const [contact, accountRow] = await Promise.all([
+    prisma.contact.findFirst({
+      where: { id: contactId, accountId },
+      include: {
+        searchProfiles: {
+          orderBy: { updatedAt: "desc" },
+        },
       },
-    },
-  });
+    }),
+    prisma.account.findFirst({
+      where: { id: accountId },
+      select: { config: true },
+    }),
+  ]);
 
   if (!contact) {
     return { ok: false, error: "Contacto no encontrado." };
@@ -40,6 +47,9 @@ export async function syncPropertyMatchesForContact(
       error: "No hay perfil de búsqueda. Completá el perfil del contacto antes de calcular matches.",
     };
   }
+
+  const weights = extractMatchingWeightsFromAccountConfig(accountRow?.config);
+  const excludedIds = parseExcludedPropertyIdsFromProfileExtra(profile.extra);
 
   const properties = await prisma.property.findMany({
     where: { accountId, status: "available" },
@@ -63,10 +73,19 @@ export async function syncPropertyMatchesForContact(
     bedrooms: profile.bedrooms,
   };
 
+  const existingBefore = await prisma.propertyMatch.findMany({
+    where: { contactId },
+    select: { id: true, propertyId: true, feedback: true },
+  });
+  const notInterestedIds = new Set(
+    existingBefore.filter((m) => m.feedback === "not_interested").map((m) => m.propertyId),
+  );
+
   const candidates: { propertyId: string; score: number; reason: string }[] = [];
 
   for (const p of properties) {
-    const { score, reason } = scorePropertyAgainstProfile(profileInput, p);
+    if (excludedIds.has(p.id) || notInterestedIds.has(p.id)) continue;
+    const { score, reason } = scorePropertyAgainstProfile(profileInput, p, { weights });
     if (score >= MIN_PROPERTY_MATCH_SCORE) {
       candidates.push({ propertyId: p.id, score, reason });
     }
@@ -74,14 +93,13 @@ export async function syncPropertyMatchesForContact(
 
   candidates.sort((a, b) => b.score - a.score);
 
-  const existing = await prisma.propertyMatch.findMany({
-    where: { contactId },
-    select: { id: true, propertyId: true },
-  });
+  const existing = existingBefore;
   const existingByPropertyId = new Map(existing.map((m) => [m.propertyId, m.id]));
+
   const candidatePropertyIds = new Set(candidates.map((c) => c.propertyId));
   const toDeleteIds = existing
     .filter((m) => !candidatePropertyIds.has(m.propertyId))
+    .filter((m) => m.feedback !== "not_interested")
     .map((m) => m.id);
 
   await prisma.$transaction(async (tx) => {
@@ -123,7 +141,9 @@ export async function syncPropertyMatchesForContact(
     inventoryCount: properties.length,
     matchedCount: candidates.length,
     removedCount: toDeleteIds.length,
-    rulesVersion: "v0",
+    rulesVersion: "v1",
+    excludedCount: excludedIds.size,
+    notInterestedPreserved: notInterestedIds.size,
   });
 
   try {
@@ -139,7 +159,7 @@ export async function syncPropertyMatchesForContact(
         inventoryCount: properties.length,
         removedCount: toDeleteIds.length,
         preservedHistory: true,
-        rulesVersion: "v0",
+        rulesVersion: "v1",
       },
     });
   } catch (e) {

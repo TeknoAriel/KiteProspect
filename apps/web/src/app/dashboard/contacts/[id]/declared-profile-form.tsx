@@ -12,6 +12,7 @@ type Initial = {
   maxPrice: string;
   bedrooms: string;
   bathrooms: string;
+  excludedPropertyIds: string;
   extraJson: string;
 };
 
@@ -49,6 +50,7 @@ export function DeclaredProfileForm({ contactId, initial }: Props) {
   const [maxPrice, setMaxPrice] = useState(initial.maxPrice);
   const [bedrooms, setBedrooms] = useState(initial.bedrooms);
   const [bathrooms, setBathrooms] = useState(initial.bathrooms);
+  const [excludedPropertyIds, setExcludedPropertyIds] = useState(initial.excludedPropertyIds);
   const [extraJson, setExtraJson] = useState(initial.extraJson);
 
   return (
@@ -65,6 +67,7 @@ export function DeclaredProfileForm({ contactId, initial }: Props) {
         fd.set("maxPrice", maxPrice);
         fd.set("bedrooms", bedrooms);
         fd.set("bathrooms", bathrooms);
+        fd.set("excludedPropertyIds", excludedPropertyIds);
         fd.set("extraJson", extraJson);
         startTransition(async () => {
           const res = await updateDeclaredSearchProfileAction(contactId, fd);
@@ -185,6 +188,24 @@ export function DeclaredProfileForm({ contactId, initial }: Props) {
               style={inputStyle}
             />
           </div>
+        </div>
+        <div>
+          <label htmlFor="sp-excluded" style={labelStyle}>
+            Excluir propiedades del matching (IDs internos, separados por coma)
+          </label>
+          <input
+            id="sp-excluded"
+            type="text"
+            value={excludedPropertyIds}
+            onChange={(e) => setExcludedPropertyIds(e.target.value)}
+            placeholder="clxyz…, clabc…"
+            style={inputStyle}
+            autoComplete="off"
+          />
+          <p style={{ margin: "0.35rem 0 0", fontSize: "0.75rem", color: "#666" }}>
+            No uses JSON acá: el campo guarda <code>excludedPropertyIds</code> en el perfil. Copiá el ID desde la URL de
+            edición de propiedad o el listado.
+          </p>
         </div>
         <div>
           <label htmlFor="sp-extra" style={labelStyle}>

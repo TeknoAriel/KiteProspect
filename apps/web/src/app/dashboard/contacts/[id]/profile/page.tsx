@@ -16,6 +16,20 @@ function searchProfileToFormInitial(sp: {
   bathrooms: number | null;
   extra: unknown;
 }) {
+  let extraJson = "";
+  let excludedCsv = "";
+  if (sp.extra !== null && sp.extra !== undefined && typeof sp.extra === "object" && !Array.isArray(sp.extra)) {
+    const ex = sp.extra as Record<string, unknown>;
+    const ids = ex.excludedPropertyIds;
+    if (Array.isArray(ids)) {
+      excludedCsv = ids.filter((x): x is string => typeof x === "string").join(", ");
+    }
+    const { excludedPropertyIds: _e, ...rest } = ex;
+    if (Object.keys(rest).length > 0) {
+      extraJson = JSON.stringify(rest, null, 2);
+    }
+  }
+
   return {
     intent: sp.intent ?? "",
     propertyType: sp.propertyType ?? "",
@@ -24,10 +38,8 @@ function searchProfileToFormInitial(sp: {
     maxPrice: sp.maxPrice != null ? String(Number(sp.maxPrice)) : "",
     bedrooms: sp.bedrooms != null ? String(sp.bedrooms) : "",
     bathrooms: sp.bathrooms != null ? String(sp.bathrooms) : "",
-    extraJson:
-      sp.extra !== null && sp.extra !== undefined && typeof sp.extra === "object"
-        ? JSON.stringify(sp.extra, null, 2)
-        : "",
+    excludedPropertyIds: excludedCsv,
+    extraJson,
   };
 }
 
@@ -74,6 +86,7 @@ export default async function ContactProfilePage({
         maxPrice: "",
         bedrooms: "",
         bathrooms: "",
+        excludedPropertyIds: "",
         extraJson: "",
       };
 

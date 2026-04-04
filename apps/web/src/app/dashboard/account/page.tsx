@@ -288,6 +288,12 @@ export default async function AccountSettingsHubPage() {
             </Link>{" "}
             — nombre y zona horaria (S17).
           </li>
+          <li style={{ marginBottom: "0.5rem" }}>
+            <Link href="/dashboard/account/matching" style={{ color: "#0070f3" }}>
+              Matching (pesos por dimensión)
+            </Link>{" "}
+            — F2-E2, <code>Account.config.matchingWeights</code>.
+          </li>
           <li>
             <Link href="/dashboard/account/ai-prompt" style={{ color: "#0070f3" }}>
               IA conversacional

@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **—** (L4 cerrado). Próximo: **F2-E1** (capa LLM) o **F2-E2 / F2-E3** según `docs/roadmap.md`. |
-| **Último sprint largo cerrado** | **L4** (F2-E1 heurístico: inferencia + prioridad + inbox). Antes: **L3** (F2-E7). Antes: **L2**. |
-| **Última verificación agente** | 2026-04-01: `npm run verify` OK; docs Git/Vercel alineados a Tekno + kiteprop (`git-dual-remote-tekno-kiteprop.md`). |
+| **Sprint activo** | **—** (L5 cerrado). Próximo: **F2-E3** (reason / ranking) o **F2-E1** capa LLM inferencia según `docs/roadmap.md`. |
+| **Último sprint largo cerrado** | **L5** (F2-E2: pesos matching + feedback + exclusiones). Antes: **L4** (F2-E1 heurístico). Antes: **L3** (F2-E7). |
+| **Última verificación agente** | 2026-04-04: `npm run verify` post L5; decisión `slice-l5-f2e2-matching-weights-feedback-exclusions.md`. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -92,6 +92,18 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | 5 | Tests | — | Preferencia + heurísticas | [x] |
 
 **Cierre L4:** verify verde; `docs/decisions/slice-l4-f2e1-inferred-profile-heuristics.md`; `docs/status-mvp.md` actualizado.
+
+---
+
+## Sprint largo L5 — F2-E2 (matching: pesos + feedback + exclusiones)
+
+| # | Área | Ref roadmap | Entregable | Estado |
+|---|------|-------------|------------|--------|
+| 1 | Pesos | F2-E2 | `Account.config.matchingWeights` normalizado; `GET/PATCH /api/account/matching-config`; UI `/dashboard/account/matching` | [x] |
+| 2 | Motor | F2-E2 | `scorePropertyAgainstProfile` con pesos; sync v1 + exclusiones `extra.excludedPropertyIds`; preservar `not_interested` | [x] |
+| 3 | CRM | F2-E2 | Feedback en ficha; campo exclusiones en perfil declarado; auditoría | [x] |
+
+**Cierre L5:** verify verde; `docs/decisions/slice-l5-f2e2-matching-weights-feedback-exclusions.md`; `docs/status-mvp.md` actualizado.
 
 ---
 
@@ -296,6 +308,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-s34-reports-and-contact-channel-badge.md` | `/dashboard/reportes` + badge canal en contactos. |
 | `docs/decisions/slice-l3-f2e7-sla-export-commercial-funnel.md` | SLA primera respuesta, embudo comercial, CSV reportes. |
 | `docs/decisions/slice-l4-f2e1-inferred-profile-heuristics.md` | Perfil inferido heurístico + prioridad declarado. |
+| `docs/decisions/slice-l5-f2e2-matching-weights-feedback-exclusions.md` | F2-E2: pesos matching, feedback, exclusiones. |
 | `docs/decisions/vercel-deploy-lag-behind-github.md` | Si Vercel no despliega el mismo commit que GitHub `main`. |
 | `docs/decisions/git-dual-remote-tekno-kiteprop.md` | Tekno (`origin`) diario; `kiteprop` copia bajo demanda. |
 | `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |

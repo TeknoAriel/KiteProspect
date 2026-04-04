@@ -17,6 +17,7 @@ import { ContactStagesForm } from "./contact-stages-form";
 import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
 import { StartFollowUpSequenceForm } from "./start-follow-up-sequence-form";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
+import { PropertyMatchFeedback } from "./property-match-feedback";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
 
 function crmTaskTypeLabel(type: string): string {
@@ -167,6 +168,10 @@ export default async function ContactDetailPage({
   const canMutateStages = canMutateAssign;
   const canMutateFollowUp = canMutateAssign;
   const hasPhoneForWa = Boolean(contact.phone?.trim());
+  const canSetMatchFeedback =
+    session.user.role === "admin" ||
+    session.user.role === "coordinator" ||
+    session.user.role === "advisor";
   const activeAssignment = contact.assignments[0];
   const currentAdvisorId = activeAssignment?.advisorId ?? null;
 
@@ -447,11 +452,14 @@ export default async function ContactDetailPage({
 
           {/* Matching inventario (v0) */}
           <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
-            <h3 style={{ marginTop: 0 }}>Propiedades recomendadas (matching v0)</h3>
+            <h3 style={{ marginTop: 0 }}>Propiedades recomendadas (matching)</h3>
             <p style={{ fontSize: "0.8rem", color: "#555", marginTop: 0 }}>
-              Solo inventario con estado <code>available</code>; reglas sobre perfil de búsqueda (sin inventar
-              propiedades). Envío por WhatsApp (admin/coordinator) registra <code>Recommendation</code> y
-              actualiza <code>sentAt</code> en el match (S20).
+              Solo inventario <code>available</code>; pesos por cuenta en{" "}
+              <Link href="/dashboard/account/matching" style={{ color: "#0070f3" }}>
+                configuración → matching
+              </Link>
+              . Podés excluir IDs desde el perfil del contacto y marcar feedback; &quot;No interesa&quot; no se borra al
+              recalcular. WhatsApp (admin/coordinator) registra <code>Recommendation</code> y <code>sentAt</code> (S20).
             </p>
             <RecalculateMatchesButton contactId={id} />
             {contact.propertyMatches.length > 0 ? (
@@ -486,13 +494,29 @@ export default async function ContactDetailPage({
                         <p style={{ margin: "0.35rem 0 0 0", fontSize: "0.75rem", color: "#444" }}>{match.reason}</p>
                       )}
                     </div>
-                    <SendRecommendationWhatsAppButton
-                      contactId={id}
-                      propertyMatchId={match.id}
-                      canSend={canSendRecommendation}
-                      hasPhone={hasPhoneForWa}
-                      sentAt={match.sentAt}
-                    />
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end",
+                        gap: "0.5rem",
+                        minWidth: "min(100%, 200px)",
+                      }}
+                    >
+                      <PropertyMatchFeedback
+                        contactId={id}
+                        matchId={match.id}
+                        current={match.feedback}
+                        canEdit={canSetMatchFeedback}
+                      />
+                      <SendRecommendationWhatsAppButton
+                        contactId={id}
+                        propertyMatchId={match.id}
+                        canSend={canSendRecommendation}
+                        hasPhone={hasPhoneForWa}
+                        sentAt={match.sentAt}
+                      />
+                    </div>
                   </div>
                 ))}
               </div>
