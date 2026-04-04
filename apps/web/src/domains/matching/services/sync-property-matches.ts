@@ -6,11 +6,11 @@ import { extractMatchingWeightsFromAccountConfig } from "@/domains/auth-tenancy/
 import { selectPreferredSearchProfile } from "@/domains/crm-leads/search-profile-preference";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
+import { MIN_PROPERTY_MATCH_SCORE } from "../matching-score-thresholds";
 import { parseExcludedPropertyIdsFromProfileExtra } from "./search-profile-matching-extras";
 import { scorePropertyAgainstProfile } from "./score-property-match";
 
-/** Por debajo de este umbral no guardamos fila (evita ruido en UI). */
-export const MIN_PROPERTY_MATCH_SCORE = 30;
+export { MIN_PROPERTY_MATCH_SCORE };
 
 export type SyncPropertyMatchesResult =
   | { ok: true; matchedCount: number }
@@ -81,6 +81,11 @@ export async function syncPropertyMatchesForContact(
     existingBefore.filter((m) => m.feedback === "not_interested").map((m) => m.propertyId),
   );
 
+  const priceNum = (p: (typeof properties)[0]) => {
+    const n = Number(p.price);
+    return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+  };
+
   const candidates: { propertyId: string; score: number; reason: string }[] = [];
 
   for (const p of properties) {
@@ -91,7 +96,14 @@ export async function syncPropertyMatchesForContact(
     }
   }
 
-  candidates.sort((a, b) => b.score - a.score);
+  const priceById = new Map(properties.map((p) => [p.id, priceNum(p)]));
+  candidates.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    const ap = priceById.get(a.propertyId) ?? Number.POSITIVE_INFINITY;
+    const bp = priceById.get(b.propertyId) ?? Number.POSITIVE_INFINITY;
+    if (ap !== bp) return ap - bp;
+    return a.propertyId.localeCompare(b.propertyId);
+  });
 
   const existing = existingBefore;
   const existingByPropertyId = new Map(existing.map((m) => [m.propertyId, m.id]));

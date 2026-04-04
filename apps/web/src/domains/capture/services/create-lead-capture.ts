@@ -12,6 +12,7 @@ const ALLOWED_CHANNELS = new Set([
   "landing",
   "whatsapp",
   "form",
+  "meta_lead",
 ]);
 
 export type LeadCaptureSource = "api" | "public_form";

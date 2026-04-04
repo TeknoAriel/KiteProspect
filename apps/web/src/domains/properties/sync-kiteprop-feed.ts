@@ -5,6 +5,7 @@ import type { KitepropFeedSyncStatePatch } from "@/domains/auth-tenancy/account-
 import type { FeedListing, KitepropSyncStats } from "./kiteprop-feed-types";
 import { KITEPROP_EXTERNAL_SOURCE } from "./kiteprop-feed-types";
 import { parseProppitPropertyJson } from "./parse-proppit-json";
+import { processReactivationForNewProperty } from "@/domains/followups/services/property-reactivation-on-create";
 import { parseZonapropOpenNaventXml } from "./parse-zonaprop-xml";
 
 const FETCH_TIMEOUT_MS = 180_000;
@@ -202,7 +203,7 @@ async function upsertOneListing(
     return;
   }
 
-  await prisma.property.create({
+  const createdProp = await prisma.property.create({
     data: {
       accountId,
       title: listing.title.slice(0, 500),
@@ -233,8 +234,17 @@ async function upsertOneListing(
       externalFeedUpdatedAt: extAt,
       metadata,
     },
+    select: { id: true },
   });
   stats.created += 1;
+  try {
+    await processReactivationForNewProperty({
+      accountId,
+      propertyId: createdProp.id,
+    });
+  } catch (e) {
+    console.error("[kiteprop-sync] reactivation on create", e);
+  }
 }
 
 export type SyncKitepropFeedInput = {

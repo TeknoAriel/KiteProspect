@@ -141,6 +141,20 @@ Si tenías una versión anterior del repo (Next y Prisma en la raíz, sin `apps/
 
 **Decisión de negocio:** presupuesto y límites de uso en OpenAI (no inferibles desde el código).
 
+**Opcional — inferencia de perfil con LLM (F2-E1):** en `.env` / Vercel, `SEARCH_PROFILE_INFER_LLM=true` activa un refinamiento JSON tras las heurísticas (mismo proveedor que `AI_PROVIDER` / `OPENAI_API_KEY`). Sin esto solo corre el camino heurístico.
+
+---
+
+### 6b. Meta Lead Ads — webhook (Fase 2)
+
+**Qué harás tú:**
+
+1. En Meta for Developers, creá el webhook de **Lead Ads** apuntando a `https://TU-DOMINIO/api/webhooks/meta-leads` (GET para verificación, POST para eventos).
+2. Definí en el entorno `META_LEAD_WEBHOOK_VERIFY_TOKEN` (mismo valor que configurás como **Verify Token** en Meta).
+3. En la base de datos, creá un registro `Integration` para el tenant: `type = "meta_lead_ads"`, `status = "active"`, `config` JSON con `{ "pageId": "<PAGE_ID_DE_META>" }` (el `id` de página que envía Meta en el webhook). Sin esa fila el POST se reconoce pero no asocia cuenta (`ignored` en logs).
+
+**Notas:** el ingest usa el mismo modelo de captura que `POST /api/contacts/create` (canal `meta_lead`). Si el lead no trae email ni teléfono válido, la captura falla pero el webhook responde 200 para no forzar reintentos infinitos de Meta.
+
 ---
 
 ### 7. Autenticación en producción (cuando despliegues)

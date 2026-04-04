@@ -7,6 +7,7 @@ import { logStructured } from "@/lib/structured-log";
 import { sendFollowUpEmailToContact } from "@/domains/integrations/email/send-follow-up-email";
 import { sendWhatsAppTextToContact } from "@/domains/integrations/whatsapp/send-whatsapp-text";
 import type { ProcessDueFollowUpsInput, ProcessDueFollowUpsResult } from "../follow-up-job-contract";
+import { evaluateFollowUpTriggers } from "./evaluate-follow-up-triggers";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -97,7 +98,17 @@ export async function processDueFollowUps(
       nextAttemptAt: { lte: now },
     },
     include: {
-      contact: { select: { id: true, accountId: true, email: true, name: true, phone: true } },
+      contact: {
+        select: {
+          id: true,
+          accountId: true,
+          email: true,
+          name: true,
+          phone: true,
+          commercialStage: true,
+          conversationalStage: true,
+        },
+      },
       plan: true,
     },
     orderBy: { nextAttemptAt: "asc" },
@@ -112,6 +123,28 @@ export async function processDueFollowUps(
     sequencesExamined++;
     try {
       const plan = seq.plan;
+
+      const latestLeadScore = await prisma.leadScore.findFirst({
+        where: { contactId: seq.contact.id },
+        orderBy: { createdAt: "desc" },
+        select: { totalScore: true },
+      });
+      const triggerCheck = evaluateFollowUpTriggers(plan.triggers, {
+        commercialStage: seq.contact.commercialStage,
+        conversationalStage: seq.contact.conversationalStage,
+        totalScore: latestLeadScore?.totalScore ?? null,
+      });
+      if (!triggerCheck.ok) {
+        await prisma.followUpSequence.update({
+          where: { id: seq.id },
+          data: {
+            nextAttemptAt: new Date(now.getTime() + HOUR_MS),
+          },
+        });
+        skipped++;
+        continue;
+      }
+
       const steps = parsePlanSequence(plan.sequence);
 
       if (steps.length === 0) {

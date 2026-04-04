@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { recordAuditEvent } from "@/lib/audit";
 import { serializeProperty } from "@/domains/properties/property-serialization";
+import { processReactivationForNewProperty } from "@/domains/followups/services/property-reactivation-on-create";
 import { parsePropertyCreateBody } from "@/domains/properties/validate-property-payload";
 
 export const dynamic = "force-dynamic";
@@ -78,6 +79,17 @@ export async function POST(request: NextRequest) {
   }
 
   const created = await prisma.property.create({ data });
+
+  if (created.status === "available") {
+    try {
+      await processReactivationForNewProperty({
+        accountId: session.user.accountId,
+        propertyId: created.id,
+      });
+    } catch (e) {
+      console.error("[property] reactivation on create", e);
+    }
+  }
 
   try {
     await recordAuditEvent({

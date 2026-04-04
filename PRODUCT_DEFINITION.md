@@ -106,6 +106,8 @@ Quiero una plataforma que transforme consultas dispersas en oportunidades comerc
 - Meta Lead Ads
 - mejores reportes
 
+**Estado de implementación (MVP técnico):** `docs/status-mvp.md` y `docs/decisions/slice-f2-mvp-completion.md`.
+
 ---
 
 ## FASE 3

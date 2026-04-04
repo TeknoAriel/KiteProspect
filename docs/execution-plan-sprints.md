@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **—** (L5 cerrado). Próximo: **F2-E3** (reason / ranking) o **F2-E1** capa LLM inferencia según `docs/roadmap.md`. |
-| **Último sprint largo cerrado** | **L5** (F2-E2: pesos matching + feedback + exclusiones). Antes: **L4** (F2-E1 heurístico). Antes: **L3** (F2-E7). |
-| **Última verificación agente** | 2026-04-04: `npm run verify` post L5; decisión `slice-l5-f2e2-matching-weights-feedback-exclusions.md`. |
+| **Sprint activo** | **—** (F2 MVP cerrado). Próximo backlog: endurecer Meta (firma), UI `Integration`, Fase 3 según `docs/roadmap.md`. |
+| **Último sprint largo cerrado** | **L6** (cierre F2-E1…E6 + refuerzos; ver `slice-f2-mvp-completion.md`). Antes: **L5** (F2-E2). |
+| **Última verificación agente** | 2026-04-04: `npm run verify` post cierre F2 MVP; `slice-f2-mvp-completion.md`. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -104,6 +104,21 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 | 3 | CRM | F2-E2 | Feedback en ficha; campo exclusiones en perfil declarado; auditoría | [x] |
 
 **Cierre L5:** verify verde; `docs/decisions/slice-l5-f2e2-matching-weights-feedback-exclusions.md`; `docs/status-mvp.md` actualizado.
+
+---
+
+## Sprint largo L6 — Cierre Fase 2 (F2-E1…E6 + refuerzos; F2-E7 ya en L3)
+
+| # | Épica | Entregable | Estado |
+|---|--------|------------|--------|
+| 1 | F2-E3 | Desempate de matches (precio asc, id estable); `reason` persistido | [x] |
+| 2 | F2-E4 | Reactivación al crear propiedad + feed; tareas; consentimiento + fatiga | [x] |
+| 3 | F2-E5 | `triggers` en cron seguimientos; reprograma +1 h si no cumple | [x] |
+| 4 | F2-E1 | LLM opcional `SEARCH_PROFILE_INFER_LLM` + `infer-search-profile-llm.ts` | [x] |
+| 5 | F2-E6 | `/api/webhooks/meta-leads`; canal `meta_lead`; parse leadgen | [x] |
+| 6 | F2-E7 | Ya cubierto por L2/L3 | [x] |
+
+**Cierre L6:** verify verde; `docs/decisions/slice-f2-mvp-completion.md`; `docs/status-mvp.md`; `docs/manual-actions-required.md` §6b.
 
 ---
 
@@ -309,6 +324,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-l3-f2e7-sla-export-commercial-funnel.md` | SLA primera respuesta, embudo comercial, CSV reportes. |
 | `docs/decisions/slice-l4-f2e1-inferred-profile-heuristics.md` | Perfil inferido heurístico + prioridad declarado. |
 | `docs/decisions/slice-l5-f2e2-matching-weights-feedback-exclusions.md` | F2-E2: pesos matching, feedback, exclusiones. |
+| `docs/decisions/slice-f2-mvp-completion.md` | Cierre Fase 2 (F2-E1…E7 MVP técnico). |
 | `docs/decisions/vercel-deploy-lag-behind-github.md` | Si Vercel no despliega el mismo commit que GitHub `main`. |
 | `docs/decisions/git-dual-remote-tekno-kiteprop.md` | Tekno (`origin`) diario; `kiteprop` copia bajo demanda. |
 | `docs/decisions/kiteprop-frontera-demo-y-produccion.md` | No usar producción KiteProp como default; demos Vercel; doble aprobación. |
