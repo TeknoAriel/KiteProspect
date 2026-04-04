@@ -3,6 +3,7 @@
  * S11: reglas de handoff determinísticas después del modelo + prompt versionado.
  */
 import { prisma } from "@kite-prospect/db";
+import { selectPreferredSearchProfile } from "@/domains/crm-leads/search-profile-preference";
 import { recordAuditEvent } from "@/lib/audit";
 import { getWhatsAppSendBlockReason } from "@/domains/integrations/whatsapp/whatsapp-consent";
 import { applyHandoffRules } from "./handoff-rules";
@@ -29,7 +30,14 @@ export async function planNextConversationAction(params: {
   const conv = await prisma.conversation.findFirst({
     where: { id: params.conversationId, accountId: params.accountId },
     include: {
-      contact: true,
+      contact: {
+        include: {
+          searchProfiles: {
+            orderBy: { updatedAt: "desc" },
+            take: 20,
+          },
+        },
+      },
       messages: {
         orderBy: { createdAt: "asc" },
         take: 30,
@@ -60,15 +68,35 @@ export async function planNextConversationAction(params: {
       ? "(sin perfil declarado en JSON)"
       : truncate(JSON.stringify(declared), 1200);
 
+  const hasDeclaredRow = conv.contact.searchProfiles.some((p) => p.source === "declared");
+  const preferred = selectPreferredSearchProfile(conv.contact.searchProfiles);
+  const inferredHint =
+    !hasDeclaredRow && preferred?.source === "inferred"
+      ? truncate(
+          JSON.stringify({
+            intent: preferred.intent,
+            propertyType: preferred.propertyType,
+            zone: preferred.zone,
+            minPrice: preferred.minPrice != null ? Number(preferred.minPrice) : null,
+            maxPrice: preferred.maxPrice != null ? Number(preferred.maxPrice) : null,
+            bedrooms: preferred.bedrooms,
+            confidence: preferred.confidence,
+          }),
+          700,
+        )
+      : null;
+
   const lines: string[] = [
     `Contacto: ${conv.contact.name ?? "(sin nombre)"}`,
     `Tel: ${conv.contact.phone ?? "-"} | Email: ${conv.contact.email ?? "-"}`,
     `Etapa conversacional: ${conv.contact.conversationalStage} | Comercial: ${conv.contact.commercialStage}`,
     `Canal conversación: ${conv.channel}`,
     `Perfil declarado (JSON resumido): ${declaredStr}`,
-    "",
-    "Últimos mensajes (orden cronológico):",
   ];
+  if (inferredHint) {
+    lines.push(`Perfil inferido (heurística, sin fila declarada): ${inferredHint}`);
+  }
+  lines.push("", "Últimos mensajes (orden cronológico):");
 
   for (const m of conv.messages) {
     const dir = m.direction === "inbound" ? "LEAD" : "EQUIPO";

@@ -1,8 +1,10 @@
+import { selectPreferredSearchProfile } from "@/domains/crm-leads/search-profile-preference";
 import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeclaredProfileForm } from "../declared-profile-form";
+import { InferProfileButton } from "./infer-profile-button";
 
 function searchProfileToFormInitial(sp: {
   intent: string | null;
@@ -54,7 +56,11 @@ export default async function ContactProfilePage({
     notFound();
   }
 
-  const latestProfile = contact.searchProfiles[0];
+  const preferredProfile = selectPreferredSearchProfile(contact.searchProfiles);
+  const inferredLatest = contact.searchProfiles
+    .filter((p) => p.source === "inferred")
+    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())[0];
+
   const declaredProfile =
     contact.searchProfiles.find((p) => p.source === "declared") ?? null;
 
@@ -84,7 +90,9 @@ export default async function ContactProfilePage({
         <h1 style={{ marginTop: "1rem" }}>Perfil de búsqueda</h1>
       </header>
 
-      {latestProfile ? (
+      <InferProfileButton contactId={id} />
+
+      {preferredProfile ? (
         <div
           style={{
             padding: "1.25rem",
@@ -94,28 +102,48 @@ export default async function ContactProfilePage({
             backgroundColor: "#fafafa",
           }}
         >
-          <h2 style={{ marginTop: 0, fontSize: "1rem" }}>Perfil más reciente (usado en matching)</h2>
+          <h2 style={{ marginTop: 0, fontSize: "1rem" }}>Perfil usado en matching y scoring</h2>
           <p style={{ margin: "0 0 0.75rem", fontSize: "0.8rem", color: "#666" }}>
             Fuente:{" "}
-            {latestProfile.source === "declared"
-              ? "Declarado por el equipo"
-              : "Inferido (IA / sistema)"}
-            {latestProfile.source === "inferred" && latestProfile.confidence != null && (
-              <span> — confianza ~{(latestProfile.confidence * 100).toFixed(0)}%</span>
+            {preferredProfile.source === "declared"
+              ? "Declarado por el equipo (prioridad sobre inferido)"
+              : "Inferido (reglas / sistema)"}
+            {preferredProfile.source === "inferred" && preferredProfile.confidence != null && (
+              <span> — confianza ~{(Number(preferredProfile.confidence) * 100).toFixed(0)}%</span>
             )}
           </p>
-          <ProfileReadOnly profile={latestProfile} />
+          <ProfileReadOnly profile={preferredProfile} />
         </div>
       ) : (
-        <p style={{ color: "#666", marginBottom: "1.5rem" }}>Aún no hay perfil de búsqueda. Completá el formulario.</p>
+        <p style={{ color: "#666", marginBottom: "1.5rem" }}>
+          Aún no hay perfil de búsqueda. Inferí desde mensajes o completá el formulario declarado.
+        </p>
       )}
+
+      {inferredLatest && preferredProfile?.id !== inferredLatest.id ? (
+        <div
+          style={{
+            padding: "1.25rem",
+            border: "1px dashed #ccc",
+            borderRadius: "8px",
+            marginBottom: "1.5rem",
+            backgroundColor: "#fff",
+          }}
+        >
+          <h2 style={{ marginTop: 0, fontSize: "1rem" }}>Último perfil inferido (no prioriza sobre el declarado)</h2>
+          <p style={{ margin: "0 0 0.75rem", fontSize: "0.8rem", color: "#666" }}>
+            Confianza ~{(Number(inferredLatest.confidence ?? 0) * 100).toFixed(0)}%
+          </p>
+          <ProfileReadOnly profile={inferredLatest} />
+        </div>
+      ) : null}
 
       <DeclaredProfileForm key={formKey} contactId={id} initial={formInitial} />
 
       <div style={{ marginTop: "2rem", padding: "1rem", backgroundColor: "#f5f5f5", borderRadius: "8px" }}>
         <p style={{ margin: 0, fontSize: "0.875rem", color: "#666" }}>
-          El motor de IA en inbox usa también el resumen en <code>Contact.declaredProfile</code>, actualizado al guardar
-          el perfil declarado.
+          El motor de IA en inbox usa el JSON <code>Contact.declaredProfile</code> al guardar el formulario declarado. Si
+          solo hay perfil inferido, el contexto de conversación sigue basándose en mensajes y datos de contacto.
         </p>
       </div>
     </div>

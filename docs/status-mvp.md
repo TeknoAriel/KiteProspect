@@ -15,7 +15,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 | **Cuentas** | Vista de lectura admin (`/dashboard/accounts`). |
 | **CRM básico** | Lista y ficha; búsqueda/filtros/paginación; **notas y tareas con edición** (S27); **tareas cerradas recientes** en ficha (S28); reasignación y pausa de seguimiento (`slice-crm-contacts-filters-assignment-followup-pause.md`); **edición etapas** comercial/conversacional en ficha (S25). |
 | **Inbox** | Lista con filtros (S18), búsqueda y paginación (S19), rango por fecha UTC `from`/`to` en `updatedAt` (S25); **no leído** si hay entrante posterior a `Conversation.lastReadAt` (S29) + hilo con IA y borrador WhatsApp (S12). |
-| **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`): lectura del perfil más reciente (matching) + **edición del perfil declarado** (`SearchProfile` `source=declared`) y sincronización de `Contact.declaredProfile` para IA; S26. |
+| **Perfil declarado** | Página dedicada (`/dashboard/contacts/[id]/profile`): perfil **preferido** para matching (declarado > inferido) + **edición declarada** (`SearchProfile` `source=declared`) y sincronización de `Contact.declaredProfile` para IA; **inferencia heurística** opcional (`source=inferred`, L4); S26 + L4. |
 | **Scoring** | Reglas MVP + recálculo seguro con `accountId` (`/dashboard/contacts/[id]/score`); `fitScore` usa promedio de hasta 3 mejores matches; intent/readiness ampliados (S24). |
 | **Seguimiento** | Lectura de planes y secuencias (`/dashboard/followups`); **inicio de secuencia desde ficha** (admin/coordinator) + historial de intentos (`slice-s30-follow-up-start-from-contact.md`). |
 | **Seguimiento (jobs)** | Cron `GET /api/cron/follow-up-due` + `processDueFollowUps`: **WhatsApp** (Meta), **email** (Resend si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, tarea en ficha), **Instagram/otros** → tarea manual; ver `docs/decisions/slice-follow-up-channels-email-manual.md`. |
@@ -31,7 +31,7 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 ## Plan de trabajo actual
 
-**Fase 1 (código):** los hitos S01–S30 y L1 están cerrados en `docs/execution-plan-sprints.md`. **S31** refuerza diagnóstico de producción vía `/api/health`. **L2 / S33–S34:** `/dashboard` operativo, filtros en `/dashboard/properties` (`slice-s33`), **`/dashboard/reportes`** y badge de **canal** en lista de contactos (`slice-s34`). **L3:** mismos reportes ampliados con **SLA primera respuesta**, **embudo comercial** y **export CSV** autenticado (`slice-l3-f2e7-sla-export-commercial-funnel.md`).
+**Fase 1 (código):** los hitos S01–S30 y L1 están cerrados en `docs/execution-plan-sprints.md`. **S31** refuerza diagnóstico de producción vía `/api/health`. **L2 / S33–S34:** `/dashboard` operativo, filtros en `/dashboard/properties` (`slice-s33`), **`/dashboard/reportes`** y badge de **canal** en lista de contactos (`slice-s34`). **L3:** mismos reportes ampliados con **SLA primera respuesta**, **embudo comercial** y **export CSV** autenticado (`slice-l3-f2e7-sla-export-commercial-funnel.md`). **L4:** **F2-E1** (paso) — perfil **inferido** (`SearchProfile` `source=inferred`, heurísticas sobre mensajes entrantes), **prioridad declarado > inferido** en matching/scoring; UI en `/dashboard/contacts/[id]/profile` (`slice-l4-f2e1-inferred-profile-heuristics.md`).
 
 **Producción operativa:** variables en Vercel/hosting, Meta, Resend e IA siguen en **`docs/manual-actions-required.md`** y **`docs/produccion-checklist-usuario.md`** (primera URL pública, `AUTH_URL`, demo seed vía `build:vercel`, etc.).
 
@@ -51,6 +51,7 @@ Ver **`docs/manual-actions-required.md`**: PostgreSQL, `.env` (`DATABASE_URL`, `
 
 ## TODO explícito Fase 2+
 
+- **F2-E1** — perfil inferido con **LLM** (merge, conflictos) y/o re-inferencia automática acotada.
 - Resolver tenant por subdomain además de slug en login.
 - OAuth, reset de contraseña, permisos granulares.
 - CRUD UI adicional para otras entidades (tareas, notas, etc.; sin convertir en CRM enterprise).

@@ -3,6 +3,7 @@
  * para IA (`plan-next-conversation-action`). F1-E10.
  */
 import { Prisma, prisma } from "@kite-prospect/db";
+import { selectPreferredSearchProfile } from "../search-profile-preference";
 
 export interface DeclaredSearchProfileFields {
   intent: string | null;
@@ -46,11 +47,13 @@ async function syncContactDeclaredProfileJson(contactId: string) {
   });
 }
 
-async function updateConversationalStage(contactId: string) {
-  const profile = await prisma.searchProfile.findFirst({
+/** Recalcula etapa conversacional según el perfil preferido (declarado > inferido). */
+export async function refreshConversationalStageForContact(contactId: string) {
+  const profiles = await prisma.searchProfile.findMany({
     where: { contactId },
-    orderBy: { updatedAt: "desc" },
   });
+
+  const profile = selectPreferredSearchProfile(profiles);
 
   if (!profile) return;
 
@@ -115,7 +118,7 @@ export async function upsertDeclaredSearchProfile(
     });
   }
 
-  await updateConversationalStage(contactId);
+  await refreshConversationalStageForContact(contactId);
   await syncContactDeclaredProfileJson(contactId);
 
   return prisma.searchProfile.findFirst({

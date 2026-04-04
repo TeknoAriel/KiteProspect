@@ -2,6 +2,7 @@
  * Persiste PropertyMatch para un contacto según inventario `available` y perfil actual.
  */
 import { prisma } from "@kite-prospect/db";
+import { selectPreferredSearchProfile } from "@/domains/crm-leads/search-profile-preference";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
 import { scorePropertyAgainstProfile } from "./score-property-match";
@@ -32,7 +33,7 @@ export async function syncPropertyMatchesForContact(
     return { ok: false, error: "Contacto no encontrado." };
   }
 
-  const profile = contact.searchProfiles[0];
+  const profile = selectPreferredSearchProfile(contact.searchProfiles);
   if (!profile) {
     return {
       ok: false,

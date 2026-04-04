@@ -54,7 +54,7 @@ Account (tenant)
 
 | Entidad | Descripción |
 |---------|-------------|
-| **SearchProfile** | Criterios de búsqueda del contacto. `source`: `declared` \| `inferred` (Fase 2+ inferencia). Edición declarada en UI: `/dashboard/contacts/[id]/profile` (S26). |
+| **SearchProfile** | Criterios de búsqueda del contacto. `source`: `declared` \| `inferred` (L4: heurísticas sobre mensajes; prioridad **declarado** para matching/scoring). Edición declarada en UI: `/dashboard/contacts/[id]/profile` (S26). |
 
 ### Inventario y recomendación
 

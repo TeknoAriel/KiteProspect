@@ -4,6 +4,7 @@
  * TODO Fase 2: reglas más sofisticadas, machine learning
  */
 import { prisma } from "@kite-prospect/db";
+import { selectPreferredSearchProfile } from "@/domains/crm-leads/search-profile-preference";
 import {
   leadScoreEngagementFromConversations,
   leadScoreIntentFromProfileIntent,
@@ -34,7 +35,7 @@ export async function calculateLeadScore(
     include: {
       searchProfiles: {
         orderBy: { updatedAt: "desc" },
-        take: 1,
+        take: 20,
       },
       conversations: {
         include: {
@@ -52,7 +53,8 @@ export async function calculateLeadScore(
     throw new Error("Contact not found or access denied");
   }
 
-  const intentScore = leadScoreIntentFromProfileIntent(contact.searchProfiles[0]?.intent);
+  const profileForIntent = selectPreferredSearchProfile(contact.searchProfiles);
+  const intentScore = leadScoreIntentFromProfileIntent(profileForIntent?.intent);
 
   const readinessScore = leadScoreReadinessFromCommercialStage(contact.commercialStage);
 

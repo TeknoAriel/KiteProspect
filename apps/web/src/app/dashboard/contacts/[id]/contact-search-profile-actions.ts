@@ -5,6 +5,7 @@ import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
 import { revalidatePath } from "next/cache";
+import { inferAndUpsertSearchProfileFromMessages } from "@/domains/crm-leads/services/infer-search-profile";
 import {
   upsertDeclaredSearchProfile,
   type DeclaredSearchProfileFields,
@@ -144,4 +145,50 @@ export async function updateDeclaredSearchProfileAction(
   revalidatePath(`/dashboard/contacts/${contactId}/profile`);
   revalidatePath(`/dashboard/contacts/${contactId}`);
   return { ok: true };
+}
+
+export type InferSearchProfileActionResult =
+  | { ok: true; confidence: number }
+  | { ok: false; error: string };
+
+export async function inferSearchProfileFromMessagesAction(
+  contactId: string,
+): Promise<InferSearchProfileActionResult> {
+  const session = await auth();
+  if (!session?.user?.accountId || !session.user.id) {
+    return { ok: false, error: "No autorizado." };
+  }
+
+  const result = await inferAndUpsertSearchProfileFromMessages(contactId, session.user.accountId);
+  if (!result.ok) {
+    return result;
+  }
+
+  logStructured("contact_search_profile_inferred", {
+    accountId: session.user.accountId,
+    contactId,
+    confidence: result.confidence,
+    signalsCsv: result.signals.join(","),
+  });
+
+  try {
+    await recordAuditEvent({
+      accountId: session.user.accountId,
+      entityType: "contact",
+      entityId: contactId,
+      action: "contact_search_profile_inferred",
+      actorType: "user",
+      actorId: session.user.id,
+      metadata: {
+        confidence: result.confidence,
+        signals: result.signals,
+      },
+    });
+  } catch (e) {
+    console.error("[audit] contact_search_profile_inferred", e);
+  }
+
+  revalidatePath(`/dashboard/contacts/${contactId}/profile`);
+  revalidatePath(`/dashboard/contacts/${contactId}`);
+  return { ok: true, confidence: result.confidence };
 }
