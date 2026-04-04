@@ -1,11 +1,11 @@
 # GitHub — SSH en Windows (desarrollo local)
 
 **Fecha:** 2026-04-01  
-**Contexto:** `git push` / `git fetch` contra `git@github.com:kiteprop/ia-kiteprospects.git` requerían autenticación SSH; en Windows sin clave registrada en GitHub aparecía `Permission denied (publickey)`.
+**Contexto:** `git push` / `git fetch` contra repos `git@github.com:…` (p. ej. **TeknoAriel/KiteProspect** u org **kiteprop**) requerían autenticación SSH; en Windows sin clave registrada en GitHub aparecía `Permission denied (publickey)`.
 
 ## Decisión
 
-Usar **clave dedicada Ed25519** para GitHub (no la clave por defecto del sistema si hubiera conflicto) y **`~/.ssh/config`** con `Host github.com`, `IdentityFile` apuntando a la **privada** y `IdentitiesOnly yes`. El remoto del monorepo permanece **`git@github.com:kiteprop/ia-kiteprospects.git`**.
+Usar **clave dedicada Ed25519** para GitHub (no la clave por defecto del sistema si hubiera conflicto) y **`~/.ssh/config`** con `Host github.com`, `IdentityFile` apuntando a la **privada** y `IdentitiesOnly yes`. Los remotos SSH del monorepo son los de **`git-dual-remote-tekno-kiteprop.md`** (`origin` Tekno + `kiteprop` org).
 
 ## Implementado (máquina de desarrollo)
 

@@ -1,11 +1,13 @@
 # Deploy en Vercel cuando no sos owner del proyecto (colaborador en GitHub)
 
-Si el repo **`kiteprop/ia-kiteprospects`** ya está en GitHub y el código se sube con `git push origin main`, pero **no podés reconectar Vercel** (solo el owner de la org/equipo en Vercel), estas son alternativas que el **owner** puede habilitar una vez.
+**Fuente de verdad del código y de Vercel:** [TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect) (`git push origin main`). El repo org **`kiteprop/ia-kiteprospects`** es copia de auditoría — ver `git-dual-remote-tekno-kiteprop.md`.
+
+Si **no podés tocar** la integración Git en Vercel (solo el owner del equipo en Vercel), estas son alternativas que el **owner** puede habilitar una vez.
 
 ## Opción A — Owner reconecta el repo en Vercel (preferida)
 
-Quien administra el proyecto en Vercel: **Settings → Git** → conectar **`kiteprop/ia-kiteprospects`**, rama **`main`**, **Root Directory** `apps/web`.  
-Después, cada `git push` a `main` dispara build. Sin esto, las otras opciones son parches.
+Quien administra el proyecto en Vercel: **Settings → Git** → conectar **[TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect)** (mismo que `origin`), rama **`main`**, **Root Directory** `apps/web`.  
+Después, cada `git push origin main` dispara build. Si por política de la org el proyecto **debe** apuntar solo a `kiteprop/ia-kiteprospects`, el owner conecta ese repo y el equipo asegura `git push kiteprop main` cuando haya cambios (menos ideal que Tekno como origen).
 
 ## Opción B — Deploy Hook (disparo por URL)
 
@@ -29,3 +31,4 @@ Después, cada `git push` a `main` dispara build. Sin esto, las otras opciones s
 - `docs/deploy-automation-one-time-setup.md`
 - `docs/decisions/vercel-deploy-lag-behind-github.md`
 - `docs/decisions/github-official-remote-kiteprop.md`
+- `docs/decisions/git-dual-remote-tekno-kiteprop.md`

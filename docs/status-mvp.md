@@ -37,6 +37,8 @@ Documento vivo: refleja lo **implementado** en código frente al alcance de `PRO
 
 **Entorno dev (Git):** `docs/decisions/github-ssh-windows-dev.md`; checklist humano ítem 11 en `docs/manual-actions-required.md`.
 
+**Remotes (alineado):** `origin` → [TeknoAriel/KiteProspect](https://github.com/TeknoAriel/KiteProspect) (Vercel + push diario); `kiteprop` → org `kiteprop/ia-kiteprospects` (auditoría); `docs/decisions/git-dual-remote-tekno-kiteprop.md`.
+
 ## Pendiente respecto a Fase 1 (producto)
 
 Definido en `PRODUCT_DEFINITION.md` y **aún no** cerrado como slice completo:

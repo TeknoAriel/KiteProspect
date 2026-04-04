@@ -31,7 +31,7 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 |--------|--------|
 | **Sprint activo** | **—** (L4 cerrado). Próximo: **F2-E1** (capa LLM) o **F2-E2 / F2-E3** según `docs/roadmap.md`. |
 | **Último sprint largo cerrado** | **L4** (F2-E1 heurístico: inferencia + prioridad + inbox). Antes: **L3** (F2-E7). Antes: **L2**. |
-| **Última verificación agente** | 2026-04-01: `npm run verify` OK post-L4. |
+| **Última verificación agente** | 2026-04-01: `npm run verify` OK; docs Git/Vercel alineados a Tekno + kiteprop (`git-dual-remote-tekno-kiteprop.md`). |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 

@@ -46,7 +46,7 @@ Si usas URL **`git@github.com:…`** y ves `Permission denied (publickey)`:
 2. En GitHub: [SSH and GPG keys](https://github.com/settings/keys) → pegar solo el archivo **`.pub`**.
 3. Probar: `ssh -T git@github.com` y luego `git fetch` en el clon.
 
-**Remoto de este monorepo (ejemplo):** `git@github.com:kiteprop/ia-kiteprospects.git`
+**Remotos del monorepo:** **`origin`** (trabajo + Vercel) → `git@github.com:TeknoAriel/KiteProspect.git`; **`kiteprop`** (auditoría org) → `git@github.com:kiteprop/ia-kiteprospects.git`. Ver `docs/decisions/git-dual-remote-tekno-kiteprop.md`.
 
 ---
 
