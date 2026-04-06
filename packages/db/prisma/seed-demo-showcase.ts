@@ -1,9 +1,25 @@
 /**
  * Datos demo enriquecidos: ~10 consultas variadas (canales + respuestas), inventario,
- * y 6 planes de seguimiento (2 por intensidad: low / medium / high).
+ * y planes de seguimiento alineados a la matriz oficial (4 intensidades).
+ * Objetivos de paso: mantener alineados con `apps/web/.../follow-up-official-matrix.ts`.
  * Idempotente: si existe el contacto marcador, no hace nada.
  */
 import type { Prisma, PrismaClient } from "@prisma/client";
+
+type DemoIntensity = "soft" | "normal" | "strong" | "priority";
+
+function demoSequenceFromObjectives(
+  objectives: readonly string[],
+  channels: string[],
+  delayHours: number,
+): Array<{ step: number; delayHours: number; channel: string; objective: string }> {
+  return objectives.map((objective, i) => ({
+    step: i,
+    delayHours: i === 0 ? 0 : delayHours,
+    channel: channels[i % channels.length] ?? "email",
+    objective,
+  }));
+}
 
 export const DEMO_SHOWCASE_MARKER_EMAIL = "lead01@demo-showcase.local";
 
@@ -378,84 +394,115 @@ const LEADS: ShowcaseLead[] = [
   },
 ];
 
-/** 6 planes: 2 low (lento), 2 medium, 2 high (intenso). */
+/** Objetivos por paso (matriz oficial). */
+const OBJ_SOFT = [
+  "Activación: confirmar interés",
+  "Enfoque: operación y tipo de propiedad",
+  "Cualificación ligera: zona o rango",
+  "Reactivación o cierre: perfil guardado o subir a Normal",
+] as const;
+
+const OBJ_NORMAL = [
+  "Activación: confirmar interés",
+  "Enfoque: operación, tipo, propiedad puntual o búsqueda abierta",
+  "Enfoque: zona ideal y zona aceptable",
+  "Cualificación: rango de inversión",
+  "Cualificación: timing y bloqueos",
+  "Conversión o seguimiento: asesor, opciones, seguir viendo",
+] as const;
+
+const OBJ_STRONG = [
+  "Activación: confirmar continuidad",
+  "Enfoque: operación, tipo y zona",
+  "Cualificación: presupuesto",
+  "Cualificación: timing",
+  "Cualificación: bloqueos",
+  "Afinado: flexibilidad, zona, alternativas",
+  "Conversión: llamada, visita, asesor o ficha",
+  "Reactivación inteligente: opción nueva o perfil afinado",
+] as const;
+
+const OBJ_PRIORITY = [
+  "Activación inmediata",
+  "Enfoque exacto",
+  "Presupuesto real",
+  "Timing real",
+  "Bloqueo real",
+  "Afinado",
+  "Mostrar opciones concretas",
+  "Acción humana",
+  "Reactivación inteligente",
+  "Cierre operativo",
+] as const;
+
+/** 8 planes: 2 por intensidad (matriz completa por plan). */
 const FOLLOW_UP_PLANS: Array<{
   name: string;
   description: string;
-  intensity: "low" | "medium" | "high";
+  intensity: DemoIntensity;
   maxAttempts: number;
   sequence: Array<{ step: number; delayHours: number; channel: string; objective: string }>;
 }> = [
   {
-    name: "Demo · Lento A (email + WA espaciado)",
-    description: "Seguimiento suave: días entre toques; canal email primero.",
-    intensity: "low",
-    maxAttempts: 5,
-    sequence: [
-      { step: 0, delayHours: 0, channel: "email", objective: "Confirmar interés y datos de contacto" },
-      { step: 1, delayHours: 168, channel: "email", objective: "Recordatorio con 2 propiedades del inventario" },
-      { step: 2, delayHours: 336, channel: "whatsapp", objective: "Cierre suave: agendar llamada" },
-    ],
-  },
-  {
-    name: "Demo · Lento B (email + Instagram manual)",
-    description: "Lento con paso manual en red social si no hay WhatsApp.",
-    intensity: "low",
+    name: "Demo · Suave A (email + WA)",
+    description: "4 pasos matriz Suave; alternancia email / WhatsApp.",
+    intensity: "soft",
     maxAttempts: 4,
-    sequence: [
-      { step: 0, delayHours: 0, channel: "email", objective: "Agradecer consulta y pedir preferencia horaria" },
-      { step: 1, delayHours: 120, channel: "instagram", objective: "DM manual: enviar catálogo resumido" },
-      { step: 2, delayHours: 240, channel: "whatsapp", objective: "Último intento por WA" },
-    ],
+    sequence: demoSequenceFromObjectives(OBJ_SOFT, ["email", "whatsapp", "email", "whatsapp"], 48),
   },
   {
-    name: "Demo · Medio A (email ↔ WA)",
-    description: "Ritmo medio: alternancia email y WhatsApp en pocos días.",
-    intensity: "medium",
+    name: "Demo · Suave B (WA + Instagram manual)",
+    description: "4 pasos matriz Suave; refuerzo manual en red social.",
+    intensity: "soft",
+    maxAttempts: 4,
+    sequence: demoSequenceFromObjectives(OBJ_SOFT, ["whatsapp", "email", "instagram", "whatsapp"], 72),
+  },
+  {
+    name: "Demo · Normal A (email ↔ WA)",
+    description: "6 pasos matriz Normal.",
+    intensity: "normal",
     maxAttempts: 6,
-    sequence: [
-      { step: 0, delayHours: 0, channel: "email", objective: "Primera respuesta con match del inventario" },
-      { step: 1, delayHours: 48, channel: "whatsapp", objective: "Seguimiento: ¿viste el mail?" },
-      { step: 2, delayHours: 120, channel: "email", objective: "Segunda tanda de opciones" },
-    ],
+    sequence: demoSequenceFromObjectives(OBJ_NORMAL, ["email", "whatsapp", "email", "whatsapp", "email", "whatsapp"], 36),
   },
   {
-    name: "Demo · Medio B (WA primero)",
-    description: "Medio empezando por WhatsApp, refuerzo email.",
-    intensity: "medium",
+    name: "Demo · Normal B (WA primero)",
+    description: "6 pasos matriz Normal; ritmo conversacional.",
+    intensity: "normal",
     maxAttempts: 6,
-    sequence: [
-      { step: 0, delayHours: 0, channel: "whatsapp", objective: "Saludo y propuesta de visita" },
-      { step: 1, delayHours: 24, channel: "email", objective: "Ficha técnica PDF" },
-      { step: 2, delayHours: 96, channel: "whatsapp", objective: "Recordatorio de visita" },
-    ],
+    sequence: demoSequenceFromObjectives(OBJ_NORMAL, ["whatsapp", "email", "whatsapp", "email", "whatsapp", "email"], 24),
   },
   {
-    name: "Demo · Intenso A (horas)",
-    description: "Alta intensidad: ideal leads calientes; mezcla WA y email rápido.",
-    intensity: "high",
+    name: "Demo · Fuerte A (rápido)",
+    description: "8 pasos matriz Fuerte; ideal con señal de interés.",
+    intensity: "strong",
     maxAttempts: 8,
-    sequence: [
-      { step: 0, delayHours: 0, channel: "whatsapp", objective: "Respuesta inmediata" },
-      { step: 1, delayHours: 4, channel: "email", objective: "Material adjunto" },
-      { step: 2, delayHours: 12, channel: "whatsapp", objective: "Confirmación de lectura" },
-    ],
+    sequence: demoSequenceFromObjectives(OBJ_STRONG, ["whatsapp", "email", "whatsapp", "email", "whatsapp", "email", "whatsapp", "email"], 12),
   },
   {
-    name: "Demo · Intenso B (rápido)",
-    description: "Muy corto entre pasos; email inicial y doble WA.",
-    intensity: "high",
+    name: "Demo · Fuerte B (mix)",
+    description: "8 pasos matriz Fuerte; email de respaldo.",
+    intensity: "strong",
     maxAttempts: 8,
-    sequence: [
-      { step: 0, delayHours: 0, channel: "email", objective: "Bienvenida y CTA" },
-      { step: 1, delayHours: 2, channel: "whatsapp", objective: "Ping breve" },
-      { step: 2, delayHours: 6, channel: "whatsapp", objective: "Ofrecer llamada ahora" },
-    ],
+    sequence: demoSequenceFromObjectives(OBJ_STRONG, ["email", "whatsapp", "email", "whatsapp", "email", "whatsapp", "email", "whatsapp"], 18),
+  },
+  {
+    name: "Demo · Prioritario A (horas)",
+    description: "10 pasos matriz Prioritario; cadencia corta.",
+    intensity: "priority",
+    maxAttempts: 10,
+    sequence: demoSequenceFromObjectives(OBJ_PRIORITY, ["whatsapp", "email", "whatsapp", "email", "whatsapp", "email", "whatsapp", "email", "whatsapp", "email"], 4),
+  },
+  {
+    name: "Demo · Prioritario B (WA-heavy)",
+    description: "10 pasos matriz Prioritario; prioridad WhatsApp.",
+    intensity: "priority",
+    maxAttempts: 10,
+    sequence: demoSequenceFromObjectives(OBJ_PRIORITY, ["whatsapp", "whatsapp", "email", "whatsapp", "email", "whatsapp", "email", "whatsapp", "email", "whatsapp"], 3),
   },
 ];
 
-/** Índice de plan (0..5) asignado a cada lead por posición. */
-const PLAN_INDEX_BY_LEAD: number[] = [0, 1, 2, 3, 4, 5, 0, 1, 2, 3];
+/** Índice de plan (0..7) asignado a cada lead por posición. */
+const PLAN_INDEX_BY_LEAD: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 0, 1];
 
 /** Empareja contacto i con propiedad i (match principal). */
 function totalScore(s: ShowcaseLead["scores"]): number {

@@ -6,14 +6,16 @@
 
 ## OBJETIVO
 
-Construir una plataforma para inmobiliarias que:
+Construir una **plataforma de prospección inmobiliaria asistida** (capa de captación, activación, conversación, cualificación, seguimiento, reactivación, sugerencia de propiedades y derivación). No es un CRM enterprise completo; complementa KiteProp u otro CRM o opera en modo liviano con registro y pipeline propios.
+
+Construir, para inmobiliarias, capacidad para:
 
 - capte consultas desde web, landings, formularios y WhatsApp,
 - responda con criterio comercial inmobiliario,
 - cree un perfil vivo del contacto,
 - puntúe intención y calidad del lead,
-- ejecute seguimiento configurable e inteligente,
-- recomiende propiedades relevantes,
+- ejecute seguimiento configurable e inteligente (intensidades, etapas y ramas documentadas en `docs/core-prospeccion.md`),
+- recomiende propiedades relevantes desde inventario real (KiteProp como partner principal vía feeds/integración; sin KiteProp, inventario vía feeds compatibles con el ecosistema, p. ej. Propieya — ver `docs/integracion-kiteprop-propieya.md`),
 - derive al humano cuando corresponda,
 - registre trazabilidad completa,
 - incluya CRM básico nativo si la inmobiliaria no tiene CRM,

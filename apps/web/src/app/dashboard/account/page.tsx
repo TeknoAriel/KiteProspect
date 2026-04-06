@@ -102,6 +102,12 @@ export default async function AccountSettingsHubPage() {
         <a href="#inventario-feeds" style={{ color: "#0070f3" }}>
           Inventario (feeds)
         </a>
+        <Link href="/dashboard/account/integrations" style={{ color: "#0070f3" }}>
+          Integraciones
+        </Link>
+        <Link href="/dashboard/account/capture-api-keys" style={{ color: "#0070f3" }}>
+          API captura
+        </Link>
       </nav>
 
       <Section id="modulos" title="Módulos del MVP (estado en producto)">
@@ -183,8 +189,12 @@ export default async function AccountSettingsHubPage() {
         </p>
         <ul style={{ fontSize: "0.82rem", lineHeight: 1.6, paddingLeft: "1.1rem" }}>
           <li>
-            <strong>Leads (público con secreto):</strong> <code>POST {baseUrl}/api/contacts/create</code> — Bearer{" "}
-            <code>CAPTURE_API_SECRET</code>. Ver <code>docs/capture-integration.md</code>.
+            <strong>Leads (público con secreto):</strong> <code>POST {baseUrl}/api/contacts/create</code> — Bearer con{" "}
+            <code>CAPTURE_API_SECRET</code> global o clave <code>kp_…</code> por cuenta (
+            <Link href="/dashboard/account/capture-api-keys" style={{ color: "#0070f3" }}>
+              API captura
+            </Link>
+            ). OpenAPI: <code>{baseUrl}/openapi-capture-v1.yaml</code>. Ver <code>docs/capture-integration.md</code>.
           </li>
           <li>
             <strong>Formulario propio:</strong> <code>{baseUrl}/lead</code> o <code>{baseUrl}/lead?slug={slug}</code> (si{" "}
@@ -220,6 +230,20 @@ export default async function AccountSettingsHubPage() {
             auth; en <code>vercel.json</code> está <strong>cada ~2 días</strong> (02:00 UTC, días impares del mes; ajustar
             en pruebas). Ver <code>docs/decisions/slice-s32-kiteprop-incremental-json-cron.md</code>. Sync manual desde
             property-feeds si hace falta antes.
+          </li>
+          <li>
+            <strong>Meta Lead Ads (webhook):</strong> <code>GET/POST {baseUrl}/api/webhooks/meta-leads</code> — GET con{" "}
+            <code>META_LEAD_WEBHOOK_VERIFY_TOKEN</code>; POST opcionalmente firmado con{" "}
+            <code>META_LEAD_WEBHOOK_APP_SECRET</code>. Cuenta por <code>Integration</code> <code>meta_lead_ads</code> (
+            <Link href="/dashboard/account/integrations" style={{ color: "#0070f3" }}>
+              ver integraciones
+            </Link>
+            ).
+          </li>
+          <li>
+            <strong>Integraciones Meta (sesión admin):</strong> <code>POST {baseUrl}/api/account/integrations/meta-lead-ads</code>{" "}
+            (JSON <code>pageId</code>) y <code>PATCH {baseUrl}/api/account/integrations/[id]</code> (<code>pageId</code>,{" "}
+            <code>status</code> active/paused).
           </li>
         </ul>
       </Section>
@@ -293,6 +317,18 @@ export default async function AccountSettingsHubPage() {
               Matching (pesos por dimensión)
             </Link>{" "}
             — F2-E2, <code>Account.config.matchingWeights</code>.
+          </li>
+          <li style={{ marginBottom: "0.5rem" }}>
+            <Link href="/dashboard/account/integrations" style={{ color: "#0070f3" }}>
+              Integraciones Meta Lead Ads
+            </Link>{" "}
+            — <code>pageId</code> y estado (secretos solo en hosting).
+          </li>
+          <li style={{ marginBottom: "0.5rem" }}>
+            <Link href="/dashboard/account/capture-api-keys" style={{ color: "#0070f3" }}>
+              API de captura (claves por cuenta)
+            </Link>{" "}
+            — Bearer <code>kp_…</code> para landings sin depender solo del secreto global.
           </li>
           <li>
             <Link href="/dashboard/account/ai-prompt" style={{ color: "#0070f3" }}>

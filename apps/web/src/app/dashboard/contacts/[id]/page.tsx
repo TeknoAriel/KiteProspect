@@ -13,7 +13,18 @@ import { ContactNoteRow } from "./contact-note-row";
 import { ContactTasksForm } from "./contact-tasks-form";
 import { ContactTaskRow } from "./contact-task-row";
 import { ContactAssignmentForm } from "./contact-assignment-form";
+import {
+  COMMERCIAL_STAGE_LABEL_ES,
+  CONVERSATIONAL_STAGE_LABEL_ES,
+} from "@/domains/core-prospeccion/latin-stage-labels";
+import { PROPERTY_MATCHES_UI_LIMIT } from "@/domains/core-prospeccion/property-suggestion-limits";
+import { FOLLOW_UP_INTENSITY_LABEL_ES } from "@/domains/core-prospeccion/follow-up-intensity";
+import { labelFollowUpBranch } from "@/domains/core-prospeccion/follow-up-branches";
+import { labelFollowUpCoreStage } from "@/domains/core-prospeccion/follow-up-core-stages";
+import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
+import { resolveUnifiedOperationalLabel } from "@/domains/core-prospeccion/unified-operational-label";
 import { ContactStagesForm } from "./contact-stages-form";
+import { FollowUpIntensitySuggestion } from "./follow-up-intensity-suggestion";
 import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
 import { StartFollowUpSequenceForm } from "./start-follow-up-sequence-form";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
@@ -96,14 +107,14 @@ export default async function ContactDetailPage({
           },
         },
         orderBy: { score: "desc" },
-        take: 50,
+        take: PROPERTY_MATCHES_UI_LIMIT,
       },
       consents: {
         orderBy: { createdAt: "desc" },
       },
       followUpSequences: {
         include: {
-          plan: { select: { name: true, maxAttempts: true } },
+          plan: { select: { name: true, maxAttempts: true, intensity: true } },
           attemptsList: {
             orderBy: { attemptedAt: "desc" },
             take: 20,
@@ -175,13 +186,41 @@ export default async function ContactDetailPage({
   const activeAssignment = contact.assignments[0];
   const currentAdvisorId = activeAssignment?.advisorId ?? null;
 
+  const unifiedLabel = resolveUnifiedOperationalLabel(
+    contact.conversationalStage,
+    contact.commercialStage,
+  );
+  const convLabel =
+    CONVERSATIONAL_STAGE_LABEL_ES[
+      conversationalForSelect as keyof typeof CONVERSATIONAL_STAGE_LABEL_ES
+    ] ?? conversationalForSelect;
+  const comLabel =
+    COMMERCIAL_STAGE_LABEL_ES[commercialForSelect as keyof typeof COMMERCIAL_STAGE_LABEL_ES] ??
+    commercialForSelect;
+
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1400px", margin: "0 auto" }}>
       <header style={{ marginBottom: "2rem" }}>
         <Link href="/dashboard/contacts" style={{ textDecoration: "none", color: "#0070f3" }}>
           ← Volver a contactos
         </Link>
-        <h1 style={{ marginTop: "1rem" }}>{contact.name || contact.email || contact.phone || "Contacto sin nombre"}</h1>
+        <h1 style={{ marginTop: "1rem", display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.75rem" }}>
+          <span>{contact.name || contact.email || contact.phone || "Contacto sin nombre"}</span>
+          <span
+            style={{
+              fontSize: "0.75rem",
+              fontWeight: 600,
+              letterSpacing: "0.02em",
+              padding: "0.25rem 0.5rem",
+              borderRadius: "6px",
+              backgroundColor: "#f0f4ff",
+              color: "#1a3a8a",
+            }}
+            title="Estado operativo (vista unificada; internamente conv + comercial)"
+          >
+            {unifiedLabel}
+          </span>
+        </h1>
         <nav style={{ display: "flex", gap: "1rem", marginTop: "0.75rem", flexWrap: "wrap" }}>
           <Link href={`/dashboard/contacts/${id}/profile`} style={{ color: "#0070f3" }}>
             Perfil declarado
@@ -201,8 +240,14 @@ export default async function ContactDetailPage({
             <div style={{ display: "grid", gap: "0.5rem" }}>
               {contact.email && <p><strong>Email:</strong> {contact.email}</p>}
               {contact.phone && <p><strong>Teléfono:</strong> {contact.phone}</p>}
-              <p><strong>Estado conversacional:</strong> {contact.conversationalStage}</p>
-              <p><strong>Estado comercial:</strong> {contact.commercialStage}</p>
+              <p>
+                <strong>Estado conversacional:</strong> {convLabel}{" "}
+                <span style={{ color: "#888", fontSize: "0.8rem" }}>({contact.conversationalStage})</span>
+              </p>
+              <p>
+                <strong>Estado comercial:</strong> {comLabel}{" "}
+                <span style={{ color: "#888", fontSize: "0.8rem" }}>({contact.commercialStage})</span>
+              </p>
             </div>
             <ContactStagesForm
               contactId={id}
@@ -409,7 +454,21 @@ export default async function ContactDetailPage({
                   >
                     <p style={{ margin: 0, fontSize: "0.85rem" }}>
                       <strong>{seq.plan.name}</strong> · estado <code>{seq.status}</code> · paso {seq.currentStep} ·
-                      intentos {seq.attempts}/{seq.plan.maxAttempts}
+                      intentos {seq.attempts}/{seq.plan.maxAttempts} · intensidad{" "}
+                      {FOLLOW_UP_INTENSITY_LABEL_ES[normalizePlanIntensity(seq.plan.intensity)]}
+                    </p>
+                    <p style={{ margin: "0.25rem 0 0", fontSize: "0.78rem", color: "#666" }}>
+                      Etapa núcleo (seguimiento): <strong>{labelFollowUpCoreStage(seq.matrixCoreStageKey)}</strong>
+                      {seq.matrixBranchKey ? (
+                        <>
+                          {" "}
+                          · rama <strong>{labelFollowUpBranch(seq.matrixBranchKey)}</strong>{" "}
+                          <code style={{ fontSize: "0.72rem" }}>({seq.matrixBranchKey})</code>
+                          {seq.matrixBranchLocked ? (
+                            <span style={{ color: "#666" }}> · fijada manualmente</span>
+                          ) : null}
+                        </>
+                      ) : null}
                     </p>
                     <p style={{ margin: "0.25rem 0 0", fontSize: "0.78rem", color: "#666" }}>
                       Próximo paso:{" "}
@@ -419,11 +478,17 @@ export default async function ContactDetailPage({
                           ? "—"
                           : "—"}
                     </p>
+                    <FollowUpIntensitySuggestion
+                      matrixBranchKey={seq.matrixBranchKey}
+                      planIntensity={seq.plan.intensity}
+                    />
                     <FollowUpSequenceControls
                       sequenceId={seq.id}
                       status={seq.status}
                       planName={seq.plan.name}
                       canMutate={canMutateFollowUp}
+                      matrixBranchKey={seq.matrixBranchKey}
+                      matrixBranchLocked={seq.matrixBranchLocked}
                     />
                     {seq.attemptsList.length > 0 ? (
                       <ul
@@ -434,12 +499,37 @@ export default async function ContactDetailPage({
                           color: "#444",
                         }}
                       >
-                        {seq.attemptsList.map((a) => (
-                          <li key={a.id} style={{ marginBottom: "0.25rem" }}>
-                            {new Date(a.attemptedAt).toLocaleString()} · {a.channel} · paso {a.step}
-                            {a.outcome ? ` · ${a.outcome}` : ""}
-                          </li>
-                        ))}
+                        {seq.attemptsList.map((a) => {
+                          const meta = a.metadata as Record<string, unknown> | null | undefined;
+                          const matrix = meta?.matrix as Record<string, unknown> | undefined;
+                          const dataTo =
+                            typeof matrix?.dataToObtainEs === "string" ? matrix.dataToObtainEs : null;
+                          const br =
+                            typeof meta?.branchInferred === "string"
+                              ? meta.branchInferred
+                              : typeof meta?.branchManual === "string"
+                                ? meta.branchManual
+                                : null;
+                          const manual = meta?.branchLocked === true;
+                          return (
+                            <li key={a.id} style={{ marginBottom: "0.35rem" }}>
+                              {new Date(a.attemptedAt).toLocaleString()} · {a.channel} · paso {a.step}
+                              {a.outcome ? ` · ${a.outcome}` : ""}
+                              {br ? (
+                                <span style={{ color: "#555" }}>
+                                  {" "}
+                                  · rama {labelFollowUpBranch(br)}
+                                  {manual ? " (fijada)" : ""}
+                                </span>
+                              ) : null}
+                              {dataTo ? (
+                                <span style={{ display: "block", marginTop: "0.15rem", color: "#666" }}>
+                                  Dato a obtener: {dataTo}
+                                </span>
+                              ) : null}
+                            </li>
+                          );
+                        })}
                       </ul>
                     ) : null}
                   </div>

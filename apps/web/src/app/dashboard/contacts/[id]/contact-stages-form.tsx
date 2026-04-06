@@ -4,6 +4,10 @@ import {
   COMMERCIAL_STAGES,
   CONVERSATIONAL_STAGES,
 } from "@/domains/crm-leads/contact-stage-constants";
+import {
+  COMMERCIAL_STAGE_LABEL_ES,
+  CONVERSATIONAL_STAGE_LABEL_ES,
+} from "@/domains/core-prospeccion/latin-stage-labels";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -73,7 +77,7 @@ export function ContactStagesForm({
         >
           {COMMERCIAL_STAGES.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {COMMERCIAL_STAGE_LABEL_ES[s]}
             </option>
           ))}
         </select>
@@ -88,7 +92,7 @@ export function ContactStagesForm({
         >
           {CONVERSATIONAL_STAGES.map((s) => (
             <option key={s} value={s}>
-              {s}
+              {CONVERSATIONAL_STAGE_LABEL_ES[s]}
             </option>
           ))}
         </select>

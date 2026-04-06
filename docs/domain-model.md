@@ -111,6 +111,8 @@ Ver [product-rules.md](./product-rules.md). En BD:
 - `Contact.conversationalStage`
 - `Contact.commercialStage`
 
+Las **etiquetas en español** para vistas y el **estado operativo unificado** (badge) se documentan en [estados-y-etiquetas.md](./estados-y-etiquetas.md); la lógica de **intensidades, etapas de seguimiento y ramas** en [core-prospeccion.md](./core-prospeccion.md) y [seguimiento-y-cualificacion.md](./seguimiento-y-cualificacion.md).
+
 ---
 
 ## Convenciones y mejoras futuras (sin bloquear MVP)

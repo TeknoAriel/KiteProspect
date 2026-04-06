@@ -1,5 +1,7 @@
 import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
+import { FOLLOW_UP_INTENSITY_LABEL_ES } from "@/domains/core-prospeccion/follow-up-intensity";
+import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
 import Link from "next/link";
 
 export default async function FollowUpsPage() {
@@ -79,7 +81,10 @@ export default async function FollowUpsPage() {
                   </p>
                 )}
                 <div style={{ display: "flex", gap: "1rem", fontSize: "0.875rem", color: "#666" }}>
-                  <span>Intensidad: {plan.intensity}</span>
+                  <span>
+                    Intensidad: {FOLLOW_UP_INTENSITY_LABEL_ES[normalizePlanIntensity(plan.intensity)]} (
+                    {normalizePlanIntensity(plan.intensity)})
+                  </span>
                   <span>Máx intentos: {plan.maxAttempts}</span>
                   <span>Secuencias activas: {plan._count.sequences}</span>
                   <span>Estado: {plan.status}</span>

@@ -2,6 +2,8 @@
 
 Hay tres caminos principales: **formulario en esta misma app** (`/lead`), **widget por iframe** (`kite-lead-widget.js` → `/embed/lead`), o **HTTP** hacia `POST /api/contacts/create`.
 
+**Contrato OpenAPI 3.0 (v1):** en despliegue, `GET /openapi-capture-v1.yaml` (archivo estático). Decisión: `docs/decisions/slice-l11-openapi-public-capture.md`.
+
 ## 1. Formulario público en Kite (`/lead`)
 
 - **Ventaja:** no hace falta enviar `CAPTURE_API_SECRET` desde el navegador.
@@ -39,7 +41,7 @@ El script **no** debe alojarse en otro dominio distinto al de la app Kite: el or
 
 ## 3. API HTTP `POST /api/contacts/create`
 
-- **Cabecera:** `Authorization: Bearer <CAPTURE_API_SECRET>` o `X-Capture-Secret: <CAPTURE_API_SECRET>`.
+- **Cabecera:** `Authorization: Bearer <token>` o `X-Capture-Secret: <token>`, donde el token es **(a)** el mismo valor que `CAPTURE_API_SECRET` en el hosting (secreto global), **y/o (b)** una clave por tenant `kp_<16 hex>_<32 hex>` generada en **Centro de cuenta → API captura** (`/dashboard/account/capture-api-keys`, solo admin). Sin secreto global, cada cuenta debe tener al menos una clave activa. Ver `docs/decisions/slice-f3e2-capture-api-keys-tenant.md`.
 - **Cuerpo JSON mínimo:** `accountSlug`, y al menos `email` o `phone` (teléfono con **7–15 dígitos** si es el único identificador).
 - **Errores comunes:** `400` (validación / JSON inválido), `401` (secreto incorrecto), `404` (slug/UUID de cuenta), `429` (demasiadas peticiones desde la misma IP; ver `Retry-After`), `503` (captura deshabilitada sin `CAPTURE_API_SECRET`).
 - **Límite de tasa (opcional):** `CAPTURE_RATE_LIMIT_MAX` y `CAPTURE_RATE_LIMIT_WINDOW_SEC` en el entorno (ver `.env.example`).

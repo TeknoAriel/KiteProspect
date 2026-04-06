@@ -1,0 +1,163 @@
+openapi: 3.0.3
+info:
+  title: Kite Prospect — Captura de leads (API pública)
+  description: |
+    Especificación de `POST /api/contacts/create`: crea o reutiliza contacto, conversación y mensaje inicial.
+    Autenticación: **(1)** secreto global `CAPTURE_API_SECRET` en el servidor; y/o **(2)** API key por tenant `kp_<16hex>_<32hex>` (admin → `/dashboard/account/capture-api-keys`).
+    Debe existir al menos un método configurado para la cuenta (global o clave activa del tenant).
+    Guía narrativa: `docs/capture-integration.md`.
+  version: 1.0.0
+
+servers:
+  - url: https://{host}
+    variables:
+      host:
+        default: tu-dominio.com
+        description: Host público de la app (sin barra final; alinear con AUTH_URL).
+
+tags:
+  - name: capture
+    description: Captura omnicanal (landings, proxy serverless, integraciones server-side)
+
+paths:
+  /api/contacts/create:
+    post:
+      operationId: createContactCapture
+      tags: [capture]
+      summary: Crear lead (contacto + conversación)
+      description: |
+        Autenticación: **Bearer** o **X-Capture-Secret** con el valor de `CAPTURE_API_SECRET` **o** con una clave `kp_…` del tenant.
+        **503** si la cuenta no tiene captura habilitada (sin secreto global y sin claves activas en la cuenta).
+      security:
+        - CaptureBearer: []
+        - CaptureHeader: []
+        - CaptureTenantBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeadCaptureRequest"
+            examples:
+              minimo:
+                summary: Email + slug
+                value:
+                  accountSlug: demo
+                  email: lead@example.com
+              telefono:
+                summary: Solo teléfono (7–15 dígitos)
+                value:
+                  accountSlug: demo
+                  phone: "+5491112345678"
+                  channel: landing
+      responses:
+        "200":
+          description: Contacto creado o reutilizado; conversación asociada.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeadCaptureSuccess"
+        "400":
+          description: JSON inválido o validación de campos (email/teléfono, tenant, etc.).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "401":
+          description: Secreto ausente o incorrecto.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "404":
+          description: Cuenta no encontrada (`accountSlug` / `accountId`).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "429":
+          description: Límite de frecuencia por IP (memoria; ver `CAPTURE_RATE_LIMIT_*`).
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Segundos sugeridos hasta reintentar.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "500":
+          description: Error interno.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "503":
+          description: Captura no configurada para el tenant (sin `CAPTURE_API_SECRET` global y sin API keys activas en cuenta).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
+components:
+  securitySchemes:
+    CaptureBearer:
+      type: http
+      scheme: bearer
+      description: Valor idéntico a `CAPTURE_API_SECRET` (global en hosting).
+    CaptureHeader:
+      type: apiKey
+      in: header
+      name: X-Capture-Secret
+      description: Alternativa a Bearer; mismo valor que `CAPTURE_API_SECRET` global.
+    CaptureTenantBearer:
+      type: http
+      scheme: bearer
+      description: |
+        Clave `kp_<16 hex>_<32 hex>` generada en la cuenta (solo se muestra una vez al crear).
+
+  schemas:
+    LeadCaptureRequest:
+      type: object
+      description: |
+        Debe indicarse `accountSlug` (recomendado) o `accountId` (UUID de cuenta).
+        Al menos uno de `email` o `phone` (teléfono normalizado 7–15 dígitos si es único identificador).
+      properties:
+        accountSlug:
+          type: string
+          description: Slug del tenant (login).
+        accountId:
+          type: string
+          description: ID de cuenta (alternativa legacy a accountSlug).
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          description: Teléfono con dígitos; validación según `capture-validation`.
+        name:
+          type: string
+        message:
+          type: string
+        channel:
+          type: string
+          enum: [web_widget, landing, whatsapp, form, meta_lead]
+          default: form
+          description: |
+            `meta_lead` corresponde al ingest interno; landings suelen usar `landing` o `form`.
+
+    LeadCaptureSuccess:
+      type: object
+      required: [contactId, conversationId]
+      properties:
+        contactId:
+          type: string
+        conversationId:
+          type: string
+
+    ErrorBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string

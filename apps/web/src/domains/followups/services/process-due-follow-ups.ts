@@ -8,6 +8,11 @@ import { sendFollowUpEmailToContact } from "@/domains/integrations/email/send-fo
 import { sendWhatsAppTextToContact } from "@/domains/integrations/whatsapp/send-whatsapp-text";
 import type { ProcessDueFollowUpsInput, ProcessDueFollowUpsResult } from "../follow-up-job-contract";
 import { evaluateFollowUpTriggers } from "./evaluate-follow-up-triggers";
+import { getOfficialMatrixRow } from "@/domains/core-prospeccion/follow-up-official-matrix";
+import { inferFollowUpMatrixBranch } from "@/domains/core-prospeccion/infer-follow-up-matrix-branch";
+import { resolveMatrixBranchForCron } from "@/domains/core-prospeccion/resolve-matrix-branch-for-cron";
+import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
+import { advancePastSkippableSteps } from "@/domains/core-prospeccion/follow-up-matrix-step-skip";
 
 const HOUR_MS = 60 * 60 * 1000;
 
@@ -40,8 +45,20 @@ function defaultBatchLimit(): number {
   return Number.isFinite(n) && n > 0 ? Math.min(n, 200) : 25;
 }
 
-function followUpWhatsAppBody(step: SequenceStep): string {
-  const o = step.objective?.trim();
+function searchProfilesHaveBasics(
+  rows: Array<{ intent: string | null; zone: string | null; minPrice: unknown; maxPrice: unknown }>,
+): boolean {
+  for (const p of rows) {
+    const hasIntent = Boolean(p.intent?.trim());
+    const hasZone = Boolean(p.zone?.trim());
+    const hasPrice = p.minPrice != null || p.maxPrice != null;
+    if (hasIntent || hasZone || hasPrice) return true;
+  }
+  return false;
+}
+
+function followUpWhatsAppBody(step: SequenceStep, objectiveFallback?: string): string {
+  const o = step.objective?.trim() || objectiveFallback?.trim();
   if (o) return o.slice(0, 4096);
   return "Hola, te escribimos para dar seguimiento a tu consulta. Si querés, contanos cómo seguimos.";
 }
@@ -107,6 +124,7 @@ export async function processDueFollowUps(
           phone: true,
           commercialStage: true,
           conversationalStage: true,
+          declaredProfile: true,
         },
       },
       plan: true,
@@ -165,8 +183,8 @@ export async function processDueFollowUps(
         continue;
       }
 
-      const idx = seq.currentStep;
-      if (idx < 0 || idx >= steps.length) {
+      const startIdx = seq.currentStep;
+      if (startIdx < 0 || startIdx >= steps.length) {
         await prisma.followUpSequence.update({
           where: { id: seq.id },
           data: { status: "completed", nextAttemptAt: null },
@@ -175,7 +193,94 @@ export async function processDueFollowUps(
         continue;
       }
 
+      const intensityKey = normalizePlanIntensity(plan.intensity);
+
+      const noResponseHoursRaw = process.env.FOLLOW_UP_NO_RESPONSE_HOURS?.trim();
+      const noResponseAfterOutboundHours = noResponseHoursRaw
+        ? Math.max(1, Number.parseInt(noResponseHoursRaw, 10) || 48)
+        : 48;
+
+      const [topMatch, matchCount, profiles, lastMsg] = await Promise.all([
+        prisma.propertyMatch.findFirst({
+          where: { contactId: seq.contact.id },
+          orderBy: { score: "desc" },
+          select: { score: true },
+        }),
+        prisma.propertyMatch.count({ where: { contactId: seq.contact.id } }),
+        prisma.searchProfile.findMany({
+          where: { contactId: seq.contact.id },
+          select: {
+            intent: true,
+            zone: true,
+            propertyType: true,
+            minPrice: true,
+            maxPrice: true,
+            bedrooms: true,
+          },
+          take: 12,
+        }),
+        prisma.message.findFirst({
+          where: { conversation: { contactId: seq.contact.id } },
+          orderBy: { createdAt: "desc" },
+          select: { direction: true, createdAt: true },
+        }),
+      ]);
+
+      const matrixSkipEnabled = process.env.FOLLOW_UP_MATRIX_SKIP_ENABLED !== "false";
+      const { nextIndex, skipped: skippedMatrixSteps } = matrixSkipEnabled
+        ? advancePastSkippableSteps(intensityKey, steps.length, startIdx, {
+            conversationalStage: seq.contact.conversationalStage,
+            searchProfiles: profiles,
+            declaredProfile: seq.contact.declaredProfile,
+          })
+        : { nextIndex: startIdx, skipped: 0 };
+
+      if (nextIndex >= steps.length) {
+        await prisma.followUpSequence.update({
+          where: { id: seq.id },
+          data: {
+            status: "completed",
+            nextAttemptAt: null,
+            matrixCoreStageKey: getOfficialMatrixRow(intensityKey, steps.length - 1)?.coreStageKey ?? null,
+          },
+        });
+        skipped++;
+        continue;
+      }
+
+      if (skippedMatrixSteps > 0) {
+        const pendingRow = getOfficialMatrixRow(intensityKey, nextIndex);
+        await prisma.followUpSequence.update({
+          where: { id: seq.id },
+          data: {
+            currentStep: nextIndex,
+            matrixCoreStageKey: pendingRow?.coreStageKey ?? null,
+          },
+        });
+        try {
+          await recordAuditEvent({
+            accountId: seq.contact.accountId,
+            entityType: "follow_up_sequence",
+            entityId: seq.id,
+            action: "follow_up_matrix_steps_skipped",
+            actorType: "system",
+            metadata: {
+              contactId: seq.contact.id,
+              fromStep: startIdx,
+              toStep: nextIndex,
+              skippedCount: skippedMatrixSteps,
+            },
+          });
+        } catch (e) {
+          console.error("[audit] follow_up_matrix_steps_skipped failed", e);
+        }
+      }
+
+      const idx = nextIndex;
       const stepDef = steps[idx];
+      const matrixExecuted = getOfficialMatrixRow(intensityKey, idx);
+      const effectiveObjective =
+        stepDef.objective?.trim() || matrixExecuted?.objectiveEs || undefined;
       const accountId = seq.contact.accountId;
       const channelNorm = stepDef.channel.trim().toLowerCase();
 
@@ -185,16 +290,57 @@ export async function processDueFollowUps(
       });
       const accountName = account?.name ?? "Cuenta";
 
+      const lastDir =
+        lastMsg?.direction === "outbound" || lastMsg?.direction === "inbound"
+          ? lastMsg.direction
+          : null;
+
+      const inferredBranch = inferFollowUpMatrixBranch({
+        commercialStage: seq.contact.commercialStage,
+        conversationalStage: seq.contact.conversationalStage,
+        topMatchScore: topMatch?.score ?? null,
+        matchCount,
+        hasProfileBasics: searchProfilesHaveBasics(profiles),
+        lastMessageDirection: lastDir,
+        lastMessageAtMs: lastMsg ? lastMsg.createdAt.getTime() : null,
+        nowMs: now.getTime(),
+        noResponseAfterOutboundHours,
+      });
+      const matrixBranchKey = resolveMatrixBranchForCron({
+        sequenceLocked: seq.matrixBranchLocked,
+        sequenceBranchKey: seq.matrixBranchKey,
+        inferred: inferredBranch,
+      });
+
       const attemptId = await prisma.$transaction(async (tx) => {
+        const branchMeta =
+          matrixBranchKey && seq.matrixBranchLocked
+            ? { branchManual: matrixBranchKey, branchLocked: true }
+            : matrixBranchKey
+              ? { branchInferred: matrixBranchKey }
+              : {};
         const created = await tx.followUpAttempt.create({
           data: {
             sequenceId: seq.id,
             step: idx,
             channel: stepDef.channel,
-            objective: stepDef.objective ?? null,
+            objective: effectiveObjective ?? null,
             outcome: "queued",
             metadata: {
               source: "cron_v1",
+              ...branchMeta,
+              ...(matrixExecuted
+                ? {
+                    matrix: {
+                      intensityKey,
+                      stepIndex: idx,
+                      coreStageKey: matrixExecuted.coreStageKey,
+                      objectiveEs: matrixExecuted.objectiveEs,
+                      dataToObtainEs: matrixExecuted.dataToObtainEs,
+                      nextActionHintEs: matrixExecuted.nextActionHintEs,
+                    },
+                  }
+                : {}),
               note:
                 stepDef.channel === "whatsapp"
                   ? "pendiente envío"
@@ -209,6 +355,15 @@ export async function processDueFollowUps(
         const hitMaxAttempts = newAttempts >= plan.maxAttempts;
         const noMoreSteps = nextStepIndex >= steps.length;
 
+        const nextPendingRow =
+          !hitMaxAttempts && !noMoreSteps
+            ? getOfficialMatrixRow(intensityKey, nextStepIndex)
+            : null;
+        const matrixCoreStageKeyForSeq =
+          hitMaxAttempts || noMoreSteps
+            ? matrixExecuted?.coreStageKey ?? null
+            : nextPendingRow?.coreStageKey ?? matrixExecuted?.coreStageKey ?? null;
+
         if (hitMaxAttempts || noMoreSteps) {
           await tx.followUpSequence.update({
             where: { id: seq.id },
@@ -217,6 +372,8 @@ export async function processDueFollowUps(
               attempts: newAttempts,
               status: "completed",
               nextAttemptAt: null,
+              matrixCoreStageKey: matrixCoreStageKeyForSeq,
+              matrixBranchKey,
             },
           });
         } else {
@@ -228,6 +385,8 @@ export async function processDueFollowUps(
               currentStep: nextStepIndex,
               attempts: newAttempts,
               nextAttemptAt: nextAt,
+              matrixCoreStageKey: matrixCoreStageKeyForSeq,
+              matrixBranchKey,
             },
           });
         }
@@ -239,7 +398,7 @@ export async function processDueFollowUps(
         const send = await sendWhatsAppTextToContact({
           contactId: seq.contact.id,
           accountId,
-          text: followUpWhatsAppBody(stepDef),
+          text: followUpWhatsAppBody(stepDef, matrixExecuted?.objectiveEs),
           actorUserId: null,
         });
         await prisma.followUpAttempt.update({
@@ -267,7 +426,7 @@ export async function processDueFollowUps(
           contactId: seq.contact.id,
           accountId,
           accountName,
-          objective: stepDef.objective,
+          objective: effectiveObjective,
         });
         if (send.ok) {
           await prisma.followUpAttempt.update({
@@ -286,7 +445,7 @@ export async function processDueFollowUps(
           const taskId = await createManualFollowUpTask({
             contactId: seq.contact.id,
             channel: "email",
-            objective: stepDef.objective,
+            objective: effectiveObjective,
             sequenceId: seq.id,
             step: idx,
           });
@@ -325,7 +484,7 @@ export async function processDueFollowUps(
         const taskId = await createManualFollowUpTask({
           contactId: seq.contact.id,
           channel: stepDef.channel,
-          objective: stepDef.objective,
+          objective: effectiveObjective,
           sequenceId: seq.id,
           step: idx,
         });

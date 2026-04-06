@@ -33,6 +33,22 @@ model Account {
   integrations  Integration[]
   followUpPlans FollowUpPlan[]
   auditEvents   AuditEvent[]
+  captureApiKeys CaptureApiKey[]
+}
+
+/// API key por tenant para `POST /api/contacts/create` (F3-E2). Secreto completo `kp_<prefix>_<suffix>`; solo se guarda hash.
+model CaptureApiKey {
+  id        String   @id @default(cuid())
+  accountId String
+  name      String?
+  keyPrefix String   @unique
+  keyHash   String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
 }
 
 model User {
@@ -294,7 +310,8 @@ model FollowUpPlan {
 
   name        String
   description String?
-  intensity   String   @default("medium") // low, medium, high
+  /// Intensidad oficial: soft | normal | strong | priority (legacy en datos: low | medium | high).
+  intensity   String   @default("normal")
   maxAttempts Int     @default(10)
   sequence    Json    // pasos configurables
   triggers    Json?   // cuándo activar (score, stage, etc.)
@@ -319,6 +336,13 @@ model FollowUpSequence {
   currentStep  Int      @default(0)
   attempts     Int      @default(0)
   nextAttemptAt DateTime?
+
+  /// Etapa del núcleo (6) del próximo paso pendiente; al completar, última etapa ejecutada.
+  matrixCoreStageKey String?
+  /// Rama automática vigente (motor evolutivo); opcional hasta reglas completas.
+  matrixBranchKey    String?
+  /// Si true, el cron no sobrescribe `matrixBranchKey` con la inferencia.
+  matrixBranchLocked Boolean @default(false)
 
   startedAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

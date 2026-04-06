@@ -4,6 +4,8 @@
  */
 import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { getOfficialMatrixRow } from "@/domains/core-prospeccion/follow-up-official-matrix";
+import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
 import { parsePlanSequence } from "./process-due-follow-ups";
 
 export type StartFollowUpSequenceInput = {
@@ -28,7 +30,7 @@ export async function startFollowUpSequenceForContact(
 
   const plan = await prisma.followUpPlan.findFirst({
     where: { id: input.followUpPlanId, accountId: input.accountId, status: "active" },
-    select: { id: true, name: true, sequence: true, maxAttempts: true },
+    select: { id: true, name: true, sequence: true, maxAttempts: true, intensity: true },
   });
   if (!plan) return { ok: false, error: "plan_not_found" };
 
@@ -42,6 +44,8 @@ export async function startFollowUpSequenceForContact(
   if (existingActive) return { ok: false, error: "active_sequence_exists" };
 
   const nextAttemptAt = new Date();
+  const intensityKey = normalizePlanIntensity(plan.intensity);
+  const firstRow = getOfficialMatrixRow(intensityKey, 0);
 
   const seq = await prisma.followUpSequence.create({
     data: {
@@ -51,6 +55,7 @@ export async function startFollowUpSequenceForContact(
       currentStep: 0,
       attempts: 0,
       nextAttemptAt,
+      matrixCoreStageKey: firstRow?.coreStageKey ?? null,
     },
     select: { id: true },
   });

@@ -97,6 +97,8 @@ Kite Prospect/
 | Analítica | `analytics` |
 | Auditoría | Transversal: servicio `audit` en `lib/` o `domains/crm-leads` que escriba `AuditEvent` |
 
+**Núcleo de prospección (constantes y etiquetas):** dominio `apps/web/src/domains/core-prospeccion/` — alineado con `docs/core-prospeccion.md`, `docs/seguimiento-y-cualificacion.md`, `docs/estados-y-etiquetas.md`. **Límites y planes (preparación monetización):** `auth-tenancy/account-plan-capabilities.ts` y `docs/monetizacion-base.md`.
+
 ---
 
 ## 5. Capas dentro de cada dominio (patrón recomendado)

@@ -1,55 +1,22 @@
 /**
  * API pública: crear contacto + conversación + mensaje inicial (formulario / landing).
- * Requiere CAPTURE_API_SECRET y resolución de tenant por slug (recomendado) o accountId (legacy).
+ * Autenticación: `CAPTURE_API_SECRET` global (opcional) y/o API key por tenant `kp_*` (F3-E2).
  */
-import { timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { createLeadCapture } from "@/domains/capture/services/create-lead-capture";
+import { resolveCaptureAccountFromBody } from "@/domains/capture/services/resolve-capture-account";
+import {
+  captureAuthConfiguredForAccount,
+  extractCaptureToken,
+  verifyGlobalCaptureSecret,
+  verifyTenantCaptureKey,
+} from "@/domains/capture/services/verify-capture-auth";
 import { getClientIpFromRequest } from "@/lib/client-ip";
 import { allowRateLimit, getCaptureRateLimitConfig } from "@/lib/rate-limit-memory";
 import { logStructured } from "@/lib/structured-log";
 
-function verifyCaptureSecret(request: NextRequest): boolean {
-  const secret = process.env.CAPTURE_API_SECRET?.trim();
-  if (!secret) return false;
-
-  const bearer = request.headers.get("authorization");
-  if (bearer?.startsWith("Bearer ")) {
-    const token = bearer.slice(7).trim();
-    return safeEqualStrings(token, secret);
-  }
-
-  const headerSecret = request.headers.get("x-capture-secret")?.trim();
-  if (headerSecret) {
-    return safeEqualStrings(headerSecret, secret);
-  }
-
-  return false;
-}
-
-function safeEqualStrings(a: string, b: string): boolean {
-  try {
-    const bufA = Buffer.from(a, "utf8");
-    const bufB = Buffer.from(b, "utf8");
-    if (bufA.length !== bufB.length) return false;
-    return timingSafeEqual(bufA, bufB);
-  } catch {
-    return false;
-  }
-}
-
 export async function POST(request: NextRequest) {
   try {
-    if (!process.env.CAPTURE_API_SECRET?.trim()) {
-      return NextResponse.json(
-        {
-          error:
-            "Captura deshabilitada: define CAPTURE_API_SECRET en .env (ver docs/setup-local.md)",
-        },
-        { status: 503 },
-      );
-    }
-
     const ip = getClientIpFromRequest(request);
     if (!allowRateLimit(`capture-api:${ip}`)) {
       const { windowMs } = getCaptureRateLimitConfig();
@@ -64,16 +31,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!verifyCaptureSecret(request)) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
-
     let body: Record<string, unknown>;
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: "JSON no válido" }, { status: 400 });
     }
+
+    const resolved = await resolveCaptureAccountFromBody(body);
+    if (!resolved.ok) {
+      return NextResponse.json({ error: resolved.error }, { status: resolved.status });
+    }
+
+    const accountId = resolved.accountId;
+    const configured = await captureAuthConfiguredForAccount(accountId);
+    if (!configured) {
+      return NextResponse.json(
+        {
+          error:
+            "Captura no configurada: definí CAPTURE_API_SECRET en el entorno o creá una API key en la cuenta (admin → captura).",
+        },
+        { status: 503 },
+      );
+    }
+
+    const token = extractCaptureToken(request);
+    if (!token) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
+    const okGlobal = verifyGlobalCaptureSecret(token);
+    const okTenant = await verifyTenantCaptureKey(token, accountId);
+    if (!okGlobal && !okTenant) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
+
     const {
       accountSlug,
       accountId: bodyAccountId,

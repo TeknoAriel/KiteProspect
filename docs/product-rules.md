@@ -8,9 +8,11 @@ Derivado de **PRODUCT_DEFINITION.md** (fuente de verdad). Las reglas de implemen
 
 ### Es
 
-- Plataforma que **transforma consultas** en oportunidades **trabajables, trazables, calificadas y priorizadas**.
+- Plataforma de **prospección inmobiliaria asistida** que **transforma consultas** en oportunidades **trabajables, trazables, calificadas y priorizadas** (no CRM completo ni chatbot genérico).
 - **Multi-tenant** con CRM básico **nativo** (no depende de CRM externo en Fase 1).
 - Combinación **IA + reglas de negocio**; la IA no gobierna sola.
+
+**Núcleo operativo (intensidades, etapas, ramas, estados en UI latina):** `docs/core-prospeccion.md`, `docs/seguimiento-y-cualificacion.md` (matriz oficial 4/6/8/10 pasos), `docs/estados-y-etiquetas.md`. **Inventario y enlaces:** `docs/integracion-kiteprop-propieya.md`.
 
 ### No es
 
@@ -43,6 +45,20 @@ Derivado de **PRODUCT_DEFINITION.md** (fuente de verdad). Las reglas de implemen
 - Los **feeds de inventario** (`Account.config.kitepropFeed`) siguen siendo URLs **por tenant** configuradas por el admin; no sustituyen esta regla sobre documentación y defaults del repo.
 
 Decisión detallada: `docs/decisions/kiteprop-frontera-demo-y-produccion.md`.
+
+---
+
+## Captura de leads (API pública)
+
+- **Uso:** `POST /api/contacts/create` para formularios y proxies server-side (no exponer secretos en el navegador del visitante).
+- **Multi-tenant:** el cuerpo debe identificar la cuenta (`accountSlug` o `accountId`); el mecanismo de autenticación **no** sustituye esa identificación.
+- **Autenticación (una de dos):**
+  - Secreto global de entorno (`CAPTURE_API_SECRET`), **o**
+  - **API key por tenant** (`kp_…`), generada y revocable por **admin** en la cuenta (sin almacenar el secreto completo en claro en BD).
+- **Disponibilidad:** si no hay secreto global **y** la cuenta no tiene ninguna clave activa, la ruta no acepta capturas para ese tenant (comportamiento documentado en integración y OpenAPI).
+- **Abuso:** rate limit por IP; evento `lead_captured` y trazas sin PII innecesaria.
+
+Decisión técnica (modelo y verificación): `docs/decisions/slice-f3e2-capture-api-keys-tenant.md`. Contrato HTTP: `docs/capture-integration.md`, `public/openapi-capture-v1.yaml`.
 
 ---
 

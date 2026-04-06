@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { FOLLOW_UP_INTENSITY_LABEL_ES } from "@/domains/core-prospeccion/follow-up-intensity";
+import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
 import { updateFollowUpPlanAction } from "./follow-up-plan-actions";
 
 export type FollowUpPlanFormInitial = {
@@ -63,11 +65,16 @@ export function FollowUpPlanForm({ plan }: Props) {
       </label>
       <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
         <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#555" }}>
-          Intensidad
-          <select name="intensity" defaultValue={plan.intensity} style={{ padding: "0.45rem" }}>
-            <option value="low">low</option>
-            <option value="medium">medium</option>
-            <option value="high">high</option>
+          Intensidad (matriz oficial)
+          <select
+            name="intensity"
+            defaultValue={normalizePlanIntensity(plan.intensity)}
+            style={{ padding: "0.45rem" }}
+          >
+            <option value="soft">{FOLLOW_UP_INTENSITY_LABEL_ES.soft} (soft)</option>
+            <option value="normal">{FOLLOW_UP_INTENSITY_LABEL_ES.normal} (normal)</option>
+            <option value="strong">{FOLLOW_UP_INTENSITY_LABEL_ES.strong} (strong)</option>
+            <option value="priority">{FOLLOW_UP_INTENSITY_LABEL_ES.priority} (priority)</option>
           </select>
         </label>
         <label style={{ display: "grid", gap: "0.35rem", fontSize: "0.85rem", color: "#555" }}>
@@ -110,7 +117,8 @@ export function FollowUpPlanForm({ plan }: Props) {
         Cada elemento: <code>step</code>, <code>delayHours</code> (horas hasta el siguiente intento),{" "}
         <code>channel</code> (<code>whatsapp</code> = Meta; <code>email</code> = Resend si variables de entorno;{" "}
         <code>instagram</code> u otros = tarea CRM manual), <code>objective</code> (cuerpo WA / email o guía para la
-        tarea).
+        tarea). Si <code>objective</code> está vacío, el cron usa el texto de la{" "}
+        <strong>matriz oficial</strong> por intensidad y paso (<code>follow-up-official-matrix.ts</code>).
       </p>
       <button
         type="submit"

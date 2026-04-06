@@ -122,7 +122,22 @@ npm run db:studio
 
 ---
 
-## 6. Calidad de código
+## 6. Inventario KiteProp (ingest JSON local)
+
+Tras login como admin en la cuenta demo (`slug` **demo**), abrí **`/dashboard/account/property-feeds`** y agregá un feed **JSON** con esta URL de referencia (misma familia de estructura que seguirá usando el equipo; puede cambiar el hash del path pero el formato del JSON se mantiene alineado al parser del repo):
+
+```text
+https://static.kiteprop.com/kp/difusions/f89cbd8ca785fc34317df63d29ab8ea9d68a7b1c/properstar.json
+```
+
+1. Activá el feed y usá **Sincronizar ahora** para poblar `Property` sin esperar al cron.
+2. Para probar el cron en local: definí `CRON_SECRET` en `.env` y llamá `GET /api/cron/kiteprop-property-feed` con `Authorization: Bearer <CRON_SECRET>` (ver `docs/manual-actions-required.md`).
+
+Detalle de producto y límites: `docs/integracion-kiteprop-propieya.md`, `docs/decisions/kiteprop-frontera-demo-y-produccion.md`.
+
+---
+
+## 7. Calidad de código
 
 | Comando | Descripción |
 |---------|-------------|
@@ -133,7 +148,7 @@ npm run db:studio
 
 ---
 
-## 7. Ejecutar la app
+## 8. Ejecutar la app
 
 ```bash
 npm run dev

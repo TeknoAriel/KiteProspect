@@ -10,6 +10,7 @@ import {
   tryParseMetaLeadWebhook,
 } from "@/domains/capture/services/parse-meta-lead-webhook";
 import { logStructured } from "@/lib/structured-log";
+import { verifyMetaWebhookSignature256 } from "@/lib/verify-meta-webhook-signature";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -44,9 +45,19 @@ async function resolveAccountIdByMetaPageId(pageId: string): Promise<string | nu
 }
 
 export async function POST(request: NextRequest) {
+  const rawBody = await request.text();
+  const appSecret = process.env.META_LEAD_WEBHOOK_APP_SECRET?.trim();
+  if (appSecret) {
+    const sig = request.headers.get("x-hub-signature-256");
+    if (!verifyMetaWebhookSignature256(rawBody, sig, appSecret)) {
+      logStructured("meta_lead_webhook_signature_invalid", {});
+      return NextResponse.json({ error: "Firma inválida" }, { status: 403 });
+    }
+  }
+
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody) as unknown;
   } catch {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }

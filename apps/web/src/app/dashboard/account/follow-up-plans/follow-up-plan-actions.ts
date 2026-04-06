@@ -3,10 +3,12 @@
 import { auth } from "@/lib/auth";
 import { prisma, Prisma } from "@kite-prospect/db";
 import { parsePlanSequence } from "@/domains/followups/services/process-due-follow-ups";
+import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
 import { recordAuditEvent } from "@/lib/audit";
 import { revalidatePath } from "next/cache";
 
-const INTENSITIES = new Set(["low", "medium", "high"]);
+/** Valores aceptados en formulario: oficiales + legacy (se normalizan al guardar). */
+const INTENSITIES = new Set(["soft", "normal", "strong", "priority", "low", "medium", "high"]);
 const STATUSES = new Set(["active", "paused", "archived"]);
 
 export type UpdateFollowUpPlanResult = { ok: true } | { ok: false; error: string };
@@ -25,7 +27,8 @@ export async function updateFollowUpPlanAction(
   const name = String(formData.get("name") ?? "").trim();
   const descriptionRaw = String(formData.get("description") ?? "").trim();
   const description = descriptionRaw ? descriptionRaw : null;
-  const intensity = String(formData.get("intensity") ?? "medium");
+  const intensityRaw = String(formData.get("intensity") ?? "normal");
+  const intensity = normalizePlanIntensity(intensityRaw);
   const maxAttemptsRaw = Number.parseInt(String(formData.get("maxAttempts") ?? "10"), 10);
   const maxAttempts = Number.isFinite(maxAttemptsRaw)
     ? Math.min(500, Math.max(1, maxAttemptsRaw))
@@ -36,7 +39,7 @@ export async function updateFollowUpPlanAction(
   if (!name) {
     return { ok: false, error: "El nombre es obligatorio." };
   }
-  if (!INTENSITIES.has(intensity)) {
+  if (!INTENSITIES.has(intensityRaw.trim().toLowerCase())) {
     return { ok: false, error: "Intensidad inválida." };
   }
   if (!STATUSES.has(status)) {
