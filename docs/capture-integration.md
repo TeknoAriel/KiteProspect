@@ -138,10 +138,11 @@ Tras crear o localizar un contacto, un backend puede **guardar el identificador 
 - **Respuesta:** `{ "ok": true, "contact": { "id", "externalId" } }`. En panel: ficha de contacto → bloque **CRM externo** (admin/coordinador).
 - **Resolución inversa (L22):** `GET /api/contacts/resolve-external?accountSlug=demo&externalId=<id-en-CRM>` (o `accountId` en lugar de slug), mismas cabeceras de captura. Devuelve `id` del contacto en Kite y etapas; **404** si no hay fila con ese `externalId` en el tenant.
 - **Unicidad (L27):** no puede haber dos contactos del mismo tenant con el mismo `externalId` no nulo; el `PATCH` responde **409** y el cuerpo puede incluir `conflictContactId`.
+- **Sincronización inbound por lotes (L22b):** `POST /api/contacts/crm-batch-sync` — cuerpo con `items`: cada elemento incluye `contactId` y, opcionalmente, `externalId` (o `null` para borrar), `commercialStage`, `conversationalStage`, `branchId` o `branchSlug`. Misma autenticación que §3; también sesión admin/coordinador. Respuesta con `results` por ítem y `summary` (éxitos/errores). No sustituye al CRM: quien integra **empuja** los cambios.
 
-Contrato OpenAPI: `openapi-capture-v1.yaml` (`getContactExternal`, `patchContactExternal`, `resolveContactByExternalId`).
+Contrato OpenAPI: `openapi-capture-v1.yaml` (`getContactExternal`, `patchContactExternal`, `resolveContactByExternalId`, `postCrmBatchSync`).
 
-Decisión: `docs/decisions/slice-l18-f3e1-crm-external-id-connector.md`.
+Decisiones: `docs/decisions/slice-l18-f3e1-crm-external-id-connector.md`, `docs/decisions/slice-l22b-f3e1-crm-batch-sync.md`.
 
 ## Referencias
 

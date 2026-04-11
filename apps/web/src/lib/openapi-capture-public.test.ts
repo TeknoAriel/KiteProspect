@@ -13,6 +13,8 @@ describe("openapi-capture-v1.yaml (público)", () => {
     expect(s).toContain("/api/contacts/create");
     expect(s).toContain("/api/contacts/{id}/external");
     expect(s).toContain("/api/contacts/resolve-external");
+    expect(s).toContain("/api/contacts/crm-batch-sync");
     expect(s).toContain("getContactExternal");
+    expect(s).toContain("postCrmBatchSync");
   });
 });

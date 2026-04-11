@@ -3,11 +3,11 @@ info:
   title: Kite Prospect — Captura de leads (API pública)
   description: |
     Especificación de `POST /api/contacts/create`: crea o reutiliza contacto, conversación y mensaje inicial.
-    Incluye `GET`/`PATCH /api/contacts/{id}/external` (vínculo CRM + lectura), y `GET /api/contacts/resolve-external` por ID externo (F3-E1 / L22–L28).
+    Incluye `GET`/`PATCH /api/contacts/{id}/external` (vínculo CRM + lectura), `GET /api/contacts/resolve-external` por ID externo, y `POST /api/contacts/crm-batch-sync` (L22b: push por lotes desde CRM/middleware).
     Autenticación: **(1)** secreto global `CAPTURE_API_SECRET` en el servidor; y/o **(2)** API key por tenant `kp_<16hex>_<32hex>` (admin → `/dashboard/account/capture-api-keys`).
     Debe existir al menos un método configurado para la cuenta (global o clave activa del tenant).
     Guía narrativa: `docs/capture-integration.md`.
-  version: 1.2.2
+  version: 1.2.3
 
 servers:
   - url: https://{host}
@@ -195,6 +195,44 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorBody"
+
+  /api/contacts/crm-batch-sync:
+    post:
+      operationId: postCrmBatchSync
+      tags: [crm_external]
+      summary: Sincronización inbound por lotes (etapas, externalId, sucursal)
+      description: |
+        Actualiza varios contactos del tenant en una sola petición. El **CRM o una capa intermedia** empuja cambios; Kite no llama al CRM.
+        Autenticación: misma que `POST /api/contacts/create` (Bearer global `kp_…` o tenant). Con secreto global, el cuerpo debe incluir `accountId` acorde al tenant resuelto por `accountSlug`/`accountId`.
+        También acepta **sesión** dashboard (admin/coordinador) sin `accountSlug` en el cuerpo.
+        Máximo 100 ítems. Cada ítem se aplica de forma independiente; la respuesta lista éxitos y errores por `contactId`.
+      security:
+        - CaptureBearer: []
+        - CaptureHeader: []
+        - CaptureTenantBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CrmBatchSyncRequest"
+      responses:
+        "200":
+          description: Procesado (revisar `results` y `summary` por ítem).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CrmBatchSyncResponse"
+        "400":
+          description: JSON inválido, items vacío o validación de ítem.
+        "401":
+          description: Sin token o token incorrecto; con global, `accountId` faltante o inconsistente.
+        "404":
+          description: Cuenta no encontrada (`accountSlug` / `accountId`).
+        "429":
+          description: Límite de frecuencia por IP.
+        "503":
+          description: Captura no configurada para el tenant.
 
   /api/contacts/create:
     post:
@@ -403,6 +441,101 @@ components:
         conflictContactId:
           type: string
           description: ID del otro contacto que ya tiene ese externalId (si se conoce antes del update).
+
+    CrmBatchSyncRequest:
+      type: object
+      required: [items]
+      description: |
+        Resolución de tenant como `LeadCaptureRequest` (`accountSlug` o `accountId`) cuando se usa captura.
+      properties:
+        accountSlug:
+          type: string
+        accountId:
+          type: string
+          description: UUID de cuenta; con Bearer global debe coincidir en el cuerpo además del usado para resolver el tenant.
+        items:
+          type: array
+          maxItems: 100
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CrmBatchSyncItem"
+
+    CrmBatchSyncItem:
+      type: object
+      required: [contactId]
+      description: |
+        Al menos un campo opcional distinto de `contactId` debe enviarse (etapas, externalId, sucursal).
+        `branchId` explícito tiene prioridad sobre `branchSlug`.
+      properties:
+        contactId:
+          type: string
+          description: ID del contacto en Kite Prospect.
+        externalId:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Vínculo CRM; null borra. Omitir = sin cambio.
+        commercialStage:
+          type: string
+          description: Valores canónicos (embudo comercial), ver `docs/product-rules.md`.
+        conversationalStage:
+          type: string
+        branchId:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: UUID de sucursal activa; null desasigna.
+        branchSlug:
+          type: string
+          description: Slug de sucursal (si no se envía `branchId`).
+
+    CrmBatchSyncResponse:
+      type: object
+      required: [ok, accountId, results, summary]
+      properties:
+        ok:
+          type: boolean
+        accountId:
+          type: string
+        results:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/CrmBatchSyncResultOk"
+              - $ref: "#/components/schemas/CrmBatchSyncResultError"
+        summary:
+          type: object
+          required: [ok, error]
+          properties:
+            ok:
+              type: integer
+            error:
+              type: integer
+
+    CrmBatchSyncResultOk:
+      type: object
+      required: [contactId, status, changed]
+      properties:
+        contactId:
+          type: string
+        status:
+          type: string
+          enum: [ok]
+        changed:
+          type: object
+          description: Qué dimensiones mutaron (vacío si ya estaban alineados).
+
+    CrmBatchSyncResultError:
+      type: object
+      required: [contactId, status, error]
+      properties:
+        contactId:
+          type: string
+        status:
+          type: string
+          enum: [error]
+        error:
+          type: string
 
     ErrorBody:
       type: object

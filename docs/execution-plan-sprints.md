@@ -29,9 +29,9 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 | Campo | Valor |
 |--------|--------|
-| **Sprint activo** | **F3-E1+ CRM profundo** (sync con producto CRM concreto; **L29** diagnóstico duplicados; ver `slice-l29-f3e1-crm-external-diagnostics.md`). |
-| **Último sprint largo cerrado** | **L29** F3-E1+ diagnóstico `externalId` (`slice-l29-f3e1-crm-external-diagnostics.md`); antes **L28** (`slice-l28-f3e1-external-get-capture.md`). |
-| **Última verificación agente** | Post L29: `npm run verify` OK. |
+| **Sprint activo** | **F3-E5++ / canales** u otra épica Fase 3 según backlog; último cierre **L22b** sync inbound por lotes. |
+| **Último sprint largo cerrado** | **L22b** F3-E1+ `POST /api/contacts/crm-batch-sync` (`slice-l22b-f3e1-crm-batch-sync.md`); antes **L29** diagnóstico `externalId`. |
+| **Última verificación agente** | Post L22b: `npm run verify` OK. |
 
 > **Nota para el agente:** al terminar un sprint **corto** (Sxx), marcar tareas `[x]` y actualizar esta tabla. En **L1**, preferir **commits por bloque lógico** (varios días seguidos OK); no detenerse a cada línea si el batch mantiene verify verde. Decisión de modo largo: `docs/decisions/sprint-l1-long-block.md`.
 
@@ -454,16 +454,30 @@ Este documento define **cómo** avanzamos **por etapas** con mínima intervenci�
 
 ---
 
-## Backlog Fase 3 — F3-E1+ (sync profundo), F3-E4++, F3-E5++
+## Sprint largo L22b — F3-E1+ Sync inbound por lotes (CRM → Kite)
+
+**Objetivo:** sync “profundo” **sin** acoplar un CRM comercial: capa intermedia o producto remoto **empuja** etapas, `externalId` y sucursal en batch.
+
+| # | Área | Ref | Entregable | Estado |
+|---|------|-----|------------|--------|
+| 1 | API | F3-E1+ | `POST /api/contacts/crm-batch-sync` (captura + sesión admin/coord) | [x] |
+| 2 | Dominio | — | `parseCrmBatchSyncItem` + `applyCrmBatchSyncItem`; tope 100 ítems; auditoría + webhooks alineados | [x] |
+| 3 | OpenAPI | F3-E2 | v1.2.3, `postCrmBatchSync` | [x] |
+| 4 | Docs | — | `capture-integration` §6, `slice-l22b-f3e1-crm-batch-sync.md` | [x] |
+
+**Cierre L22b:** `npm run verify` OK.
+
+---
+
+## Backlog Fase 3 — F3-E1+ (ampliaciones), F3-E4++, F3-E5++
 
 Orden negociable; cada uno abre un **sprint largo** con tabla de tareas al arrancar.
 
 | Sprint | Ref roadmap | Tema | Entregable (orientativo) |
 |--------|-------------|------|---------------------------|
-| **L22b** | F3-E1+ | Sync / API producto | Integraciones según `PRODUCT_DEFINITION` (sin comprometer CRM enterprise) |
 | **F3-E5++** | F3-E5+ | Más canales | Push web, otro proveedor, etc. |
 
-**Cerrados en Fase 3:** F3-E2, F3-E3 (L14 + **L24** ampliación eventos), F3-E4 MVP (L15), F3-E5 paso SMS Twilio (L16), F3-E6 paso cohorte/export (L17), **F3-E1 slice vínculo ID (L18)**, **F3-E4+ reportes por sucursal (L19)**, **F3-E5+ SMS Telnyx opcional (L20)**, **F3-E4++ permisos sucursal asesor (L21)**. **Transversal L23** alta producción (cabeceras, health extendido, rate limit auth). **L25–L26** HSTS/robots/security.txt/health. **L22** F3-E1+ resolve + webhook `contact.external_id_updated`. **L27** unicidad `(accountId, externalId)`. **L28** `GET …/external`. **L29** diagnóstico duplicados `externalId`.
+**Cerrados en Fase 3:** F3-E2, F3-E3 (L14 + **L24** ampliación eventos), F3-E4 MVP (L15), F3-E5 paso SMS Twilio (L16), F3-E6 paso cohorte/export (L17), **F3-E1 slice vínculo ID (L18)**, **F3-E4+ reportes por sucursal (L19)**, **F3-E5+ SMS Telnyx opcional (L20)**, **F3-E4++ permisos sucursal asesor (L21)**. **Transversal L23** alta producción (cabeceras, health extendido, rate limit auth). **L25–L26** HSTS/robots/security.txt/health. **L22** F3-E1+ resolve + webhook `contact.external_id_updated`. **L27** unicidad `(accountId, externalId)`. **L28** `GET …/external`. **L29** diagnóstico duplicados `externalId`. **L22b** batch sync CRM → Kite (`POST …/crm-batch-sync`).
 
 ---
 
@@ -630,7 +644,7 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 
 **Cola actual (post L29):**
 
-1. **L22b / F3-E1+** sync profundo con CRM o capa intermedia — ver **Backlog Fase 3**; **F3-E5++** push u otros canales.
+1. **F3-E5++** push u otros canales (sprint dedicado cuando se priorice).
 2. Histórico: L22–L28 puente CRM + L29 diagnóstico.
 
 **Histórico (ya cerrado en repo):**
@@ -696,3 +710,4 @@ Alineado a `docs/roadmap.md` **Fase 2**: F2-E1–E7 por prioridad de negocio. Ca
 | `docs/decisions/slice-l27-f3e1-external-id-unique.md` | L27: índice único `externalId` por cuenta; PATCH 409. |
 | `docs/decisions/slice-l28-f3e1-external-get-capture.md` | L28: `GET …/external` lectura vínculo + etapas. |
 | `docs/decisions/slice-l29-f3e1-crm-external-diagnostics.md` | L29: admin diagnóstico duplicados `externalId`. |
+| `docs/decisions/slice-l22b-f3e1-crm-batch-sync.md` | L22b: `POST /api/contacts/crm-batch-sync` (push por lotes). |
