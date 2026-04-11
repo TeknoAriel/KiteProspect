@@ -1,5 +1,7 @@
 # Guía para ti — qué abrir en el navegador y en qué orden
 
+**Checklist completo con variables exactas, orden de configuración y flujo leads → inbox → seguimiento:** **[tareas-manuales-flujo-real-leads-seguimiento.md](./tareas-manuales-flujo-real-leads-seguimiento.md)**.
+
 Esta página usa **dos “bases” de URL** que sí funcionan; solo cambia el **origen** (inicio de la dirección):
 
 | Dónde corres la app | Base (origen) — copia exacta |

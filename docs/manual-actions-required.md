@@ -4,6 +4,8 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 **Norma de trabajo del proyecto** (rol, límites, cómo documentar implementado / pendiente / bloqueado): [working-rules.md](./working-rules.md).
 
+**Lista maestra — flujo real (leads, inbox, seguimiento, WhatsApp, variables exactas y URLs):** **[tareas-manuales-flujo-real-leads-seguimiento.md](./tareas-manuales-flujo-real-leads-seguimiento.md)**.
+
 **Configuración externa paso a paso (URLs, qué pegar en cada sitio):** [configuracion-manual-paso-a-paso.md](./configuracion-manual-paso-a-paso.md).
 
 **Misma guía en lenguaje muy simple (pasos 1–7, sin tecnicismos):** [configuracion-paso-a-paso-humano.md](./configuracion-paso-a-paso-humano.md).
