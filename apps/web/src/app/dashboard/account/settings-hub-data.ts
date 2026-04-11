@@ -17,6 +17,11 @@ export const MVP_MODULES: { name: string; done: boolean; where: string }[] = [
   { name: "OpenAPI captura pública (POST /api/contacts/create)", done: true, where: "/openapi-capture-v1.yaml" },
   { name: "API keys captura por tenant (Bearer kp_…)", done: true, where: "/dashboard/account/capture-api-keys" },
   { name: "Webhooks salientes firmados (F3-E3)", done: true, where: "/dashboard/account/webhooks" },
+  {
+    name: "Diagnóstico CRM externo (duplicados `externalId`)",
+    done: true,
+    where: "/dashboard/account/diagnostics/crm-external",
+  },
   { name: "Sucursales por cuenta + filtro CRM (F3-E4 MVP)", done: true, where: "/dashboard/account/branches" },
   { name: "Seguimiento por SMS (Twilio, canal sms en plan)", done: true, where: "Variables Twilio + planes JSON" },
   { name: "Demo por canal (hilos simulados sin Meta/Resend/Twilio)", done: true, where: "/dashboard/demo-channels" },
