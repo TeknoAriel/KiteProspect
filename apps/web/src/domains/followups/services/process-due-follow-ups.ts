@@ -5,6 +5,7 @@ import { prisma, Prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
 import { sendFollowUpEmailToContact } from "@/domains/integrations/email/send-follow-up-email";
+import { sendFollowUpSmsToContact } from "@/domains/integrations/sms/send-follow-up-sms";
 import { sendWhatsAppTextToContact } from "@/domains/integrations/whatsapp/send-whatsapp-text";
 import type { ProcessDueFollowUpsInput, ProcessDueFollowUpsResult } from "../follow-up-job-contract";
 import { evaluateFollowUpTriggers } from "./evaluate-follow-up-triggers";
@@ -74,7 +75,9 @@ async function createManualFollowUpTask(params: {
   const title =
     ch === "instagram" || ch === "ig"
       ? "Seguimiento Instagram (DM manual)"
-      : `Seguimiento ${params.channel} (acción manual)`;
+      : ch === "sms"
+        ? "Seguimiento SMS (acción manual)"
+        : `Seguimiento ${params.channel} (acción manual)`;
   const description = [
     params.objective?.trim() || undefined,
     `Referencia: secuencia ${params.sequenceId} · paso ${params.step}`,
@@ -98,6 +101,7 @@ async function createManualFollowUpTask(params: {
  * Ejecuta un paso por secuencia vencida: crea FollowUpAttempt, avanza paso y programa siguiente.
  * - `whatsapp`: Graph API (Meta) si está configurado.
  * - `email`: Resend si `RESEND_API_KEY` + `FOLLOW_UP_FROM_EMAIL`; si no, tarea manual.
+ * - `sms`: Twilio (defecto) o Telnyx si `SMS_PROVIDER=telnyx` (F3-E5 / L16 + L20); si no hay credenciales, tarea manual.
  * - `instagram` / otros: tarea CRM para acción humana (sin API de DM en MVP).
  */
 export async function processDueFollowUps(
@@ -107,12 +111,16 @@ export async function processDueFollowUps(
     input.batchLimit != null && input.batchLimit > 0
       ? Math.min(input.batchLimit, 200)
       : defaultBatchLimit();
-  const now = new Date();
+  const now = input.asOf ?? new Date();
+  const filterAccountId = input.filterAccountId?.trim();
 
   const due = await prisma.followUpSequence.findMany({
     where: {
       status: "active",
       nextAttemptAt: { lte: now },
+      ...(filterAccountId
+        ? { contact: { accountId: filterAccountId } }
+        : {}),
     },
     include: {
       contact: {
@@ -342,9 +350,11 @@ export async function processDueFollowUps(
                   }
                 : {}),
               note:
-                stepDef.channel === "whatsapp"
+                stepDef.channel === "whatsapp" ||
+                channelNorm === "email" ||
+                channelNorm === "sms"
                   ? "pendiente envío"
-                  : "MVP: sin envío real aún (canal no whatsapp)",
+                  : "MVP: sin envío real aún (canal manual)",
             },
           },
         });
@@ -474,6 +484,65 @@ export async function processDueFollowUps(
               metadata: {
                 source: "cron_v2",
                 channel: "email",
+                reason: send.reason,
+                error: send.error,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        }
+      } else if (channelNorm === "sms") {
+        const send = await sendFollowUpSmsToContact({
+          contactId: seq.contact.id,
+          accountId,
+          accountName,
+          objective: effectiveObjective,
+        });
+        if (send.ok) {
+          await prisma.followUpAttempt.update({
+            where: { id: attemptId },
+            data: {
+              outcome: "sent",
+              metadata: {
+                source: "cron_v2",
+                channel: "sms",
+                provider: "twilio",
+                twilioSid: send.providerId,
+              } as Prisma.InputJsonValue,
+            },
+          });
+        } else if (send.reason === "not_configured" || send.reason === "no_phone") {
+          const taskId = await createManualFollowUpTask({
+            contactId: seq.contact.id,
+            channel: "sms",
+            objective: effectiveObjective,
+            sequenceId: seq.id,
+            step: idx,
+          });
+          await prisma.followUpAttempt.update({
+            where: { id: attemptId },
+            data: {
+              outcome: "manual",
+              metadata: {
+                source: "cron_v2",
+                channel: "sms",
+                reason: send.reason,
+                error: send.error,
+                taskId,
+                note:
+                  send.reason === "not_configured"
+                    ? "Configurá TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN y TWILIO_FROM_NUMBER para envío automático."
+                    : "El contacto no tiene teléfono válido para SMS.",
+              } as Prisma.InputJsonValue,
+            },
+          });
+        } else {
+          await prisma.followUpAttempt.update({
+            where: { id: attemptId },
+            data: {
+              outcome: send.reason === "blocked" ? "skipped" : "failed",
+              metadata: {
+                source: "cron_v2",
+                channel: "sms",
                 reason: send.reason,
                 error: send.error,
               } as Prisma.InputJsonValue,

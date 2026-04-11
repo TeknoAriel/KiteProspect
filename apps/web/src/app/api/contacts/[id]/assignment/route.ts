@@ -5,6 +5,7 @@ import { prisma } from "@kite-prospect/db";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { recordAuditEvent } from "@/lib/audit";
+import { emitAccountWebhooks } from "@/domains/integrations/services/emit-account-webhooks";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -89,6 +90,16 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
     actorType: "user",
     metadata: { advisorId, advisorName: advisor.name },
   });
+
+  void emitAccountWebhooks({
+    accountId,
+    event: "contact.assignment_changed",
+    data: {
+      contactId,
+      advisorId,
+      advisorName: advisor.name,
+    },
+  }).catch((e) => console.error("[webhook] contact.assignment_changed", e));
 
   return NextResponse.json({ ok: true, assignment: { advisorId, advisorName: advisor.name } });
 }

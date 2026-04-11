@@ -1,6 +1,8 @@
 "use server";
 
+import type { Session } from "next-auth";
 import { auth } from "@/lib/auth";
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
@@ -26,9 +28,13 @@ function isValidTaskStatus(s: string): s is ContactTaskStatus {
   return (TASK_STATUSES as readonly string[]).includes(s);
 }
 
-async function assertTaskInTenant(taskId: string, accountId: string) {
+async function assertTaskInTenant(taskId: string, session: Session) {
+  const accountId = session.user.accountId;
   const task = await prisma.task.findFirst({
-    where: { id: taskId },
+    where: {
+      id: taskId,
+      contact: contactWhereForAdvisorRole(accountId, session),
+    },
     include: { contact: { select: { accountId: true, id: true } } },
   });
   if (!task || task.contact.accountId !== accountId) {
@@ -83,7 +89,7 @@ export async function addContactTaskAction(
   }
 
   const contact = await prisma.contact.findFirst({
-    where: { id: contactId, accountId: session.user.accountId },
+    where: { id: contactId, ...contactWhereForAdvisorRole(session.user.accountId, session) },
     select: { id: true },
   });
   if (!contact) {
@@ -143,7 +149,7 @@ export async function updateContactTaskAction(
     return { ok: false, error: "No autorizado." };
   }
 
-  const task = await assertTaskInTenant(taskId, session.user.accountId);
+  const task = await assertTaskInTenant(taskId, session);
   if (!task) {
     return { ok: false, error: "Tarea no encontrada." };
   }
@@ -230,7 +236,7 @@ export async function completeContactTaskAction(taskId: string): Promise<UpdateC
     return { ok: false, error: "No autorizado." };
   }
 
-  const task = await assertTaskInTenant(taskId, session.user.accountId);
+  const task = await assertTaskInTenant(taskId, session);
   if (!task) {
     return { ok: false, error: "Tarea no encontrada." };
   }

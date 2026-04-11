@@ -10,6 +10,9 @@ Describe **entidades**, **relaciones** y **convenciones** alineadas con `PRODUCT
 Account (tenant)
  ├── User
  ├── Advisor
+ ├── CaptureApiKey (F3-E2)
+ ├── WebhookSubscription (F3-E3)
+ ├── Branch (F3-E4)
  ├── Integration
  ├── FollowUpPlan
  ├── AuditEvent
@@ -38,12 +41,15 @@ Account (tenant)
 | **User** | Usuario interno. `email` + `role` (`admin`, `coordinator`, `advisor`). Pertenece a un `Account`. Único por tenant: `@@unique([accountId, email])`. |
 | **Advisor** | Asesor comercial; puede enlazarse a `User` (`userId` opcional). |
 | **Integration** | Conexión externa (WhatsApp, CRM, Meta). `type`, `provider`, `config` cifrado en implementación futura. |
+| **CaptureApiKey** | Clave `kp_…` por cuenta para `POST /api/contacts/create` (F3-E2); solo hash en BD. |
+| **WebhookSubscription** | URL + secreto de firma HMAC + eventos suscritos; webhooks **salientes** (F3-E3 / L14). |
+| **Branch** | Sucursal / unidad operativa del tenant; `slug` único por cuenta; contacto opcionalmente enlazado (`Contact.branchId`, L15). |
 
 ### Lead / CRM
 
 | Entidad | Descripción |
 |---------|-------------|
-| **Contact** | Núcleo del lead. Identificadores (`email`, `phone`, `name`), `declaredProfile` JSON (Fase 1), etapas de funnel. |
+| **Contact** | Núcleo del lead. Identificadores (`email`, `phone`, `name`), `declaredProfile` JSON (Fase 1), etapas de funnel; `branchId` opcional (F3-E4). |
 | **Conversation** | Hilo por canal (`web_widget`, `landing`, `whatsapp`, `form`). Enlaza `Contact` y `Account`. `lastReadAt`: última lectura del hilo por el equipo en inbox (S29). |
 | **Message** | Mensaje entrante/saliente; metadata para WhatsApp (estado, plantilla). |
 | **Task** | Tarea comercial asociada al contacto. |
@@ -95,7 +101,8 @@ Account (tenant)
 
 ## Relaciones clave (cardinalidad)
 
-- `Account` **1 — N** `User`, `Advisor`, `Contact`, `Property`, `Conversation`, `Integration`, `FollowUpPlan`, `AuditEvent`.
+- `Account` **1 — N** `User`, `Advisor`, `Contact`, `Property`, `Conversation`, `Integration`, `FollowUpPlan`, `AuditEvent`, `CaptureApiKey`, `WebhookSubscription`, `Branch`.
+- `Branch` **1 — N** `Contact` (opcional por contacto).
 - `Contact` **1 — N** `Conversation`, `Message` (vía conversación), `SearchProfile`, `LeadScore`, `LeadQualification`, `Consent`, `Task`, `Note`, `Assignment`, `Recommendation`, `PropertyMatch`, `FollowUpSequence`.
 - `Conversation` **1 — N** `Message`.
 - `FollowUpPlan` **1 — N** `FollowUpSequence`; `FollowUpSequence` **1 — N** `FollowUpAttempt`.

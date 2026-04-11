@@ -134,11 +134,12 @@ Sustituye `https://kite-prospect.vercel.app` por **tu** URL real (la que ves en 
 
 Esto vale **si** en esa base de datos corriste el seed y existe la cuenta con slug `demo`:
 
-| Campo en pantalla | Valor |
-|-------------------|--------|
-| Slug de cuenta | `demo` |
-| Email | `admin@demo.local` |
-| Contraseña | `demo123` |
+| Uso | Slug cuenta | Email | Contraseña |
+|-----|-------------|-------|------------|
+| Admin (configuración completa) | `demo` | `admin@demo.local` | `demo123` |
+| Asesor con sucursal **Centro** (probar alcance L21: lista contactos, inbox, reportes) | `demo` | `advisor@demo.local` | `demo123` |
+
+Los contactos demo del showcase suelen tener **sin sucursal** (`branchId` null), por lo que el asesor demo también los ve (pool compartido). Para probar **exclusión**, creá un contacto asignado a otra sucursal desde un usuario admin.
 
 Si en producción **no** hiciste seed, **no** usarás estos datos; tendrás que crear usuarios por otro medio.
 

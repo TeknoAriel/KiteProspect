@@ -1,4 +1,5 @@
 import { requireAuth } from "@/lib/server-utils";
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -24,12 +25,14 @@ import { labelFollowUpCoreStage } from "@/domains/core-prospeccion/follow-up-cor
 import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
 import { resolveUnifiedOperationalLabel } from "@/domains/core-prospeccion/unified-operational-label";
 import { ContactStagesForm } from "./contact-stages-form";
+import { ContactBranchForm } from "./contact-branch-form";
 import { FollowUpIntensitySuggestion } from "./follow-up-intensity-suggestion";
 import { FollowUpSequenceControls } from "./follow-up-sequence-controls";
 import { StartFollowUpSequenceForm } from "./start-follow-up-sequence-form";
 import { RecalculateMatchesButton } from "./recalculate-matches-button";
 import { PropertyMatchFeedback } from "./property-match-feedback";
 import { SendRecommendationWhatsAppButton } from "./send-recommendation-whatsapp-button";
+import { ContactExternalIdForm } from "./contact-external-id-form";
 
 function crmTaskTypeLabel(type: string): string {
   const map: Record<string, string> = {
@@ -50,13 +53,16 @@ export default async function ContactDetailPage({
   const accountId = session.user.accountId;
   const { id } = await params;
 
-  const [contact, advisors, followUpPlans, activeFollowUpSequence] = await Promise.all([
+  const [contact, advisors, followUpPlans, branches, activeFollowUpSequence] = await Promise.all([
     prisma.contact.findFirst({
     where: {
       id,
-      accountId, // Seguridad: solo contactos de la cuenta
+      ...contactWhereForAdvisorRole(accountId, session),
     },
     include: {
+      branch: {
+        select: { id: true, name: true, slug: true },
+      },
       conversations: {
         orderBy: { createdAt: "desc" },
         take: 10,
@@ -135,6 +141,11 @@ export default async function ContactDetailPage({
       select: { id: true, name: true },
       orderBy: { name: "asc" },
     }),
+    prisma.branch.findMany({
+      where: { accountId, status: "active" },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, slug: true },
+    }),
     prisma.followUpSequence.findFirst({
       where: { contactId: id, status: "active" },
       select: { id: true },
@@ -176,6 +187,7 @@ export default async function ContactDetailPage({
     session.user.role === "admin" || session.user.role === "coordinator";
   const canMutateAssign =
     session.user.role === "admin" || session.user.role === "coordinator";
+  const canMutateExternalId = canMutateAssign;
   const canMutateStages = canMutateAssign;
   const canMutateFollowUp = canMutateAssign;
   const hasPhoneForWa = Boolean(contact.phone?.trim());
@@ -238,8 +250,17 @@ export default async function ContactDetailPage({
           <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
             <h2 style={{ marginTop: 0 }}>Información</h2>
             <div style={{ display: "grid", gap: "0.5rem" }}>
+              <p style={{ fontSize: "0.8rem", color: "#666", margin: 0 }}>
+                <strong>ID (Kite):</strong> <code style={{ fontSize: "0.78rem" }}>{id}</code>
+              </p>
               {contact.email && <p><strong>Email:</strong> {contact.email}</p>}
               {contact.phone && <p><strong>Teléfono:</strong> {contact.phone}</p>}
+              {contact.branch && (
+                <p>
+                  <strong>Sucursal:</strong> {contact.branch.name}{" "}
+                  <span style={{ color: "#888", fontSize: "0.8rem" }}>({contact.branch.slug})</span>
+                </p>
+              )}
               <p>
                 <strong>Estado conversacional:</strong> {convLabel}{" "}
                 <span style={{ color: "#888", fontSize: "0.8rem" }}>({contact.conversationalStage})</span>
@@ -253,6 +274,12 @@ export default async function ContactDetailPage({
               contactId={id}
               commercialStage={commercialForSelect}
               conversationalStage={conversationalForSelect}
+              canMutate={canMutateStages}
+            />
+            <ContactBranchForm
+              contactId={id}
+              branchId={contact.branchId}
+              branches={branches}
               canMutate={canMutateStages}
             />
           </section>
@@ -427,6 +454,19 @@ export default async function ContactDetailPage({
               ))}
             </section>
           )}
+
+          <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
+            <h3 style={{ marginTop: 0 }}>CRM externo</h3>
+            <p style={{ margin: "0 0 0.25rem", fontSize: "0.78rem", color: "#666" }}>
+              Vinculá el contacto con el identificador en tu CRM (unidireccional en este paso; sync profundo queda
+              fuera de este slice).
+            </p>
+            <ContactExternalIdForm
+              contactId={id}
+              initialExternalId={contact.externalId}
+              canMutate={canMutateExternalId}
+            />
+          </section>
 
           <section style={{ padding: "1.5rem", border: "1px solid #e0e0e0", borderRadius: "8px" }}>
             <h3 style={{ marginTop: 0 }}>Seguimiento automático</h3>

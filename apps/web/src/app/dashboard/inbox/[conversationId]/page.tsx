@@ -1,5 +1,6 @@
 import { ConversationAiPanel } from "./conversation-ai-panel";
 import { requireAuth } from "@/lib/server-utils";
+import { conversationWhereForAdvisorContact } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import { ConversationReadMarker } from "./conversation-read-marker";
 import Link from "next/link";
@@ -17,7 +18,10 @@ export default async function InboxConversationPage({
   const { conversationId } = await params;
 
   const conv = await prisma.conversation.findFirst({
-    where: { id: conversationId, accountId },
+    where: {
+      id: conversationId,
+      ...conversationWhereForAdvisorContact(accountId, session),
+    },
     include: {
       contact: {
         select: {

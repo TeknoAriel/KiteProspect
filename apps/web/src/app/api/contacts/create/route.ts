@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
     const {
       accountSlug,
       accountId: bodyAccountId,
+      branchSlug,
       email,
       phone,
       name,
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
     const result = await createLeadCapture({
       accountSlug: typeof accountSlug === "string" ? accountSlug : undefined,
       accountId: typeof bodyAccountId === "string" ? bodyAccountId : undefined,
+      branchSlug: typeof branchSlug === "string" ? branchSlug : undefined,
       email: typeof email === "string" ? email : undefined,
       phone: typeof phone === "string" ? phone : undefined,
       name: typeof name === "string" ? name : undefined,

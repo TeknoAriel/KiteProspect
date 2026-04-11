@@ -11,5 +11,8 @@ describe("openapi-capture-v1.yaml (público)", () => {
     const s = readFileSync(p, "utf8");
     expect(s).toMatch(/^openapi:\s*3\./m);
     expect(s).toContain("/api/contacts/create");
+    expect(s).toContain("/api/contacts/{id}/external");
+    expect(s).toContain("/api/contacts/resolve-external");
+    expect(s).toContain("getContactExternal");
   });
 });

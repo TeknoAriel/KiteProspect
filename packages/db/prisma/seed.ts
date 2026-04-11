@@ -52,18 +52,65 @@ async function main() {
     console.log('Seed: se reactivó admin@demo.local en cuenta "demo".');
   }
 
+  const branch = await prisma.branch.upsert({
+    where: {
+      accountId_slug: { accountId: account.id, slug: "centro" },
+    },
+    create: {
+      accountId: account.id,
+      name: "Sucursal Centro",
+      slug: "centro",
+      status: "active",
+    },
+    update: {},
+  });
+
+  let advisorUser = await prisma.user.findFirst({
+    where: {
+      accountId: account.id,
+      email: { equals: "advisor@demo.local", mode: "insensitive" },
+    },
+  });
+  if (!advisorUser) {
+    advisorUser = await prisma.user.create({
+      data: {
+        accountId: account.id,
+        email: "advisor@demo.local",
+        password: hashedPassword,
+        name: "Asesor Demo",
+        role: "advisor",
+        status: "active",
+      },
+    });
+    console.log('Seed: se creó advisor@demo.local (rol asesor, misma contraseña que admin demo).');
+  } else if (advisorUser.status !== "active" || advisorUser.role !== "advisor") {
+    await prisma.user.update({
+      where: { id: advisorUser.id },
+      data: { status: "active", role: "advisor", password: hashedPassword },
+    });
+  }
+
   let advisor = await prisma.advisor.findFirst({
     where: { accountId: account.id },
   });
-
   if (!advisor) {
     advisor = await prisma.advisor.create({
       data: {
         accountId: account.id,
-        userId: adminUser.id,
+        userId: advisorUser.id,
         name: "Asesor Demo",
-        email: "asesor@demo.local",
+        email: "advisor@demo.local",
         status: "active",
+        branchId: branch.id,
+      },
+    });
+  } else {
+    advisor = await prisma.advisor.update({
+      where: { id: advisor.id },
+      data: {
+        userId: advisorUser.id,
+        email: "advisor@demo.local",
+        branchId: branch.id,
       },
     });
   }
@@ -86,6 +133,8 @@ async function main() {
   console.log("Seed OK:", {
     accountId: account.id,
     adminEmail: adminUser.email,
+    advisorEmail: "advisor@demo.local",
+    demoBranchSlug: "centro",
   });
 }
 

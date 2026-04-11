@@ -25,6 +25,9 @@ Auditoría actualizada tras alinear **matriz de seguimiento**, **intensidades**,
 | Meta pageId desde app | Admin puede crear/editar `meta_lead_ads` + `pageId` y `paused` sin SQL (`slice-l10-integration-meta-lead-ads-crud.md`). |
 | OpenAPI captura | `GET /openapi-capture-v1.yaml` documenta `POST /api/contacts/create` (`slice-l11-openapi-public-capture.md`). |
 | API keys captura (F3-E2) | Claves `kp_…` por cuenta + auth en ruta pública (`slice-f3e2-capture-api-keys-tenant.md`). |
+| Webhooks salientes (F3-E3 / L14 + L24) | `WebhookSubscription`; eventos `lead.captured`, `contact.assignment_changed`, `contact.stages_updated`, `follow_up.sequence_started`; firma HMAC (`slice-l14-f3e3-public-webhooks.md`, `slice-l24-f3e3-webhooks-stages-followup.md`). |
+| Multi-sucursal (F3-E4 / L15 MVP) | `Branch`, `Contact.branchId`, captura `branchSlug`, CRM (`slice-l15-f3e4-multi-branch-mvp.md`). Reportes operativos por sucursal: `?branchId=` en `/dashboard/reportes` y CSV (L19). **Alcance asesor por sucursal** (L21): `Advisor.branchId` + sesión + filtros en UI y `PATCH` feedback match (`slice-l21-advisor-branch-operational-scope.md`). Inventario por sucursal: fuera de alcance MVP. |
+| SMS en seguimientos (F3-E5 / L16 + L20) | Canal `sms` en planes; **Twilio** por defecto o **Telnyx** si `SMS_PROVIDER=telnyx` (`TELNYX_*`); consent `sms`; cron `processDueFollowUps` (`slice-l16-f3e5-sms-twilio-follow-up.md`, `slice-l20-f3e5-sms-telnyx-provider.md`). Webhooks DLR / inbox SMS unificado: fuera del MVP. |
 | Rama matriz fijada | `matrixBranchLocked` en secuencia; UI y `PATCH` en ficha; cron respeta (`slice-l12-matrix-branch-manual-lock.md`). |
 
 ## Parcial / siguiente nivel

@@ -34,6 +34,40 @@ model Account {
   followUpPlans FollowUpPlan[]
   auditEvents   AuditEvent[]
   captureApiKeys CaptureApiKey[]
+  webhookSubscriptions WebhookSubscription[]
+  branches      Branch[]
+  simulationRuns SimulationRun[]
+}
+
+/// Reporte de laboratorio: 20 escenarios conversacionales + snapshot de seguimiento (tester).
+model SimulationRun {
+  id        String   @id @default(cuid())
+  accountId String
+  label     String   @default("Laboratorio 20 escenarios")
+  payload   Json
+  createdAt DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, createdAt])
+}
+
+/// Sucursal / unidad operativa dentro del tenant (F3-E4 / L15 MVP).
+model Branch {
+  id        String   @id @default(cuid())
+  accountId String
+  name      String
+  slug      String
+  status    String   @default("active") // active, archived
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account  Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  contacts Contact[]
+  advisors Advisor[]
+
+  @@unique([accountId, slug])
+  @@index([accountId])
 }
 
 /// API key por tenant para `POST /api/contacts/create` (F3-E2). Secreto completo `kp_<prefix>_<suffix>`; solo se guarda hash.
@@ -43,6 +77,23 @@ model CaptureApiKey {
   name      String?
   keyPrefix String   @unique
   keyHash   String
+  createdAt DateTime @default(now())
+  revokedAt DateTime?
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId])
+}
+
+/// Destino de webhooks salientes firmados (F3-E3 / L14). El secreto se muestra una vez al crear; se guarda en claro para firmar HMAC en cada entrega (MVP).
+model WebhookSubscription {
+  id        String   @id @default(cuid())
+  accountId String
+  name      String?
+  url       String
+  signingSecret String
+  /// JSON array de eventos: ver WEBHOOK_EVENT_TYPES (apps/web)
+  events    Json     @default("[\"lead.captured\",\"contact.assignment_changed\",\"contact.stages_updated\",\"follow_up.sequence_started\",\"contact.external_id_updated\"]")
   createdAt DateTime @default(now())
   revokedAt DateTime?
 
@@ -72,6 +123,8 @@ model Advisor {
   id        String   @id @default(cuid())
   accountId String
   userId    String?
+  /// Sucursal operativa (F3-E4++): si está definida, el usuario asesor vinculado solo ve contactos de esa sucursal o sin sucursal.
+  branchId  String?
   name      String
   email     String?
   phone     String?
@@ -80,8 +133,11 @@ model Advisor {
   updatedAt DateTime @updatedAt
 
   account     Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  branch      Branch?      @relation(fields: [branchId], references: [id], onDelete: SetNull)
   user        User?        @relation(fields: [userId], references: [id])
   assignments Assignment[]
+
+  @@index([accountId, branchId])
 }
 
 // =============================================================================
@@ -91,6 +147,7 @@ model Advisor {
 model Contact {
   id        String   @id @default(cuid())
   accountId String
+  branchId  String?
 
   // Identificación
   email     String?
@@ -109,6 +166,7 @@ model Contact {
   updatedAt DateTime @updatedAt
 
   account        Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  branch         Branch?         @relation(fields: [branchId], references: [id], onDelete: SetNull)
   conversations  Conversation[]
   searchProfiles SearchProfile[]
   leadScores     LeadScore[]
@@ -120,6 +178,9 @@ model Contact {
   recommendations Recommendation[]
   propertyMatches PropertyMatch[]
   followUpSequences FollowUpSequence[]
+
+  /// Un mismo ID de CRM no puede repetirse por cuenta (varias filas con externalId null sí).
+  @@unique([accountId, externalId])
 }
 
 model Conversation {

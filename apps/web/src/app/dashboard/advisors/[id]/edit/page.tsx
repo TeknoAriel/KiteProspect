@@ -17,11 +17,12 @@ export default async function EditAdvisorPage({
   const { id } = await params;
   const canMutate = session.user.role ? CAN_MUTATE.has(session.user.role) : false;
 
-  const [row, tenantUsers] = await Promise.all([
+  const [row, tenantUsers, branches] = await Promise.all([
     prisma.advisor.findFirst({
       where: { id, accountId: session.user.accountId },
       include: {
         user: { select: { email: true, name: true } },
+        branch: { select: { id: true, name: true, slug: true } },
         _count: { select: { assignments: true } },
       },
     }),
@@ -29,6 +30,12 @@ export default async function EditAdvisorPage({
       where: { accountId: session.user.accountId },
       orderBy: { email: "asc" },
       select: { id: true, email: true, name: true },
+      take: 200,
+    }),
+    prisma.branch.findMany({
+      where: { accountId: session.user.accountId, status: "active" },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, slug: true },
       take: 200,
     }),
   ]);
@@ -43,7 +50,7 @@ export default async function EditAdvisorPage({
         ← Asesores
       </Link>
       <h1 style={{ marginTop: "1rem" }}>{canMutate ? "Editar asesor" : "Detalle de asesor"}</h1>
-      <AdvisorForm canMutate={canMutate} mode="edit" initial={initial} tenantUsers={tenantUsers} />
+      <AdvisorForm canMutate={canMutate} mode="edit" initial={initial} tenantUsers={tenantUsers} branches={branches} />
       {canMutate && <AdvisorDeleteButton advisorId={initial.id} />}
     </div>
   );

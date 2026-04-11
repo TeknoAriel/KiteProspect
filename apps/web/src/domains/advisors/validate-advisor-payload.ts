@@ -68,6 +68,16 @@ export function parseAdvisorCreateBody(body: unknown): ParseResult {
   };
   if (userId !== undefined) data.userId = userId;
 
+  if (o.branchId !== undefined) {
+    if (o.branchId === null || o.branchId === "") {
+      data.branchId = null;
+    } else if (typeof o.branchId === "string" && o.branchId.trim()) {
+      data.branchId = o.branchId.trim();
+    } else {
+      return { ok: false, error: "branchId inválido" };
+    }
+  }
+
   return { ok: true, data };
 }
 
@@ -114,6 +124,16 @@ export function parseAdvisorPatchBody(body: unknown): ParseResult {
       data.userId = o.userId.trim();
     } else {
       return { ok: false, error: "userId inválido" };
+    }
+  }
+
+  if ("branchId" in o) {
+    if (o.branchId === null || o.branchId === "") {
+      data.branchId = null;
+    } else if (typeof o.branchId === "string" && o.branchId.trim()) {
+      data.branchId = o.branchId.trim();
+    } else {
+      return { ok: false, error: "branchId inválido" };
     }
   }
 

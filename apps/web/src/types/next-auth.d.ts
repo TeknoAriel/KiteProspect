@@ -15,6 +15,8 @@ declare module "next-auth" {
       role: string;
       accountId: string;
       accountSlug: string;
+      /** Sucursal del registro `Advisor` vinculado al usuario (solo rol advisor). */
+      advisorBranchId: string | null;
     };
   }
 }

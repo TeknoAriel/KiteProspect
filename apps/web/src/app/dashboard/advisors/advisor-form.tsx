@@ -6,15 +6,17 @@ import type { SerializedAdvisor } from "@/domains/advisors/advisor-types";
 import { ADVISOR_STATUSES } from "@/domains/advisors/validate-advisor-payload";
 
 type TenantUserOption = { id: string; email: string; name: string | null };
+type BranchOption = { id: string; name: string; slug: string };
 
 type Props = {
   canMutate: boolean;
   mode: "create" | "edit";
   initial?: SerializedAdvisor;
   tenantUsers: TenantUserOption[];
+  branches: BranchOption[];
 };
 
-export function AdvisorForm({ canMutate, mode, initial, tenantUsers }: Props) {
+export function AdvisorForm({ canMutate, mode, initial, tenantUsers, branches }: Props) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -24,6 +26,7 @@ export function AdvisorForm({ canMutate, mode, initial, tenantUsers }: Props) {
   const [phone, setPhone] = useState(initial?.phone ?? "");
   const [status, setStatus] = useState(initial?.status ?? "active");
   const [userId, setUserId] = useState(initial?.userId ?? "");
+  const [branchId, setBranchId] = useState(initial?.branchId ?? "");
 
   if (!canMutate) {
     return (
@@ -46,6 +49,10 @@ export function AdvisorForm({ canMutate, mode, initial, tenantUsers }: Props) {
           <dt style={{ color: "#666", margin: 0 }}>Estado</dt>
           <dd style={{ margin: 0 }}>{initial?.status ?? "—"}</dd>
         </div>
+        <div>
+          <dt style={{ color: "#666", margin: 0 }}>Sucursal</dt>
+          <dd style={{ margin: 0 }}>{initial?.branchName ?? "—"}</dd>
+        </div>
       </dl>
     );
   }
@@ -61,6 +68,7 @@ export function AdvisorForm({ canMutate, mode, initial, tenantUsers }: Props) {
         email: email.trim() === "" ? null : email.trim().toLowerCase(),
         phone: phone.trim() === "" ? null : phone.trim(),
         userId: userId === "" ? null : userId,
+        branchId: branchId === "" ? null : branchId,
       };
 
       const url = mode === "create" ? "/api/advisors" : `/api/advisors/${initial!.id}`;
@@ -112,6 +120,22 @@ export function AdvisorForm({ canMutate, mode, initial, tenantUsers }: Props) {
           ))}
         </select>
       </label>
+      {branches.length > 0 ? (
+        <label style={{ display: "grid", gap: "0.35rem" }}>
+          <span>Sucursal (opcional)</span>
+          <select value={branchId} onChange={(e) => setBranchId(e.target.value)} style={{ padding: "0.5rem" }}>
+            <option value="">Sin asignar (ve pool y su sucursal al operar)</option>
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+          <span style={{ fontSize: "0.75rem", color: "#666" }}>
+            Con sucursal, en operación solo ve contactos de esa sucursal o sin sucursal asignada.
+          </span>
+        </label>
+      ) : null}
       <label style={{ display: "grid", gap: "0.35rem" }}>
         <span>Usuario de la cuenta (opcional)</span>
         <select value={userId} onChange={(e) => setUserId(e.target.value)} style={{ padding: "0.5rem" }}>

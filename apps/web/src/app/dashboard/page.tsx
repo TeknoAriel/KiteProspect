@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   const session = await requireAuth();
   const accountId = session.user.accountId;
 
-  const kpis = await getDashboardKpisForAccount(accountId);
+  const kpis = await getDashboardKpisForAccount(accountId, { session });
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "1200px", margin: "0 auto" }}>
@@ -58,6 +58,16 @@ export default async function DashboardPage() {
           <Link href="/dashboard/advisors" style={{ textDecoration: "none", color: "#0070f3" }}>
             Asesores
           </Link>
+          {(session.user.role === "admin" || session.user.role === "coordinator") && (
+            <>
+              <Link href="/dashboard/demo-channels" style={{ textDecoration: "none", color: "#0070f3" }}>
+                Demo canales
+              </Link>
+              <Link href="/dashboard/demo-simulation" style={{ textDecoration: "none", color: "#0070f3" }}>
+                Lab 20 escenarios
+              </Link>
+            </>
+          )}
         </nav>
       </header>
 

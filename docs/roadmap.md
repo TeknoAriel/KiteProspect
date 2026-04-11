@@ -68,7 +68,7 @@ Alineado con **PRODUCT_DEFINITION.md**. Los ítems son **épicas / entregables**
 ## Backlog transversal (cualquier fase)
 
 - Tests automatizados en políticas de scoring y matching (parcial: Vitest + `score-property-match.test.ts`, ver `slice-s24-matching-tests-scoring-fit.md`).
-- Observabilidad: logs estructurados, trazas por `accountId` / `contactId`.
+- Observabilidad: logs estructurados, trazas por `accountId` / `contactId` (refuerzo L23: health extendido, cabeceras HTTP, rate limit suave en `POST /api/auth/*`; ver `slice-l23-production-hardening.md`). **L25–L26:** HSTS en Vercel, `robots.txt`, `security.txt`, health sin caché + `runtime`/`security` en JSON (`slice-l25-production-hardening-ii.md`, `slice-l26-production-hardening-iii.md`).
 - Documentación de runbooks en `docs/` cuando haya despliegue real.
 
 ---

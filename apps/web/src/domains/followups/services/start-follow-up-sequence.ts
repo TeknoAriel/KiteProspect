@@ -4,6 +4,7 @@
  */
 import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { emitAccountWebhooks } from "@/domains/integrations/services/emit-account-webhooks";
 import { getOfficialMatrixRow } from "@/domains/core-prospeccion/follow-up-official-matrix";
 import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
 import { parsePlanSequence } from "./process-due-follow-ups";
@@ -75,6 +76,16 @@ export async function startFollowUpSequenceForContact(
       maxAttempts: plan.maxAttempts,
     },
   });
+
+  void emitAccountWebhooks({
+    accountId: input.accountId,
+    event: "follow_up.sequence_started",
+    data: {
+      contactId: input.contactId,
+      followUpSequenceId: seq.id,
+      followUpPlanId: plan.id,
+    },
+  }).catch((e) => console.error("[webhook] follow_up.sequence_started", e));
 
   return { ok: true, sequenceId: seq.id };
 }

@@ -19,7 +19,7 @@ Usar **clave dedicada Ed25519** para GitHub (no la clave por defecto del sistema
 
 Registrar en GitHub la **clave pública** (contenido completo del `.pub`): [Settings → SSH and GPG keys](https://github.com/settings/keys). **No** commitear ni compartir la clave privada.
 
-Pasos enumerados: `docs/manual-actions-required.md` (ítem 11).
+Pasos enumerados: `docs/manual-actions-required.md` (ítem 13).
 
 ## Pendiente
 

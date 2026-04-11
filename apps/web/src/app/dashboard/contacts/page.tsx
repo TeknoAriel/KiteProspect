@@ -1,4 +1,5 @@
 import { requireAuth } from "@/lib/server-utils";
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { formatChannelLabel } from "@/domains/analytics/channel-label";
 import {
   COMMERCIAL_STAGES,
@@ -36,8 +37,19 @@ export default async function ContactsPage(props: {
   const qRaw = parseParam(searchParams.q);
   const commercialParam = parseParam(searchParams.commercial);
   const convParam = parseParam(searchParams.conv);
+  const branchParam = parseParam(searchParams.branch);
   const pageRaw = parseParam(searchParams.page);
   const pageSizeRaw = parseParam(searchParams.pageSize);
+
+  const branchesAll = await prisma.branch.findMany({
+    where: { accountId, status: "active" },
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
+  const advisorBid = session.user.role === "advisor" ? session.user.advisorBranchId : null;
+  const branchesForFilter = advisorBid
+    ? branchesAll.filter((b) => b.id === advisorBid)
+    : branchesAll;
 
   const q = (qRaw ?? "").trim().slice(0, MAX_Q_LEN);
 
@@ -51,29 +63,42 @@ export default async function ContactsPage(props: {
       ? convParam
       : "all";
 
+  const branchFilter =
+    branchParam &&
+    branchParam !== "all" &&
+    branchesForFilter.some((b) => b.id === branchParam)
+      ? branchParam
+      : "all";
+
   let page = parseInt(pageRaw ?? "1", 10);
   if (!Number.isFinite(page) || page < 1) page = 1;
   let pageSize = parseInt(pageSizeRaw ?? String(DEFAULT_PAGE_SIZE), 10);
   if (!Number.isFinite(pageSize)) pageSize = DEFAULT_PAGE_SIZE;
   pageSize = Math.min(MAX_PAGE_SIZE, Math.max(MIN_PAGE_SIZE, pageSize));
 
-  const baseWhere: Prisma.ContactWhereInput = {
-    accountId,
+  const scope = contactWhereForAdvisorRole(accountId, session);
+  const filterBlock: Prisma.ContactWhereInput = {
     ...(commercialFilter !== "all" ? { commercialStage: commercialFilter } : {}),
     ...(convFilter !== "all" ? { conversationalStage: convFilter } : {}),
+    ...(branchFilter !== "all" ? { branchId: branchFilter } : {}),
   };
 
   const where: Prisma.ContactWhereInput =
     q.length > 0
       ? {
-          ...baseWhere,
-          OR: [
-            { name: { contains: q, mode: "insensitive" } },
-            { email: { contains: q, mode: "insensitive" } },
-            { phone: { contains: q, mode: "insensitive" } },
+          AND: [
+            scope,
+            filterBlock,
+            {
+              OR: [
+                { name: { contains: q, mode: "insensitive" } },
+                { email: { contains: q, mode: "insensitive" } },
+                { phone: { contains: q, mode: "insensitive" } },
+              ],
+            },
           ],
         }
-      : baseWhere;
+      : { AND: [scope, filterBlock] };
 
   const total = await prisma.contact.count({ where });
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -86,6 +111,9 @@ export default async function ContactsPage(props: {
     skip: (page - 1) * pageSize,
     take: pageSize,
     include: {
+      branch: {
+        select: { name: true, slug: true },
+      },
       conversations: {
         select: { channel: true },
         orderBy: { createdAt: "asc" },
@@ -117,6 +145,7 @@ export default async function ContactsPage(props: {
     q: q || undefined,
     commercial: commercialFilter === "all" ? undefined : commercialFilter,
     conv: convFilter === "all" ? undefined : convFilter,
+    branch: branchFilter === "all" ? undefined : branchFilter,
     pageSize: pageSize === DEFAULT_PAGE_SIZE ? undefined : String(pageSize),
   };
 
@@ -177,6 +206,19 @@ export default async function ContactsPage(props: {
             ))}
           </select>
         </label>
+        {branchesForFilter.length > 0 ? (
+          <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666" }}>
+            Sucursal
+            <select name="branch" defaultValue={branchFilter} style={{ padding: "0.4rem", minWidth: "160px" }}>
+              <option value="all">Todas</option>
+              {branchesForFilter.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666" }}>
           Por página
           <select name="pageSize" defaultValue={String(pageSize)} style={{ padding: "0.4rem", minWidth: "100px" }}>
@@ -255,6 +297,21 @@ export default async function ContactsPage(props: {
                       }}
                     >
                       {formatChannelLabel(firstChannel)}
+                    </span>
+                  ) : null}
+                  {contact.branch ? (
+                    <span
+                      style={{
+                        fontSize: "0.72rem",
+                        fontWeight: 600,
+                        padding: "0.2rem 0.5rem",
+                        borderRadius: 999,
+                        background: "#f0f8f0",
+                        color: "#1a5a1a",
+                        border: "1px solid #cce8cc",
+                      }}
+                    >
+                      {contact.branch.name}
                     </span>
                   ) : null}
                 </div>

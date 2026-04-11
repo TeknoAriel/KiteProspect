@@ -18,6 +18,13 @@ export function buildOperationalReportsCsv(data: OperationalReports): string {
   const lines: string[] = [];
   lines.push(row(["seccion", "clave", "valor"]));
   lines.push(row(["resumen", "periodo_dias", String(data.periodDays)]));
+  if (data.branchFilter) {
+    lines.push(row(["resumen", "sucursal_id", data.branchFilter.id]));
+    lines.push(row(["resumen", "sucursal_slug", data.branchFilter.slug]));
+    lines.push(row(["resumen", "sucursal_nombre", data.branchFilter.name]));
+  } else {
+    lines.push(row(["resumen", "sucursal", "todas"]));
+  }
   lines.push(row(["resumen", "nuevos_contactos", String(data.newContactsInPeriod)]));
   lines.push(row(["resumen", "tareas_pendientes", String(data.pendingTasksCount)]));
   lines.push(row(["resumen", "seguimientos_activos", String(data.activeFollowUpSequencesCount)]));
@@ -53,6 +60,17 @@ export function buildOperationalReportsCsv(data: OperationalReports): string {
         : "",
     ]),
   );
+
+  for (const c of data.cohortRollingWeeks) {
+    lines.push(row(["cohorte_7d", c.label, String(c.newContacts)]));
+    lines.push(
+      row([
+        "cohorte_7d_rango_utc",
+        c.label,
+        `${c.rangeStartUtc}..${c.rangeEndUtc}`,
+      ]),
+    );
+  }
 
   for (const r of data.newContactsByFirstChannel) {
     lines.push(row(["nuevos_por_canal_primer_hilo", r.channel, String(r.count)]));

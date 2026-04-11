@@ -43,6 +43,7 @@ El script **no** debe alojarse en otro dominio distinto al de la app Kite: el or
 
 - **Cabecera:** `Authorization: Bearer <token>` o `X-Capture-Secret: <token>`, donde el token es **(a)** el mismo valor que `CAPTURE_API_SECRET` en el hosting (secreto global), **y/o (b)** una clave por tenant `kp_<16 hex>_<32 hex>` generada en **Centro de cuenta → API captura** (`/dashboard/account/capture-api-keys`, solo admin). Sin secreto global, cada cuenta debe tener al menos una clave activa. Ver `docs/decisions/slice-f3e2-capture-api-keys-tenant.md`.
 - **Cuerpo JSON mínimo:** `accountSlug`, y al menos `email` o `phone` (teléfono con **7–15 dígitos** si es el único identificador).
+- **Opcional:** `branchSlug` — slug de una sucursal **activa** definida en **Centro de cuenta → Sucursales**; asigna o actualiza el contacto a esa sucursal (`slice-l15-f3e4-multi-branch-mvp.md`). Si el slug no existe, se ignora.
 - **Errores comunes:** `400` (validación / JSON inválido), `401` (secreto incorrecto), `404` (slug/UUID de cuenta), `429` (demasiadas peticiones desde la misma IP; ver `Retry-After`), `503` (captura deshabilitada sin `CAPTURE_API_SECRET`).
 - **Límite de tasa (opcional):** `CAPTURE_RATE_LIMIT_MAX` y `CAPTURE_RATE_LIMIT_WINDOW_SEC` en el entorno (ver `.env.example`).
 
@@ -125,6 +126,22 @@ Tras un envío correcto:
 5. `/lead` con `ENABLE_PUBLIC_LEAD_FORM=true`: envío válido → mensaje de éxito; honeypot relleno → sin error visible (idle).
 6. **S02:** `/embed/lead?slug=demo` carga en iframe desde otra pestaña o desde una página HTML que incluya el snippet del script; envío válido → contacto con canal `web_widget` en conversación.
 7. **S03:** abrir `docs/examples/landing-static-widget.html` en el editor, sustituir dominio/slug; o desplegar el proxy de ejemplo con env `KITE_*` y comprobar `200` / contacto con canal `landing`.
+
+## 6. CRM externo: ID en el sistema remoto (F3-E1, slice mínimo)
+
+Tras crear o localizar un contacto, un backend puede **guardar el identificador devuelto por el CRM** en `Contact.externalId`:
+
+- **Rutas:** `GET` (lectura vínculo + etapas) y `PATCH` (escritura) en `/api/contacts/{id}/external`
+- **Cabeceras:** igual que §3 (`Authorization: Bearer …` o `X-Capture-Secret`), con **secreto global** o **API key por tenant** `kp_…`. En **GET** con secreto global, `accountId` va en la **query** (`?accountId=…`), no en JSON.
+- **Cuerpo JSON:** `{ "externalId": "…" }` (string no vacío) o `{ "externalId": null }` para borrar el vínculo.
+- **Secreto global:** incluí `"accountId": "<uuid de la cuenta del contacto>"` en el mismo JSON (obligatorio para acotar el tenant).
+- **Respuesta:** `{ "ok": true, "contact": { "id", "externalId" } }`. En panel: ficha de contacto → bloque **CRM externo** (admin/coordinador).
+- **Resolución inversa (L22):** `GET /api/contacts/resolve-external?accountSlug=demo&externalId=<id-en-CRM>` (o `accountId` en lugar de slug), mismas cabeceras de captura. Devuelve `id` del contacto en Kite y etapas; **404** si no hay fila con ese `externalId` en el tenant.
+- **Unicidad (L27):** no puede haber dos contactos del mismo tenant con el mismo `externalId` no nulo; el `PATCH` responde **409** y el cuerpo puede incluir `conflictContactId`.
+
+Contrato OpenAPI: `openapi-capture-v1.yaml` (`getContactExternal`, `patchContactExternal`, `resolveContactByExternalId`).
+
+Decisión: `docs/decisions/slice-l18-f3e1-crm-external-id-connector.md`.
 
 ## Referencias
 

@@ -11,8 +11,30 @@ loadEnvConfig(monorepoRoot);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
   transpilePackages: ["@kite-prospect/db"],
   async headers() {
+    const globalHeaders = [
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value: "camera=(), microphone=(), geolocation=()",
+      },
+    ];
+    /** Solo en despliegues Vercel (build con VERCEL=1): fuerza HTTPS en clientes compatibles. */
+    if (process.env.VERCEL === "1") {
+      globalHeaders.push({
+        key: "Strict-Transport-Security",
+        value: "max-age=63072000; includeSubDomains; preload",
+      });
+    }
     return [
       {
         source: "/embed/:path*",
@@ -22,6 +44,19 @@ const nextConfig = {
             value: "frame-ancestors *",
           },
         ],
+      },
+      {
+        source: "/dashboard/:path*",
+        headers: [
+          {
+            key: "X-Frame-Options",
+            value: "DENY",
+          },
+        ],
+      },
+      {
+        source: "/:path*",
+        headers: globalHeaders,
       },
     ];
   },

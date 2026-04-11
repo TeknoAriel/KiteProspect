@@ -7,7 +7,15 @@ import { prisma } from "@kite-prospect/db";
 
 export const dynamic = "force-dynamic";
 
+const noStoreHeaders = {
+  "Cache-Control": "no-store, must-revalidate",
+  Pragma: "no-cache",
+};
+
 export async function GET() {
+  const onVercel = process.env.VERCEL === "1";
+  const nodeEnv = process.env.NODE_ENV ?? "development";
+
   try {
     await prisma.$queryRaw`SELECT 1`;
   } catch (e) {
@@ -17,8 +25,10 @@ export async function GET() {
         ok: false,
         database: "error",
         hint: "Revisa DATABASE_URL en Vercel y que Neon esté activo.",
+        runtime: { nodeEnv, vercel: onVercel },
+        security: { hsts: onVercel },
       },
-      { status: 503 },
+      { status: 503, headers: noStoreHeaders },
     );
   }
 
@@ -45,6 +55,17 @@ export async function GET() {
   const whatsAppOutboundConfigured =
     (process.env.WHATSAPP_PHONE_NUMBER_ID?.trim() ?? "").length > 0 &&
     (process.env.WHATSAPP_ACCESS_TOKEN?.trim() ?? "").length > 0;
+  const followUpSmsTwilioConfigured =
+    (process.env.TWILIO_ACCOUNT_SID?.trim() ?? "").length > 0 &&
+    (process.env.TWILIO_AUTH_TOKEN?.trim() ?? "").length > 0 &&
+    (process.env.TWILIO_FROM_NUMBER?.trim() ?? "").length > 0;
+  const followUpSmsTelnyxConfigured =
+    (process.env.TELNYX_API_KEY?.trim() ?? "").length > 0 &&
+    (process.env.TELNYX_FROM_NUMBER?.trim() ?? "").length > 0;
+  const smsProviderExpected = (process.env.SMS_PROVIDER ?? "twilio").trim().toLowerCase();
+  const followUpSmsProvider = smsProviderExpected === "telnyx" ? "telnyx" : "twilio";
+  const followUpSmsConfigured =
+    followUpSmsProvider === "telnyx" ? followUpSmsTelnyxConfigured : followUpSmsTwilioConfigured;
   const aiProvider = (
     process.env.AI_PROVIDER?.trim().toLowerCase() || "gemini"
   ) as "gemini" | "openai";
@@ -54,6 +75,8 @@ export async function GET() {
       : (process.env.GEMINI_API_KEY?.trim() ?? "").length > 0;
 
   const deployCommit = process.env.VERCEL_GIT_COMMIT_SHA?.trim() || null;
+  const vercelEnv = process.env.VERCEL_ENV?.trim() || null;
+  const vercelDeploymentId = process.env.VERCEL_DEPLOYMENT_ID?.trim() || null;
 
   const demoAccount = await prisma.account.findUnique({
     where: { slug: "demo" },
@@ -74,6 +97,17 @@ export async function GET() {
   const pwd = demoUserRow?.password ?? "";
   const demoPasswordLooksBcrypt = /^\$2[aby]\$/.test(pwd);
 
+  const demoAdvisorUserRow = demoAccount
+    ? await prisma.user.findFirst({
+        where: {
+          accountId: demoAccount.id,
+          email: { equals: "advisor@demo.local", mode: "insensitive" },
+        },
+        select: { id: true, status: true, role: true },
+      })
+    : null;
+  const demoAdvisorUser = !!demoAdvisorUserRow && demoAdvisorUserRow.role === "advisor";
+
   const issues: string[] = [];
   if (!demoAccount || !demoUserRow) {
     issues.push("falta_cuenta_o_usuario_demo");
@@ -90,6 +124,9 @@ export async function GET() {
   }
   if (demoUserRow && !demoPasswordLooksBcrypt) {
     issues.push("password_demo_no_es_bcrypt");
+  }
+  if (demoAccount && demoUser && !demoAdvisorUser) {
+    issues.push("falta_usuario_asesor_demo");
   }
 
   let hint: string;
@@ -110,33 +147,54 @@ export async function GET() {
   } else if (isDeployed && !authUrlConfigured) {
     hint =
       "Falta AUTH_URL con la URL pública exacta de la app (sin barra final). En Vercel suele ser https://TU-PROYECTO.vercel.app — sin esto el login puede fallar en producción.";
+  } else if (issues.includes("falta_usuario_asesor_demo")) {
+    hint =
+      "Cuenta demo sin usuario asesor (advisor@demo.local). Volvé a correr seed: npm run db:seed (local) o redeploy con seed en Vercel.";
   } else {
     hint =
-      "Demo listo. Si la sesión se cerró sola: suele ser redeploy o cambio de AUTH_SECRET (normal). Login: demo / admin@demo.local / demo123.";
+      "Demo listo. Si la sesión se cerró sola: suele ser redeploy o cambio de AUTH_SECRET (normal). Login admin: demo / admin@demo.local / demo123. Asesor demo (L21): advisor@demo.local / demo123.";
   }
 
-  return NextResponse.json({
-    ok: true,
-    database: "connected",
-    demoAccount: !!demoAccount,
-    demoAccountStatus: demoAccount?.status ?? null,
-    demoUser,
-    demoUserStatus: demoUserRow?.status ?? null,
-    authSecretConfigured,
-    authSecretLongEnough,
-    authUrlConfigured,
-    demoPasswordLooksBcrypt: demoUserRow ? demoPasswordLooksBcrypt : null,
-    integrations: {
-      captureApi: captureSecretConfigured,
-      cron: cronSecretConfigured,
-      followUpEmailResend: resendConfigured,
-      whatsAppWebhook: whatsAppWebhookConfigured,
-      whatsAppOutbound: whatsAppOutboundConfigured,
-      aiConversational: aiConfigured,
-      aiProviderExpected: aiProvider,
+  return NextResponse.json(
+    {
+      ok: true,
+      database: "connected",
+      runtime: { nodeEnv, vercel: onVercel },
+      security: {
+        hsts: onVercel,
+        poweredByHeaderDisabled: true,
+      },
+      demoAccount: !!demoAccount,
+      demoAccountStatus: demoAccount?.status ?? null,
+      demoUser,
+      demoAdvisorUser,
+      demoAdvisorUserStatus: demoAdvisorUserRow?.status ?? null,
+      demoUserStatus: demoUserRow?.status ?? null,
+      authSecretConfigured,
+      authSecretLongEnough,
+      authUrlConfigured,
+      demoPasswordLooksBcrypt: demoUserRow ? demoPasswordLooksBcrypt : null,
+      integrations: {
+        captureApi: captureSecretConfigured,
+        cron: cronSecretConfigured,
+        followUpEmailResend: resendConfigured,
+        followUpSmsTwilio: followUpSmsTwilioConfigured,
+        followUpSmsTelnyx: followUpSmsTelnyxConfigured,
+        followUpSmsProvider,
+        followUpSmsConfigured,
+        whatsAppWebhook: whatsAppWebhookConfigured,
+        whatsAppOutbound: whatsAppOutboundConfigured,
+        aiConversational: aiConfigured,
+        aiProviderExpected: aiProvider,
+      },
+      deploy: {
+        ...(deployCommit ? { commit: deployCommit } : {}),
+        ...(vercelEnv ? { vercelEnv } : {}),
+        ...(vercelDeploymentId ? { deploymentId: vercelDeploymentId } : {}),
+      },
+      issues,
+      hint,
     },
-    deploy: deployCommit ? { commit: deployCommit } : {},
-    issues,
-    hint,
-  });
+    { headers: noStoreHeaders },
+  );
 }

@@ -1,6 +1,17 @@
 import { formatChannelLabel } from "@/domains/analytics/channel-label";
+import {
+  buildOperationalReportsExportUrl,
+  buildReportesDashboardUrl,
+  parseOperationalReportBranchIdParam,
+  resolveOperationalBranchFilter,
+} from "@/domains/analytics/operational-reports-branch";
+import {
+  OPERATIONAL_REPORT_PERIOD_OPTIONS,
+  parseOperationalReportPeriodDays,
+} from "@/domains/analytics/operational-reports-period";
 import { getOperationalReportsForAccount } from "@/domains/analytics/get-operational-reports";
 import { requireAuth } from "@/lib/server-utils";
+import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 
 function formatMinutes(m: number | null): string {
@@ -14,10 +25,38 @@ function formatMinutes(m: number | null): string {
   return `${rounded} min`;
 }
 
-export default async function ReportesPage() {
+export default async function ReportesPage(props: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await requireAuth();
-  const reports = await getOperationalReportsForAccount(session.user.accountId);
+  const accountId = session.user.accountId;
+  const sp = (await props.searchParams) ?? {};
+  const daysRaw = Array.isArray(sp.days) ? sp.days[0] : sp.days;
+  const periodDays = parseOperationalReportPeriodDays(daysRaw);
+  const branchParam = parseOperationalReportBranchIdParam(
+    Array.isArray(sp.branchId) ? sp.branchId[0] : sp.branchId,
+  );
+  const [{ branchId, branchFilter }, branches] = await Promise.all([
+    resolveOperationalBranchFilter(accountId, branchParam, session),
+    prisma.branch.findMany({
+      where: { accountId, status: "active" },
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, slug: true },
+    }),
+  ]);
+  const reports = await getOperationalReportsForAccount(accountId, {
+    session,
+    periodDays,
+    branchId,
+    branchFilter,
+  });
   const fr = reports.firstResponseTime;
+  const scopeLabel = reports.branchFilter
+    ? `Sucursal: ${reports.branchFilter.name}`
+    : "Todas las sucursales";
+  const advisorBid = session.user.role === "advisor" ? session.user.advisorBranchId : null;
+  const branchesForNav =
+    advisorBid ? branches.filter((b) => b.id === advisorBid) : branches;
 
   return (
     <div style={{ padding: "2rem", fontFamily: "system-ui", maxWidth: "960px", margin: "0 auto" }}>
@@ -33,9 +72,65 @@ export default async function ReportesPage() {
           mensaje saliente del equipo en el mismo hilo; solo hilos cuya primera entrada cae en el período
           (UTC).
         </p>
+        <p style={{ marginTop: "0.75rem", fontSize: "0.85rem", color: "#555" }}>
+          Ventana principal:{" "}
+          {OPERATIONAL_REPORT_PERIOD_OPTIONS.map((d, i) => (
+            <span key={d}>
+              {i > 0 ? " · " : ""}
+              {d === reports.periodDays ? (
+                <strong>{d} días</strong>
+              ) : (
+                <Link
+                  href={buildReportesDashboardUrl({ days: d, branchId: reports.branchFilter?.id })}
+                  style={{ color: "#0070f3" }}
+                >
+                  {d} días
+                </Link>
+              )}
+            </span>
+          ))}{" "}
+          (UTC). Cohorte de 4×7 días debajo es fija (tendencia de altas).
+        </p>
+        {branchesForNav.length > 0 ? (
+          <p style={{ marginTop: "0.65rem", fontSize: "0.85rem", color: "#444" }}>
+            <strong>Alcance:</strong> {scopeLabel}
+            {advisorBid ? (
+              <span style={{ marginLeft: "0.35rem", color: "#666" }}>
+                (solo tu sucursal y pool sin sucursal)
+              </span>
+            ) : null}
+            {" · "}
+            <Link
+              href={buildReportesDashboardUrl({ days: reports.periodDays, branchId: null })}
+              style={{
+                color: reports.branchFilter ? "#0070f3" : "#333",
+                fontWeight: reports.branchFilter ? 400 : 700,
+              }}
+            >
+              Todas
+            </Link>
+            {branchesForNav.map((b) => (
+              <span key={b.id}>
+                {" · "}
+                <Link
+                  href={buildReportesDashboardUrl({ days: reports.periodDays, branchId: b.id })}
+                  style={{
+                    color: "#0070f3",
+                    fontWeight: reports.branchFilter?.id === b.id ? 700 : 400,
+                  }}
+                >
+                  {b.name}
+                </Link>
+              </span>
+            ))}
+          </p>
+        ) : null}
         <p style={{ marginTop: "0.75rem" }}>
           <a
-            href="/api/exports/operational-reports"
+            href={buildOperationalReportsExportUrl({
+              days: reports.periodDays,
+              branchId: reports.branchFilter?.id,
+            })}
             style={{
               display: "inline-block",
               padding: "0.45rem 0.9rem",
@@ -105,6 +200,34 @@ export default async function ReportesPage() {
       </div>
 
       <section style={{ marginBottom: "2rem" }}>
+        <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>
+          Cohorte de nuevos contactos (ventanas de 7 días, UTC)
+        </h2>
+        <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
+          Misma lógica que el CSV (sección <code style={{ fontSize: "0.78rem" }}>cohorte_7d</code>). Tendencia de
+          altas en bloques recientes (F3-E6).
+        </p>
+        <div style={{ overflowX: "auto", border: "1px solid #e8e8e8", borderRadius: 8 }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.875rem" }}>
+            <thead>
+              <tr style={{ background: "#fafafa", textAlign: "left" }}>
+                <th style={{ padding: "0.5rem 0.75rem", borderBottom: "1px solid #eee" }}>Ventana</th>
+                <th style={{ padding: "0.5rem 0.75rem", borderBottom: "1px solid #eee" }}>Nuevos contactos</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.cohortRollingWeeks.map((row) => (
+                <tr key={row.label}>
+                  <td style={{ padding: "0.45rem 0.75rem", borderBottom: "1px solid #f0f0f0" }}>{row.label}</td>
+                  <td style={{ padding: "0.45rem 0.75rem", borderBottom: "1px solid #f0f0f0" }}>{row.newContacts}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section style={{ marginBottom: "2rem" }}>
         <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>Primera respuesta del equipo (SLA)</h2>
         <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
           Hilos con primera entrada en los últimos {reports.periodDays} días (UTC):{" "}
@@ -164,9 +287,11 @@ export default async function ReportesPage() {
       </section>
 
       <section style={{ marginBottom: "2rem" }}>
-        <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>Embudo conversacional (todos los contactos)</h2>
+        <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>
+          Embudo conversacional ({reports.branchFilter ? `sucursal “${reports.branchFilter.name}”` : "todo el tenant"})
+        </h2>
         <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
-          Distribución actual de <code>conversationalStage</code>.
+          Distribución actual de <code>conversationalStage</code> en el alcance seleccionado.
         </p>
         {reports.conversationalStageCounts.length === 0 ? (
           <p style={{ fontSize: "0.875rem", color: "#666" }}>Sin datos.</p>
@@ -202,9 +327,11 @@ export default async function ReportesPage() {
       </section>
 
       <section style={{ marginBottom: "2rem" }}>
-        <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>Embudo comercial (todos los contactos)</h2>
+        <h2 style={{ fontSize: "1.05rem", marginBottom: "0.5rem" }}>
+          Embudo comercial ({reports.branchFilter ? `sucursal “${reports.branchFilter.name}”` : "todo el tenant"})
+        </h2>
         <p style={{ fontSize: "0.8rem", color: "#666", marginTop: 0, marginBottom: "0.75rem" }}>
-          Distribución actual de <code>commercialStage</code>.
+          Distribución actual de <code>commercialStage</code> en el alcance seleccionado.
         </p>
         {reports.commercialStageCounts.length === 0 ? (
           <p style={{ fontSize: "0.875rem", color: "#666" }}>Sin datos.</p>

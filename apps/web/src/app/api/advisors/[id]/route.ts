@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { recordAuditEvent } from "@/lib/audit";
 import { serializeAdvisor } from "@/domains/advisors/advisor-serialization";
+import { assertBranchBelongsToAccount } from "@/domains/advisors/assert-advisor-branch";
 import { parseAdvisorPatchBody } from "@/domains/advisors/validate-advisor-payload";
 
 export const dynamic = "force-dynamic";
@@ -103,6 +104,11 @@ export async function PATCH(
     if (!check.ok) return NextResponse.json({ error: check.error }, { status: 409 });
   }
 
+  if (d.branchId !== undefined) {
+    const br = await assertBranchBelongsToAccount(session.user.accountId, d.branchId as string | null);
+    if (!br.ok) return NextResponse.json({ error: br.error }, { status: 400 });
+  }
+
   const updated = await prisma.advisor.update({
     where: { id: existing.id },
     data: {
@@ -111,9 +117,11 @@ export async function PATCH(
       ...(d.phone !== undefined && { phone: d.phone as string | null }),
       ...(d.status !== undefined && { status: d.status as string }),
       ...(d.userId !== undefined && { userId: d.userId as string | null }),
+      ...(d.branchId !== undefined && { branchId: d.branchId as string | null }),
     },
     include: {
       user: { select: { email: true, name: true } },
+      branch: { select: { id: true, name: true, slug: true } },
       _count: { select: { assignments: true } },
     },
   });

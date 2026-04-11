@@ -3,10 +3,11 @@ info:
   title: Kite Prospect — Captura de leads (API pública)
   description: |
     Especificación de `POST /api/contacts/create`: crea o reutiliza contacto, conversación y mensaje inicial.
+    Incluye `GET`/`PATCH /api/contacts/{id}/external` (vínculo CRM + lectura), y `GET /api/contacts/resolve-external` por ID externo (F3-E1 / L22–L28).
     Autenticación: **(1)** secreto global `CAPTURE_API_SECRET` en el servidor; y/o **(2)** API key por tenant `kp_<16hex>_<32hex>` (admin → `/dashboard/account/capture-api-keys`).
     Debe existir al menos un método configurado para la cuenta (global o clave activa del tenant).
     Guía narrativa: `docs/capture-integration.md`.
-  version: 1.0.0
+  version: 1.2.2
 
 servers:
   - url: https://{host}
@@ -18,8 +19,183 @@ servers:
 tags:
   - name: capture
     description: Captura omnicanal (landings, proxy serverless, integraciones server-side)
+  - name: crm_external
+    description: Vínculo con ID en CRM externo (F3-E1)
 
 paths:
+  /api/contacts/resolve-external:
+    get:
+      operationId: resolveContactByExternalId
+      tags: [crm_external]
+      summary: Resolver contacto por ID en CRM externo
+      description: |
+        Busca un contacto del tenant cuyo `externalId` coincida. Misma autenticación que `POST /api/contacts/create`.
+        Query obligatorio: `externalId` (no vacío) y `accountSlug` o `accountId`.
+      security:
+        - CaptureBearer: []
+        - CaptureHeader: []
+        - CaptureTenantBearer: []
+      parameters:
+        - name: accountSlug
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Slug del tenant (alternativa a accountId).
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: UUID de cuenta (alternativa a accountSlug).
+        - name: externalId
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Valor almacenado en `Contact.externalId` (misma normalización que en PATCH).
+      responses:
+        "200":
+          description: Contacto encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResolveSuccess"
+        "400":
+          description: Faltan parámetros o externalId inválido.
+        "401":
+          description: Sin token o token incorrecto.
+        "404":
+          description: Cuenta o contacto no encontrado.
+        "429":
+          description: Límite de frecuencia por IP.
+        "503":
+          description: Captura no configurada para el tenant.
+
+  /api/contacts/{id}/external:
+    get:
+      operationId: getContactExternal
+      tags: [crm_external]
+      summary: Leer vínculo CRM y etapas del contacto
+      description: |
+        Devuelve `externalId`, etapas comercial/conversacional y `branchId` para el `contactId` indicado.
+        **Sesión** admin/coordinador, o **captura** como `POST /api/contacts/create`.
+        Con **secreto global**, query `accountId` = UUID de la cuenta del contacto (no va en el cuerpo).
+      security:
+        - CaptureBearer: []
+        - CaptureHeader: []
+        - CaptureTenantBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del contacto en Kite.
+        - name: accountId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Obligatorio con Bearer = `CAPTURE_API_SECRET` global; debe coincidir con la cuenta del contacto.
+      responses:
+        "200":
+          description: Datos del contacto (misma forma que resolve-external).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactResolveSuccess"
+        "401":
+          description: Sin token, token incorrecto o `accountId` faltante con secreto global.
+        "404":
+          description: Contacto no encontrado o fuera del tenant (sesión).
+        "429":
+          description: Límite de frecuencia por IP.
+        "503":
+          description: Captura no configurada para el tenant del contacto.
+    patch:
+      operationId: patchContactExternal
+      tags: [crm_external]
+      summary: Fijar o borrar ID en CRM externo
+      description: |
+        Actualiza `Contact.externalId`. Misma autenticación que `POST /api/contacts/create`.
+        Con **secreto global**, el cuerpo debe incluir `accountId` (UUID) igual al del contacto.
+        Un mismo `externalId` no puede repetirse entre contactos del tenant (salvo null; L27).
+      security:
+        - CaptureBearer: []
+        - CaptureHeader: []
+        - CaptureTenantBearer: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ID del contacto en Kite (`contactId`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactExternalPatch"
+            examples:
+              setId:
+                summary: ID devuelto por el CRM
+                value:
+                  externalId: "crm-lead-abc123"
+              clear:
+                summary: Quitar vínculo
+                value:
+                  externalId: null
+              globalSecret:
+                summary: Con secreto global (acotar tenant)
+                value:
+                  accountId: "00000000-0000-0000-0000-000000000001"
+                  externalId: "crm-xyz"
+      responses:
+        "200":
+          description: Actualizado o sin cambios (`unchanged` opcional).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactExternalSuccess"
+        "400":
+          description: JSON inválido o validación de `externalId`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "401":
+          description: Secreto ausente, incorrecto o `accountId` faltante con secreto global.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "404":
+          description: Contacto no encontrado.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "409":
+          description: Otro contacto del mismo tenant ya usa ese `externalId`.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExternalIdConflictBody"
+        "429":
+          description: Límite de frecuencia por IP.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+        "503":
+          description: Captura no configurada para el tenant del contacto.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorBody"
+
   /api/contacts/create:
     post:
       operationId: createContactCapture
@@ -129,6 +305,10 @@ components:
         accountId:
           type: string
           description: ID de cuenta (alternativa legacy a accountSlug).
+        branchSlug:
+          type: string
+          description: |
+            Opcional (F3-E4). Slug de sucursal activa de la cuenta; si no existe, se ignora.
         email:
           type: string
           format: email
@@ -154,6 +334,75 @@ components:
           type: string
         conversationId:
           type: string
+
+    ContactExternalPatch:
+      type: object
+      required: [externalId]
+      description: |
+        `externalId` puede ser string (máx. 256 caracteres tras recorte) o `null` para borrar.
+        Con Bearer = `CAPTURE_API_SECRET` global, incluir `accountId` (UUID de la cuenta del contacto).
+      properties:
+        accountId:
+          type: string
+          description: Obligatorio si el token es el secreto global; debe coincidir con la cuenta del contacto.
+        externalId:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: ID en el CRM externo o null para quitar.
+
+    ContactExternalSuccess:
+      type: object
+      required: [ok, contact]
+      properties:
+        ok:
+          type: boolean
+        contact:
+          type: object
+          required: [id]
+          properties:
+            id:
+              type: string
+            externalId:
+              oneOf:
+                - type: string
+                - type: "null"
+            unchanged:
+              type: boolean
+              description: Presente cuando el valor ya era el mismo.
+
+    ContactResolveSuccess:
+      type: object
+      required: [ok, contact]
+      properties:
+        ok:
+          type: boolean
+        contact:
+          type: object
+          required: [id, commercialStage, conversationalStage]
+          properties:
+            id:
+              type: string
+            externalId:
+              type: string
+              nullable: true
+            commercialStage:
+              type: string
+            conversationalStage:
+              type: string
+            branchId:
+              type: string
+              nullable: true
+
+    ExternalIdConflictBody:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        conflictContactId:
+          type: string
+          description: ID del otro contacto que ya tiene ese externalId (si se conoce antes del update).
 
     ErrorBody:
       type: object

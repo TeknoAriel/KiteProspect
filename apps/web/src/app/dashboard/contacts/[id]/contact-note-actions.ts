@@ -1,6 +1,8 @@
 "use server";
 
+import type { Session } from "next-auth";
 import { auth } from "@/lib/auth";
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
@@ -11,9 +13,13 @@ const MAX_NOTE_LEN = 12_000;
 export type AddContactNoteResult = { ok: true } | { ok: false; error: string };
 export type UpdateContactNoteResult = { ok: true } | { ok: false; error: string };
 
-async function assertNoteInTenant(noteId: string, accountId: string) {
+async function assertNoteInTenant(noteId: string, session: Session) {
+  const accountId = session.user.accountId;
   const note = await prisma.note.findFirst({
-    where: { id: noteId },
+    where: {
+      id: noteId,
+      contact: contactWhereForAdvisorRole(accountId, session),
+    },
     include: { contact: { select: { accountId: true, id: true } } },
   });
   if (!note || note.contact.accountId !== accountId) {
@@ -98,7 +104,7 @@ export async function updateContactNoteAction(
     return { ok: false, error: `La nota no puede superar ${MAX_NOTE_LEN} caracteres.` };
   }
 
-  const note = await assertNoteInTenant(noteId, session.user.accountId);
+  const note = await assertNoteInTenant(noteId, session);
   if (!note) {
     return { ok: false, error: "Nota no encontrada." };
   }

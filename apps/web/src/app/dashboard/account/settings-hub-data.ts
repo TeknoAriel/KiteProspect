@@ -16,6 +16,11 @@ export const MVP_MODULES: { name: string; done: boolean; where: string }[] = [
   { name: "Integraciones Meta Lead Ads (pageId + estado)", done: true, where: "/dashboard/account/integrations" },
   { name: "OpenAPI captura pública (POST /api/contacts/create)", done: true, where: "/openapi-capture-v1.yaml" },
   { name: "API keys captura por tenant (Bearer kp_…)", done: true, where: "/dashboard/account/capture-api-keys" },
+  { name: "Webhooks salientes firmados (F3-E3)", done: true, where: "/dashboard/account/webhooks" },
+  { name: "Sucursales por cuenta + filtro CRM (F3-E4 MVP)", done: true, where: "/dashboard/account/branches" },
+  { name: "Seguimiento por SMS (Twilio, canal sms en plan)", done: true, where: "Variables Twilio + planes JSON" },
+  { name: "Demo por canal (hilos simulados sin Meta/Resend/Twilio)", done: true, where: "/dashboard/demo-channels" },
+  { name: "Laboratorio 20 escenarios (reporte IA + seguimiento)", done: true, where: "/dashboard/demo-simulation" },
   { name: "API pública inventario por API key por tenant", done: false, where: "Fase 3+ (roadmap)" },
 ];
 
@@ -48,5 +53,10 @@ export const HOSTING_ENV_ROWS: EnvRow[] = [
     key: "META_LEAD_WEBHOOK_APP_SECRET",
     purpose: "Opcional: HMAC X-Hub-Signature-256 en POST; si no está, el POST sigue sin verificar firma.",
     doc: "docs/decisions/slice-l9-meta-lead-signature-integrations-ui.md",
+  },
+  {
+    key: "TWILIO_ACCOUNT_SID + TWILIO_AUTH_TOKEN + TWILIO_FROM_NUMBER",
+    purpose: "SMS de seguimiento automático cuando el paso del plan usa channel \"sms\".",
+    doc: "docs/decisions/slice-l16-f3e5-sms-twilio-follow-up.md",
   },
 ];

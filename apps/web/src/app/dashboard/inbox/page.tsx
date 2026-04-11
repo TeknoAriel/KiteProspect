@@ -1,9 +1,19 @@
 import { requireAuth } from "@/lib/server-utils";
+import { conversationWhereForAdvisorContact } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
 import type { Prisma } from "@kite-prospect/db";
 
-const CHANNEL_OPTIONS = ["all", "form", "web_widget", "landing", "whatsapp"] as const;
+const CHANNEL_OPTIONS = [
+  "all",
+  "form",
+  "web_widget",
+  "landing",
+  "whatsapp",
+  "email",
+  "sms",
+  "meta_lead",
+] as const;
 const STATUS_OPTIONS = ["all", "active", "closed", "archived"] as const;
 
 const DEFAULT_PAGE_SIZE = 20;
@@ -78,8 +88,8 @@ export default async function InboxPage(props: {
   if (!Number.isFinite(pageSize)) pageSize = DEFAULT_PAGE_SIZE;
   pageSize = Math.min(MAX_PAGE_SIZE, Math.max(MIN_PAGE_SIZE, pageSize));
 
-  const baseWhere: Prisma.ConversationWhereInput = {
-    accountId,
+  const scope = conversationWhereForAdvisorContact(accountId, session);
+  const filterBlock: Prisma.ConversationWhereInput = {
     ...(statusFilter !== "all" ? { status: statusFilter } : {}),
     ...(channelFilter !== "all" ? { channel: channelFilter } : {}),
     ...(Object.keys(updatedAtRange).length > 0 ? { updatedAt: updatedAtRange } : {}),
@@ -88,27 +98,32 @@ export default async function InboxPage(props: {
   const where: Prisma.ConversationWhereInput =
     q.length > 0
       ? {
-          ...baseWhere,
-          OR: [
+          AND: [
+            scope,
+            filterBlock,
             {
-              contact: {
-                OR: [
-                  { name: { contains: q, mode: "insensitive" } },
-                  { email: { contains: q, mode: "insensitive" } },
-                  { phone: { contains: q, mode: "insensitive" } },
-                ],
-              },
-            },
-            {
-              messages: {
-                some: {
-                  content: { contains: q, mode: "insensitive" },
+              OR: [
+                {
+                  contact: {
+                    OR: [
+                      { name: { contains: q, mode: "insensitive" } },
+                      { email: { contains: q, mode: "insensitive" } },
+                      { phone: { contains: q, mode: "insensitive" } },
+                    ],
+                  },
                 },
-              },
+                {
+                  messages: {
+                    some: {
+                      content: { contains: q, mode: "insensitive" },
+                    },
+                  },
+                },
+              ],
             },
           ],
         }
-      : baseWhere;
+      : { AND: [scope, filterBlock] };
 
   const total = await prisma.conversation.count({ where });
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -216,9 +231,12 @@ export default async function InboxPage(props: {
           <select name="channel" defaultValue={channelFilter} style={{ padding: "0.4rem", minWidth: "170px" }}>
             <option value="all">Todos</option>
             <option value="whatsapp">WhatsApp</option>
+            <option value="email">Email</option>
+            <option value="sms">SMS</option>
             <option value="form">Formulario</option>
             <option value="web_widget">Widget</option>
             <option value="landing">Landing</option>
+            <option value="meta_lead">Meta Lead</option>
           </select>
         </label>
         <label style={{ display: "grid", gap: "0.25rem", fontSize: "0.8rem", color: "#666" }}>

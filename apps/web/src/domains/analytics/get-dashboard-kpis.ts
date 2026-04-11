@@ -2,7 +2,12 @@
  * Agregados para el dashboard del tenant (F1-E16 + S33 visibilidad operativa).
  * Sin analytics pesado: lecturas acotadas e index-friendly.
  */
-import { prisma } from "@kite-prospect/db";
+import type { Session } from "next-auth";
+import { prisma, Prisma } from "@kite-prospect/db";
+import {
+  contactWhereForAdvisorRole,
+  conversationWhereForAdvisorContact,
+} from "@/domains/auth-tenancy/advisor-contact-scope";
 
 export type DashboardKpis = {
   contactsTotal: number;
@@ -40,9 +45,16 @@ function dayKeyFromRow(d: Date): string {
 
 export async function getDashboardKpisForAccount(
   accountId: string,
-  opts?: { newContactsDays?: number },
+  opts?: { newContactsDays?: number; session?: Session },
 ): Promise<DashboardKpis> {
   const newContactsDays = opts?.newContactsDays ?? DEFAULT_NEW_DAYS;
+  const session = opts?.session;
+  const contactWhere = session
+    ? contactWhereForAdvisorRole(accountId, session)
+    : { accountId };
+  const convWhere = session
+    ? conversationWhereForAdvisorContact(accountId, session)
+    : { accountId };
   const since = new Date();
   since.setDate(since.getDate() - newContactsDays);
   since.setHours(0, 0, 0, 0);
@@ -62,14 +74,14 @@ export async function getDashboardKpisForAccount(
     channelGroups,
     recentContacts,
   ] = await Promise.all([
-    prisma.contact.count({ where: { accountId } }),
+    prisma.contact.count({ where: contactWhere }),
     prisma.contact.count({
-      where: { accountId, createdAt: { gte: since } },
+      where: { ...contactWhere, createdAt: { gte: since } },
     }),
     prisma.conversation.count({
-      where: { accountId, status: "active" },
+      where: { ...convWhere, status: "active" },
     }),
-    prisma.conversation.count({ where: { accountId } }),
+    prisma.conversation.count({ where: convWhere }),
     prisma.property.count({ where: { accountId } }),
     prisma.property.count({
       where: { accountId, status: "available" },
@@ -99,12 +111,18 @@ export async function getDashboardKpisForAccount(
     }),
   ]);
 
+  const advisorTrendSql =
+    session?.user?.role === "advisor" && session.user.advisorBranchId
+      ? Prisma.sql`AND ("branchId" IS NULL OR "branchId" = ${session.user.advisorBranchId})`
+      : Prisma.empty;
+
   const dayRows = await prisma.$queryRaw<{ d: Date; c: bigint }[]>`
     SELECT CAST("createdAt" AS date) AS d,
            COUNT(*)::bigint AS c
     FROM "Contact"
     WHERE "accountId" = ${accountId}
       AND "createdAt" >= ${trendStart}
+      ${advisorTrendSql}
     GROUP BY 1
     ORDER BY 1 ASC
   `;

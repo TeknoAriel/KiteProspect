@@ -9,6 +9,9 @@ export type SerializedAdvisor = {
   phone: string | null;
   status: string;
   userId: string | null;
+  branchId: string | null;
+  branchName: string | null;
+  branchSlug: string | null;
   linkedUserEmail: string | null;
   linkedUserName: string | null;
   assignmentsCount?: number;

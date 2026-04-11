@@ -1,3 +1,4 @@
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { requireAuth } from "@/lib/server-utils";
 import { prisma } from "@kite-prospect/db";
 import Link from "next/link";
@@ -16,7 +17,7 @@ export default async function ContactScorePage({
   const contact = await prisma.contact.findFirst({
     where: {
       id,
-      accountId,
+      ...contactWhereForAdvisorRole(accountId, session),
     },
     include: {
       leadScores: {

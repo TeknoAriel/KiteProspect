@@ -62,6 +62,28 @@ Decisión técnica (modelo y verificación): `docs/decisions/slice-f3e2-capture-
 
 ---
 
+## Webhooks salientes (F3-E3)
+
+- **Registro:** solo **admin** del tenant; URL HTTPS (o `http` solo en localhost para pruebas).
+- **Eventos:** `lead.captured` (tras captura exitosa), `contact.assignment_changed` (reasignación en CRM), `contact.stages_updated` (cambio real de etapas comercial/conversacional), `follow_up.sequence_started` (secuencia de seguimiento iniciada), `contact.external_id_updated` (vínculo o borrado de `Contact.externalId`); lista ampliable en versiones posteriores.
+- **Verificación:** el receptor calcula HMAC-SHA256 del **cuerpo JSON exacto** con el secreto mostrado al crear la suscripción y compara con la cabecera `X-Kite-Signature` (`sha256=` + hex).
+- **No** reintentos automáticos garantizados en MVP; fallos de red en el destino del cliente no invalidan la operación principal en Kite Prospect.
+
+Decisión: `docs/decisions/slice-l14-f3e3-public-webhooks.md`.
+
+---
+
+## Multi-sucursal (F3-E4, MVP)
+
+- **Sucursales** (`Branch`) pertenecen a la cuenta; slug único por tenant.
+- **Contacto** puede tener `branchId` opcional; filtro en listado CRM y asignación desde ficha (admin/coordinador).
+- **Captura:** campo opcional `branchSlug` alineado a sucursal activa; slug inválido no bloquea el alta del lead.
+- **Reportes operativos:** filtro opcional por sucursal (`?branchId=` + export CSV alineado). **Asesor con sucursal** (`Advisor.branchId`): ve solo datos de esa sucursal y contactos sin sucursal (pool); aplica a panel, CRM, reportes y `PATCH` de feedback en matches (L19 + L21).
+
+Decisión: `docs/decisions/slice-l15-f3e4-multi-branch-mvp.md`. Reportes por sucursal: `docs/decisions/slice-l19-f3e4-operational-reports-by-branch.md`. Alcance asesor: `docs/decisions/slice-l21-advisor-branch-operational-scope.md`.
+
+---
+
 ## Usuarios y roles internos
 
 | Rol | Expectativa |
@@ -120,6 +142,8 @@ Debe soportar (a nivel de diseño / Fase 1 mínimo viable donde aplique):
 - Pausas, cierres, reactivación por propiedades nuevas (`reactivateOnNewProperties` + reglas futuras).
 
 **Factores a considerar** (Fase 2+ para lógica rica): score, canal permitido, última interacción, fatiga, consentimiento, objeción, estado del lead, toma manual por asesor.
+
+**Canales en cron (MVP):** WhatsApp (Meta), email (Resend o tarea manual), **SMS** (Twilio o tarea manual si no hay credenciales/teléfono/consent); otros canales en plan → tarea manual. Detalle técnico: `docs/decisions/slice-follow-up-channels-email-manual.md`, `docs/decisions/slice-l16-f3e5-sms-twilio-follow-up.md`.
 
 ---
 

@@ -19,6 +19,7 @@ export default async function AdvisorsPage() {
           name: true,
         },
       },
+      branch: { select: { name: true } },
       _count: {
         select: {
           assignments: true,
@@ -85,6 +86,12 @@ export default async function AdvisorsPage() {
               </p>
               <p style={{ margin: "0.25rem 0", fontSize: "0.875rem", color: "#666" }}>
                 Teléfono: {advisor.phone || "N/A"} | Estado: {advisor.status}
+                {advisor.branch?.name ? (
+                  <>
+                    {" "}
+                    | Sucursal: {advisor.branch.name}
+                  </>
+                ) : null}
               </p>
               <p style={{ margin: "0.25rem 0", fontSize: "0.875rem", color: "#666" }}>
                 Asignaciones: {advisor._count.assignments}

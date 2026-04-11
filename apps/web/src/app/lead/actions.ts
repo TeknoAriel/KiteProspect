@@ -38,6 +38,7 @@ export async function submitLeadForm(
   }
 
   const accountSlug = String(formData.get("accountSlug") ?? "").trim();
+  const branchSlug = String(formData.get("branchSlug") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -46,6 +47,7 @@ export async function submitLeadForm(
 
   const result = await createLeadCapture({
     accountSlug: accountSlug || undefined,
+    branchSlug: branchSlug || undefined,
     email: email || undefined,
     phone: phone || undefined,
     name: name || undefined,

@@ -134,6 +134,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.role = token.role as string;
         session.user.accountId = token.accountId as string;
         session.user.accountSlug = token.accountSlug as string;
+        let advisorBranchId: string | null = null;
+        if (session.user.role === "advisor") {
+          const adv = await prisma.advisor.findFirst({
+            where: { userId: session.user.id, accountId: session.user.accountId },
+            select: { branchId: true },
+          });
+          advisorBranchId = adv?.branchId ?? null;
+        }
+        session.user.advisorBranchId = advisorBranchId;
       }
       return session;
     },

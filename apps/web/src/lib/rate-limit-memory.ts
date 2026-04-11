@@ -29,11 +29,45 @@ export function getCaptureRateLimitConfig(): { windowMs: number; max: number } {
   return { windowMs: windowSec * 1000, max };
 }
 
+/** Límite suave por IP en `POST /api/auth/*` (anti fuerza bruta; memoria local por instancia). */
+export function getAuthRateLimitConfig(): { windowMs: number; max: number } {
+  const windowSec = parsePositiveInt(process.env.AUTH_RATE_LIMIT_WINDOW_SEC, 60);
+  const max = parsePositiveInt(process.env.AUTH_RATE_LIMIT_MAX, 20);
+  return { windowMs: windowSec * 1000, max };
+}
+
 /**
  * @returns true si la solicitud puede continuar; false si se superó el límite.
  */
 export function allowRateLimit(key: string): boolean {
   const { windowMs, max } = getCaptureRateLimitConfig();
+  const now = Date.now();
+
+  pruneCounter++;
+  if (pruneCounter >= PRUNE_EVERY) {
+    pruneCounter = 0;
+    prune(now, windowMs);
+  }
+
+  let b = store.get(key);
+  if (!b || now >= b.resetAt) {
+    b = { count: 0, resetAt: now + windowMs };
+    store.set(key, b);
+  }
+
+  if (b.count >= max) return false;
+  b.count++;
+  return true;
+}
+
+/**
+ * Misma lógica que `allowRateLimit` con ventana y máximo propios (p. ej. auth vs captura).
+ */
+export function allowRateLimitWithConfig(
+  key: string,
+  config: { windowMs: number; max: number },
+): boolean {
+  const { windowMs, max } = config;
   const now = Date.now();
 
   pruneCounter++;

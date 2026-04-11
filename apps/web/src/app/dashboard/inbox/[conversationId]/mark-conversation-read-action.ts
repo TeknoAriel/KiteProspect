@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { conversationWhereForAdvisorContact } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import { markConversationReadByTeam } from "@/domains/conversations/mark-conversation-read";
 import { revalidatePath } from "next/cache";
@@ -10,7 +11,10 @@ export async function markConversationReadAction(conversationId: string): Promis
   if (!session?.user?.accountId) return;
 
   const exists = await prisma.conversation.findFirst({
-    where: { id: conversationId, accountId: session.user.accountId },
+    where: {
+      id: conversationId,
+      ...conversationWhereForAdvisorContact(session.user.accountId, session),
+    },
     select: { id: true },
   });
   if (!exists) return;

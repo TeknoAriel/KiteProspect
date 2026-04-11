@@ -4,6 +4,7 @@
 import { prisma } from "@kite-prospect/db";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { recordAuditEvent } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
@@ -53,7 +54,10 @@ export async function PATCH(
     where: {
       id: matchId,
       contactId,
-      contact: { accountId },
+      contact: {
+        id: contactId,
+        ...contactWhereForAdvisorRole(accountId, session),
+      },
     },
     select: { id: true, propertyId: true, feedback: true },
   });

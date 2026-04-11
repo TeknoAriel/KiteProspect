@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
@@ -69,7 +70,7 @@ export async function updateDeclaredSearchProfileAction(
   }
 
   const contact = await prisma.contact.findFirst({
-    where: { id: contactId, accountId: session.user.accountId },
+    where: { id: contactId, ...contactWhereForAdvisorRole(session.user.accountId, session) },
     select: { id: true },
   });
   if (!contact) {
@@ -176,6 +177,14 @@ export async function inferSearchProfileFromMessagesAction(
   const session = await auth();
   if (!session?.user?.accountId || !session.user.id) {
     return { ok: false, error: "No autorizado." };
+  }
+
+  const allowed = await prisma.contact.findFirst({
+    where: { id: contactId, ...contactWhereForAdvisorRole(session.user.accountId, session) },
+    select: { id: true },
+  });
+  if (!allowed) {
+    return { ok: false, error: "Contacto no encontrado." };
   }
 
   const result = await inferAndUpsertSearchProfileFromMessages(contactId, session.user.accountId);

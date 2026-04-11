@@ -1,4 +1,5 @@
 import { requireAuth } from "@/lib/server-utils";
+import { contactWhereForAdvisorRole } from "@/domains/auth-tenancy/advisor-contact-scope";
 import { prisma } from "@kite-prospect/db";
 import { FOLLOW_UP_INTENSITY_LABEL_ES } from "@/domains/core-prospeccion/follow-up-intensity";
 import { normalizePlanIntensity } from "@/domains/core-prospeccion/follow-up-intensity-normalize";
@@ -22,7 +23,7 @@ export default async function FollowUpsPage() {
     }),
     prisma.followUpSequence.findMany({
       where: {
-        contact: { accountId },
+        contact: contactWhereForAdvisorRole(accountId, session),
         plan: { accountId },
         status: "active",
       },

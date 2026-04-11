@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { recordAuditEvent } from "@/lib/audit";
 import { serializeAdvisor } from "@/domains/advisors/advisor-serialization";
+import { assertBranchBelongsToAccount } from "@/domains/advisors/assert-advisor-branch";
 import { parseAdvisorCreateBody } from "@/domains/advisors/validate-advisor-payload";
 
 export const dynamic = "force-dynamic";
@@ -53,6 +54,7 @@ export async function GET() {
     take: 200,
     include: {
       user: { select: { email: true, name: true } },
+      branch: { select: { id: true, name: true, slug: true } },
       _count: { select: { assignments: true } },
     },
   });
@@ -90,6 +92,11 @@ export async function POST(request: NextRequest) {
     if (!check.ok) return NextResponse.json({ error: check.error }, { status: 409 });
   }
 
+  if (d.branchId !== undefined && d.branchId !== null) {
+    const br = await assertBranchBelongsToAccount(session.user.accountId, d.branchId as string);
+    if (!br.ok) return NextResponse.json({ error: br.error }, { status: 400 });
+  }
+
   const created = await prisma.advisor.create({
     data: {
       accountId: session.user.accountId,
@@ -98,9 +105,11 @@ export async function POST(request: NextRequest) {
       phone: d.phone as string | null | undefined,
       status: d.status as string,
       userId: userId ?? null,
+      ...(d.branchId !== undefined && { branchId: d.branchId as string | null }),
     },
     include: {
       user: { select: { email: true, name: true } },
+      branch: { select: { id: true, name: true, slug: true } },
       _count: { select: { assignments: true } },
     },
   });

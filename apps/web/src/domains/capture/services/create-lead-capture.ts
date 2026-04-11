@@ -6,6 +6,7 @@ import { prisma } from "@kite-prospect/db";
 import { validateLeadCaptureFields } from "@/lib/capture-validation";
 import { recordAuditEvent } from "@/lib/audit";
 import { logStructured } from "@/lib/structured-log";
+import { emitAccountWebhooks } from "@/domains/integrations/services/emit-account-webhooks";
 
 const ALLOWED_CHANNELS = new Set([
   "web_widget",
@@ -20,6 +21,8 @@ export type LeadCaptureSource = "api" | "public_form";
 export type CreateLeadCaptureInput = {
   accountSlug?: string;
   accountId?: string;
+  /** Opcional: sucursal por slug (F3-E4). Si no existe, se ignora. */
+  branchSlug?: string;
   email?: string;
   phone?: string;
   name?: string;
@@ -83,6 +86,21 @@ export async function createLeadCapture(
     return { ok: false, status: 400, error: "Se requiere accountSlug o accountId" };
   }
 
+  let branchId: string | undefined;
+  const branchSlugRaw =
+    typeof input.branchSlug === "string" ? input.branchSlug.trim().toLowerCase() : "";
+  if (branchSlugRaw) {
+    const br = await prisma.branch.findFirst({
+      where: {
+        accountId,
+        slug: branchSlugRaw,
+        status: "active",
+      },
+      select: { id: true },
+    });
+    if (br) branchId = br.id;
+  }
+
   const orConditions: { email?: string; phone?: string }[] = [];
   if (emailStr) orConditions.push({ email: emailStr });
   if (phoneStr) orConditions.push({ phone: phoneStr });
@@ -99,6 +117,7 @@ export async function createLeadCapture(
     contact = await prisma.contact.create({
       data: {
         accountId,
+        branchId: branchId ?? null,
         email: emailStr ?? null,
         phone: phoneStr ?? null,
         name: nameStr ?? null,
@@ -107,12 +126,21 @@ export async function createLeadCapture(
       },
     });
     createdNewContact = true;
-  } else if (nameStr && !contact.name) {
-    await prisma.contact.update({
-      where: { id: contact.id },
-      data: { name: nameStr },
-    });
-    contact = { ...contact, name: nameStr };
+  } else {
+    if (nameStr && !contact.name) {
+      await prisma.contact.update({
+        where: { id: contact.id },
+        data: { name: nameStr },
+      });
+      contact = { ...contact, name: nameStr };
+    }
+    if (branchId && contact.branchId !== branchId) {
+      await prisma.contact.update({
+        where: { id: contact.id },
+        data: { branchId },
+      });
+      contact = { ...contact, branchId };
+    }
   }
 
   let conversation = await prisma.conversation.findFirst({
@@ -181,6 +209,18 @@ export async function createLeadCapture(
     hasInboundMessage: Boolean(messageStr),
     source: input.source === "public_form" ? "public_form" : "api",
   });
+
+  void emitAccountWebhooks({
+    accountId,
+    event: "lead.captured",
+    data: {
+      contactId: contact.id,
+      conversationId: conversation.id,
+      channel,
+      isNewContact: createdNewContact,
+      source: input.source === "public_form" ? "public_form" : "api",
+    },
+  }).catch((e) => console.error("[webhook] lead.captured", e));
 
   return {
     ok: true,

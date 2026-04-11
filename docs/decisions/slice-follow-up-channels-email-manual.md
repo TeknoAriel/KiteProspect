@@ -13,6 +13,8 @@
 
 4. **`whatsapp`** — Sin cambio de comportamiento (Meta Graph).
 
+5. **`sms`** — Twilio si `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` están definidos; consentimiento `Consent` canal `sms`; ver `slice-l16-f3e5-sms-twilio-follow-up.md`.
+
 ## Variables de entorno
 
 | Variable | Uso |
@@ -26,3 +28,4 @@
 - Envío email con plantillas HTML por tenant.
 - Instagram Graph API para DM automatizado (políticas Meta + consentimiento).
 - Un solo paso con varios canales en paralelo sin duplicar filas JSON.
+- SMS: webhooks de entrega Twilio, plantillas por cuenta.

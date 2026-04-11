@@ -1,0 +1,5 @@
+# Kite Prospect — reporte responsable de seguridad
+# Responsible disclosure (RFC 9116). Ajustar contacto si el despliegue usa otro canal.
+Contact: https://github.com/TeknoAriel/KiteProspect/security
+Preferred-Languages: es, en
+Expires: 2027-12-31T23:59:59.000Z

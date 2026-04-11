@@ -108,6 +108,12 @@ export default async function AccountSettingsHubPage() {
         <Link href="/dashboard/account/capture-api-keys" style={{ color: "#0070f3" }}>
           API captura
         </Link>
+        <Link href="/dashboard/account/webhooks" style={{ color: "#0070f3" }}>
+          Webhooks
+        </Link>
+        <Link href="/dashboard/account/branches" style={{ color: "#0070f3" }}>
+          Sucursales
+        </Link>
       </nav>
 
       <Section id="modulos" title="Módulos del MVP (estado en producto)">
@@ -329,6 +335,18 @@ export default async function AccountSettingsHubPage() {
               API de captura (claves por cuenta)
             </Link>{" "}
             — Bearer <code>kp_…</code> para landings sin depender solo del secreto global.
+          </li>
+          <li style={{ marginBottom: "0.5rem" }}>
+            <Link href="/dashboard/account/webhooks" style={{ color: "#0070f3" }}>
+              Webhooks salientes
+            </Link>{" "}
+            — eventos firmados hacia tu servidor (F3-E3).
+          </li>
+          <li style={{ marginBottom: "0.5rem" }}>
+            <Link href="/dashboard/account/branches" style={{ color: "#0070f3" }}>
+              Sucursales
+            </Link>{" "}
+            — unidades operativas; asignación en ficha y <code>branchSlug</code> en captura (F3-E4).
           </li>
           <li>
             <Link href="/dashboard/account/ai-prompt" style={{ color: "#0070f3" }}>
