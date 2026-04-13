@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@kite-prospect/db";
 import { verifyMetaSignature256 } from "@/lib/meta-signature";
 import { processWhatsAppWebhookBody } from "@/domains/integrations/whatsapp/process-webhook";
+import { logStructured } from "@/lib/structured-log";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -30,6 +31,11 @@ export async function POST(request: NextRequest) {
   if (appSecret) {
     const sig = request.headers.get("x-hub-signature-256");
     if (!verifyMetaSignature256(raw, sig, appSecret)) {
+      logStructured("whatsapp_webhook_signature_invalid", {
+        httpStatus: 401,
+        hasSignatureHeader: Boolean(sig?.trim()),
+        bodyBytes: raw.length,
+      });
       return NextResponse.json({ error: "Firma inválida" }, { status: 401 });
     }
   } else if (process.env.NODE_ENV === "production") {
@@ -38,6 +44,7 @@ export async function POST(request: NextRequest) {
 
   const slug = process.env.WHATSAPP_ACCOUNT_SLUG?.trim();
   if (!slug) {
+    logStructured("whatsapp_webhook_account_slug_missing", { httpStatus: 503 });
     return NextResponse.json(
       { error: "WHATSAPP_ACCOUNT_SLUG no configurado" },
       { status: 503 },
@@ -50,6 +57,10 @@ export async function POST(request: NextRequest) {
   });
 
   if (!account) {
+    logStructured("whatsapp_webhook_account_not_found", {
+      httpStatus: 404,
+      accountSlug: slug,
+    });
     return NextResponse.json({ error: "Cuenta no encontrada" }, { status: 404 });
   }
 
@@ -64,6 +75,17 @@ export async function POST(request: NextRequest) {
 
   try {
     const result = await processWhatsAppWebhookBody(account.id, body);
+    if (result.processed === 0 && result.kind === "empty") {
+      const root = body && typeof body === "object" ? (body as Record<string, unknown>) : null;
+      const objectField = typeof root?.object === "string" ? root.object : null;
+      logStructured("whatsapp_webhook_no_inbound_extracted", {
+        httpStatus: 200,
+        accountId: account.id,
+        kind: result.kind,
+        objectField,
+        bodyBytes: raw.length,
+      });
+    }
     return NextResponse.json({ ok: true, ...result });
   } catch (e) {
     console.error("[whatsapp] webhook error", e);
