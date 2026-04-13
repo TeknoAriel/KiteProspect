@@ -55,6 +55,9 @@ export async function GET() {
   const whatsAppOutboundConfigured =
     (process.env.WHATSAPP_PHONE_NUMBER_ID?.trim() ?? "").length > 0 &&
     (process.env.WHATSAPP_ACCESS_TOKEN?.trim() ?? "").length > 0;
+  /** Si está definido, el POST del webhook exige `X-Hub-Signature-256` válida; si no coincide con el App Secret de Meta → 401. */
+  const whatsAppAppSecretConfigured =
+    (process.env.WHATSAPP_APP_SECRET?.trim() ?? "").length > 0;
   const followUpSmsTwilioConfigured =
     (process.env.TWILIO_ACCOUNT_SID?.trim() ?? "").length > 0 &&
     (process.env.TWILIO_AUTH_TOKEN?.trim() ?? "").length > 0 &&
@@ -183,6 +186,7 @@ export async function GET() {
         followUpSmsProvider,
         followUpSmsConfigured,
         whatsAppWebhook: whatsAppWebhookConfigured,
+        whatsAppAppSecret: whatsAppAppSecretConfigured,
         whatsAppOutbound: whatsAppOutboundConfigured,
         aiConversational: aiConfigured,
         aiProviderExpected: aiProvider,
