@@ -5,6 +5,15 @@ export type ResolvePropertyResult = {
   externalPropertyRef: Record<string, unknown> | null;
 };
 
+function normalizedIdCandidates(raw: string): string[] {
+  const base = raw.trim();
+  if (!base) return [];
+  const set = new Set<string>([base]);
+  const digits = base.replace(/\D+/g, "");
+  if (digits.length >= 4) set.add(digits);
+  return Array.from(set);
+}
+
 /**
  * Resuelve Property local por externalId + source (p. ej. kiteprop feed).
  * Si no hay match, devuelve referencia externa para reconciliación posterior.
@@ -20,20 +29,59 @@ export async function resolvePropertyFromKitepropApiLead(input: {
   }
 
   const source = (input.propertyExternalSource?.trim() || "kiteprop").toLowerCase();
+  const candidates = normalizedIdCandidates(extId);
 
-  const row = await prisma.property.findFirst({
+  const rowExact = await prisma.property.findFirst({
     where: {
       accountId: input.accountId,
-      externalId: extId,
+      externalId: { in: candidates },
       OR: [{ externalSource: source }, { externalSource: "kiteprop" }],
     },
     select: { id: true },
   });
 
-  if (row) {
+  if (rowExact) {
     return {
-      propertyId: row.id,
-      externalPropertyRef: { externalId: extId, externalSource: source, resolved: true },
+      propertyId: rowExact.id,
+      externalPropertyRef: {
+        externalId: extId,
+        externalSource: source,
+        resolved: true,
+        matchedBy: "externalId",
+      },
+    };
+  }
+
+  const rowByReference = await prisma.property.findFirst({
+    where: {
+      accountId: input.accountId,
+      OR: candidates.flatMap((id) => [
+        {
+          metadata: {
+            path: ["kiteprop", "claveReferencia"],
+            equals: id,
+          },
+        },
+        {
+          metadata: {
+            path: ["kiteprop", "publicUrl"],
+            string_contains: id,
+          },
+        },
+      ]),
+    },
+    select: { id: true },
+  });
+
+  if (rowByReference) {
+    return {
+      propertyId: rowByReference.id,
+      externalPropertyRef: {
+        externalId: extId,
+        externalSource: source,
+        resolved: true,
+        matchedBy: "metadataReference",
+      },
     };
   }
 
@@ -43,6 +91,7 @@ export async function resolvePropertyFromKitepropApiLead(input: {
       externalId: extId,
       externalSource: source,
       resolved: false,
+      normalizedCandidatesTried: candidates,
     },
   };
 }

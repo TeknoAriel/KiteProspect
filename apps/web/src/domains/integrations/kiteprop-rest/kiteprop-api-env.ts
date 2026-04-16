@@ -50,11 +50,6 @@ export function validateKitepropApiForHttpImport():
       "KITEPROP_API_BASE_URL (o KITEPROP_API_URL) debe estar definida y no vacía.",
     );
   }
-  if (!importPathRaw()) {
-    errors.push(
-      "KITEPROP_API_IMPORT_PATH (o KITEPROP_API_LEADS_LIST_PATH) debe estar definida y no vacía.",
-    );
-  }
   const hasKey = Boolean(process.env.KITEPROP_API_KEY?.trim());
   const hasBasic =
     Boolean(process.env.KITEPROP_API_USER?.trim()) &&
@@ -81,7 +76,8 @@ export function formatBaseUrlForLog(urlRaw: string | undefined): string {
 
 export function formatImportPathForLog(): string {
   const p = importPathRaw();
-  return p ?? "(no definido)";
+  if (p) return p;
+  return "(no definido: se usa autodetección /api/v1/leads,/api/leads,/v1/leads,/leads)";
 }
 
 /** Usuario: solo longitud y si parece email, dominio truncado. */
@@ -112,5 +108,6 @@ export function printKitepropApiEnvReportLines(): string[] {
     `  KITEPROP_API_HTTP_METHOD: ${process.env.KITEPROP_API_HTTP_METHOD?.trim() || "GET"}`,
     `  KITEPROP_API_GET_DATE_QUERY_STYLE: ${process.env.KITEPROP_API_GET_DATE_QUERY_STYLE?.trim() || "all (from,to,from_date,to_date)"}`,
     `  KITEPROP_API_RESPONSE_LIST_KEYS: ${process.env.KITEPROP_API_RESPONSE_LIST_KEYS?.trim() || "(solo claves por defecto en código)"}`,
+    `  KITEPROP_API_RESPONSE_LIST_PATHS: ${process.env.KITEPROP_API_RESPONSE_LIST_PATHS?.trim() || "(sin paths anidados extra)"}`,
   ];
 }

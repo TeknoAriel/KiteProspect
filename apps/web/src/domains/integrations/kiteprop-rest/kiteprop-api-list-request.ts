@@ -4,18 +4,24 @@
  */
 import { readKitepropImportEnv } from "./kiteprop-import-env";
 
-function baseAndPath(): { base: string; path: string } {
+function resolvePathCandidates(): string[] {
   const env = readKitepropImportEnv();
-  if (!env.baseUrl || !env.importPath) {
-    throw new Error("baseUrl/importPath requeridos");
-  }
-  const base = env.baseUrl.replace(/\/$/, "");
-  const path = env.importPath.startsWith("/") ? env.importPath : `/${env.importPath}`;
-  return { base, path };
+  const extraCandidates = process.env.KITEPROP_API_IMPORT_PATH_CANDIDATES?.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const defaults = ["/api/v1/leads", "/api/leads", "/v1/leads", "/leads"];
+  const configured = env.importPath ? [env.importPath] : [];
+  return [...new Set([...configured, ...(extraCandidates ?? []), ...defaults])];
 }
 
-export function buildKitepropListUrl(since: Date, until: Date): URL {
-  const { base, path } = baseAndPath();
+function buildKitepropListUrlForPath(
+  baseUrl: string,
+  importPath: string,
+  since: Date,
+  until: Date,
+): URL {
+  const base = baseUrl.replace(/\/$/, "");
+  const path = importPath.startsWith("/") ? importPath : `/${importPath}`;
   const url = new URL(path, `${base}/`);
   const method = (process.env.KITEPROP_API_HTTP_METHOD?.trim() || "GET").toUpperCase();
   const postLike = method === "POST" || method === "PUT";
@@ -41,6 +47,15 @@ export function buildKitepropListUrl(since: Date, until: Date): URL {
     url.searchParams.set("to_date", until.toISOString());
   }
   return url;
+}
+
+export function buildKitepropListUrl(since: Date, until: Date): URL {
+  const env = readKitepropImportEnv();
+  if (!env.baseUrl) {
+    throw new Error("baseUrl requerido");
+  }
+  const path = resolvePathCandidates()[0];
+  return buildKitepropListUrlForPath(env.baseUrl, path, since, until);
 }
 
 export function buildKitepropAuthHeaders(): Record<string, string> {
@@ -95,30 +110,54 @@ export async function executeKitepropListHttp(
 ): Promise<Response> {
   const method = (process.env.KITEPROP_API_HTTP_METHOD?.trim() || "GET").toUpperCase();
   const headers = buildKitepropAuthHeaders();
+  const env = readKitepropImportEnv();
+  if (!env.baseUrl) {
+    throw new Error("KITEPROP_API_BASE_URL (o KITEPROP_API_URL) no definido");
+  }
+  const candidates = resolvePathCandidates();
 
-  if (method === "POST" || method === "PUT") {
-    const url = buildKitepropListUrl(since, until);
+  for (const candidatePath of candidates) {
+    const url = buildKitepropListUrlForPath(env.baseUrl, candidatePath, since, until);
     const kFrom = process.env.KITEPROP_API_POST_FIELD_FROM?.trim() || "from";
     const kTo = process.env.KITEPROP_API_POST_FIELD_TO?.trim() || "to";
     const body: Record<string, string> = {
       [kFrom]: since.toISOString(),
       [kTo]: until.toISOString(),
     };
-    return fetch(url.toString(), {
-      method,
-      headers: {
-        ...headers,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-      cache: "no-store",
-    });
+    const response =
+      method === "POST" || method === "PUT"
+        ? await fetch(url.toString(), {
+            method,
+            headers: {
+              ...headers,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+            cache: "no-store",
+          })
+        : await fetch(url.toString(), {
+            method: "GET",
+            headers,
+            cache: "no-store",
+          });
+
+    // Si el endpoint no existe, probamos el siguiente candidato.
+    if (response.status === 404) {
+      continue;
+    }
+
+    return response;
   }
 
-  const url = buildKitepropListUrl(since, until);
-  return fetch(url.toString(), {
-    method: "GET",
-    headers,
-    cache: "no-store",
-  });
+  return new Response(
+    JSON.stringify({
+      error:
+        "No se encontró endpoint KiteProp para listado. Probá KITEPROP_API_IMPORT_PATH o KITEPROP_API_IMPORT_PATH_CANDIDATES.",
+      triedPaths: candidates,
+    }),
+    {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    },
+  );
 }

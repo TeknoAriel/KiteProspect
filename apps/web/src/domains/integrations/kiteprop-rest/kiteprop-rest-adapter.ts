@@ -28,6 +28,18 @@ const DEFAULT_LIST_KEYS = [
   "records",
 ];
 
+function getByPath(input: unknown, rawPath: string): unknown {
+  const path = rawPath.trim();
+  if (!path) return undefined;
+  const parts = path.split(".").map((p) => p.trim()).filter(Boolean);
+  let cur: unknown = input;
+  for (const part of parts) {
+    if (!cur || typeof cur !== "object") return undefined;
+    cur = (cur as Record<string, unknown>)[part];
+  }
+  return cur;
+}
+
 function extractItems(json: unknown): unknown[] {
   if (Array.isArray(json)) return json;
   if (json && typeof json === "object") {
@@ -36,9 +48,30 @@ function extractItems(json: unknown): unknown[] {
       .map((s) => s.trim())
       .filter(Boolean);
     const keys = [...new Set([...DEFAULT_LIST_KEYS, ...(extra ?? [])])];
+
+    // 1) Claves directas de primer nivel: leads, data, items, etc.
     for (const k of keys) {
       const v = o[k];
       if (Array.isArray(v)) return v;
+    }
+
+    // 2) Paths anidados opcionales vía env (ej. data.items, payload.results)
+    const nestedPaths = process.env.KITEPROP_API_RESPONSE_LIST_PATHS?.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const p of nestedPaths ?? []) {
+      const v = getByPath(json, p);
+      if (Array.isArray(v)) return v;
+    }
+
+    // 3) Fallback: un nivel extra bajo claves comunes si vienen como objeto contenedor.
+    for (const k of keys) {
+      const v = o[k];
+      if (!v || typeof v !== "object" || Array.isArray(v)) continue;
+      for (const inner of DEFAULT_LIST_KEYS) {
+        const vv = (v as Record<string, unknown>)[inner];
+        if (Array.isArray(vv)) return vv;
+      }
     }
   }
   return [];

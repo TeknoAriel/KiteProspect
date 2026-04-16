@@ -27,6 +27,36 @@ function pickNestedString(obj: unknown, path: string[]): string | undefined {
   return typeof cur === "string" && cur.trim() ? cur.trim() : undefined;
 }
 
+function pickNestedIdString(obj: unknown, path: string[]): string | undefined {
+  let cur: unknown = obj;
+  for (const p of path) {
+    if (cur === null || cur === undefined || typeof cur !== "object") return undefined;
+    cur = (cur as Record<string, unknown>)[p];
+  }
+  if (typeof cur === "string" && cur.trim()) return cur.trim();
+  if (typeof cur === "number" && Number.isFinite(cur)) return String(cur);
+  return undefined;
+}
+
+function extractIdFromUrlLike(value?: string): string | undefined {
+  if (!value?.trim()) return undefined;
+  const v = value.trim();
+  const m = v.match(/(?:properties|property|propiedades|inmueble|listing|publicacion)\/(\d+)(?:[/?#]|$)/i);
+  if (m?.[1]) return m[1];
+  const fallback = v.match(/\b(\d{4,})\b/);
+  return fallback?.[1];
+}
+
+function pickNestedObject(obj: unknown, path: string[]): Record<string, unknown> | undefined {
+  let cur: unknown = obj;
+  for (const p of path) {
+    if (cur === null || cur === undefined || typeof cur !== "object") return undefined;
+    cur = (cur as Record<string, unknown>)[p];
+  }
+  if (cur && typeof cur === "object" && !Array.isArray(cur)) return cur as Record<string, unknown>;
+  return undefined;
+}
+
 function pickDate(obj: Record<string, unknown>, keys: string[]): Date | undefined {
   for (const k of keys) {
     const v = obj[k];
@@ -96,8 +126,34 @@ export function normalizeKitepropApiItem(raw: unknown): NormalizedKitepropImport
   const propertyExternalId =
     property?.id != null
       ? String(property.id)
-      : pickIdStr(o, ["property_id", "propertyId"]) ??
-        pickNestedString(raw, ["property", "external_id"]);
+      : pickIdStr(o, [
+          "property_id",
+          "propertyId",
+          "publication_id",
+          "listing_id",
+          "listingId",
+          "inmueble_id",
+        ]) ??
+        pickNestedString(raw, ["property", "external_id"]) ??
+        pickNestedString(raw, ["property", "externalId"]) ??
+        pickNestedIdString(raw, ["publication", "id"]) ??
+        pickNestedIdString(raw, ["listing", "id"]) ??
+        pickNestedIdString(raw, ["inmueble", "id"]) ??
+        pickNestedIdString(raw, ["ad", "id"]) ??
+        extractIdFromUrlLike(
+          pickNestedString(raw, ["property", "url"]) ??
+            pickNestedString(raw, ["property", "public_url"]) ??
+            pickNestedString(raw, ["publication", "url"]) ??
+            pickNestedString(raw, ["listing", "url"]) ??
+            pickStr(o, ["property_url", "public_url", "listing_url", "url"]),
+        );
+
+  const propertySourceObject =
+    property ??
+    pickNestedObject(raw, ["publication"]) ??
+    pickNestedObject(raw, ["listing"]) ??
+    pickNestedObject(raw, ["inmueble"]) ??
+    pickNestedObject(raw, ["ad"]);
 
   const channelRaw =
     pickStr(o, ["channel", "source_channel", "medium"]) ||
@@ -124,7 +180,9 @@ export function normalizeKitepropApiItem(raw: unknown): NormalizedKitepropImport
     messageBody,
     occurredAt,
     propertyExternalId: propertyExternalId ?? undefined,
-    propertyExternalSource: property ? pickStr(property, ["source"]) : undefined,
+    propertyExternalSource: propertySourceObject
+      ? pickStr(propertySourceObject, ["source", "portal", "origin"])
+      : undefined,
     channelRaw,
     portalRaw,
     raw,
