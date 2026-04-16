@@ -50,6 +50,7 @@ Decisión detallada: `docs/decisions/kiteprop-frontera-demo-y-produccion.md`.
 
 ## Captura de leads (API pública)
 
+- **`POST /api/lead` (activación):** el opt-in de marketing (`consentMarketing`) en **producción** debe ser explícito salvo política de entorno documentada (`ALLOW_IMPLICIT_CONSENT_DEFAULT` / dev / preview). No asumir consentimiento por defecto fuera de esos contextos.
 - **Uso:** `POST /api/contacts/create` para formularios y proxies server-side (no exponer secretos en el navegador del visitante).
 - **Multi-tenant:** el cuerpo debe identificar la cuenta (`accountSlug` o `accountId`); el mecanismo de autenticación **no** sustituye esa identificación.
 - **Autenticación (una de dos):**

@@ -22,6 +22,17 @@ export type FeedListing = {
   amenities: Record<string, boolean | string | number>;
   /** Referencia humana (ej. claveReferencia). */
   referenceKey: string;
+  /** Canon `Property.status`: available | reserved | sold | rented | withdrawn */
+  availabilityStatus: string;
+  /** Origen del parseo (trazabilidad en Property.metadata.kiteprop). */
+  feedFormat: "proppit" | "kiteprop_json" | "opennavent_xml";
+  city?: string | null;
+  province?: string | null;
+  country?: string | null;
+  /** URL pública de ficha (KiteProp `url`). */
+  publicUrl?: string;
+  /** Snapshot del objeto JSON origen (feed externalsite); consultas en SQL/JSON sin re-fetch. */
+  rawRecord?: Record<string, unknown>;
 };
 
 export type KitepropSyncStats = {

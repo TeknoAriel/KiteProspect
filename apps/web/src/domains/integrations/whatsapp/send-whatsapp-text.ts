@@ -3,6 +3,7 @@
  */
 import { prisma, Prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { kitepropImportReviewModeEnabled } from "@/domains/integrations/kiteprop-rest/kiteprop-import-env";
 import { getWhatsAppSendBlockReason } from "./whatsapp-consent";
 import { normalizeWhatsAppPhone } from "./ingest-inbound";
 
@@ -26,7 +27,20 @@ export async function sendWhatsAppTextToContact(params: {
   accountId: string;
   text: string;
   actorUserId?: string | null;
+  /**
+   * Solo para despacho manual desde revisión de borradores (un lead aprobado).
+   * No usar en seguimientos automáticos.
+   */
+  ignoreReviewModeBlock?: boolean;
 }): Promise<SendWhatsAppTextResult> {
+  if (!params.ignoreReviewModeBlock && kitepropImportReviewModeEnabled()) {
+    return {
+      ok: false,
+      error:
+        "KITEPROP_IMPORT_REVIEW_MODE=true: envío WhatsApp desactivado (fase validación import KiteProp).",
+    };
+  }
+
   const text = params.text.trim();
   if (!text) {
     return { ok: false, error: "El mensaje está vacío." };

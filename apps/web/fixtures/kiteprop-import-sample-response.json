@@ -1,0 +1,37 @@
+{
+  "leads": [
+    {
+      "id": "fixture-lead-wa-001",
+      "channel": "whatsapp",
+      "contact": {
+        "id": "fixture-kp-contact-001",
+        "name": "María López",
+        "email": "maria.fixture.kite@example.com",
+        "phone": "+5491147654321"
+      },
+      "message": {
+        "id": "fixture-msg-001",
+        "body": "Hola, consulto por el departamento en Palermo que vieron en la web. ¿Sigue disponible?",
+        "created_at": "2026-04-14T15:30:00.000Z"
+      },
+      "property": {
+        "id": "fixture-prop-ext-7788",
+        "source": "kiteprop"
+      }
+    },
+    {
+      "id": "fixture-lead-email-002",
+      "channel": "email",
+      "contact": {
+        "id": "fixture-kp-contact-002",
+        "name": "Juan Pérez",
+        "email": "juan.fixture.kite@example.com"
+      },
+      "message": {
+        "id": "fixture-msg-002",
+        "body": "Buenas tardes, me interesa coordinar una visita para el lote en zona norte.",
+        "created_at": "2026-04-13T10:00:00.000Z"
+      }
+    }
+  ]
+}

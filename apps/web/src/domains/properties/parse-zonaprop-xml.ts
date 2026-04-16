@@ -195,6 +195,8 @@ function parseOneAviso(aviso: unknown): FeedListing | null {
     longitude: lng,
     amenities: ref.amenities,
     referenceKey,
+    availabilityStatus: "available",
+    feedFormat: "opennavent_xml",
   };
 }
 

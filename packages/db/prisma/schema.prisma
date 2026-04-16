@@ -37,6 +37,80 @@ model Account {
   webhookSubscriptions WebhookSubscription[]
   branches      Branch[]
   simulationRuns SimulationRun[]
+  leads         Lead[]
+  channelStates ChannelState[]
+  ingestionIdempotencyKeys IngestionIdempotencyKey[]
+  handoffOutboundAttempts HandoffOutboundAttempt[]
+  kitepropLeadSyncRuns     KitepropLeadSyncRun[]
+  kitepropLeadSyncCursor   KitepropLeadSyncCursor?
+  leadReplyDraftReviews    LeadReplyDraftReview[]
+}
+
+/// Ejecución de sync desde KiteProp REST API (importación validación).
+model KitepropLeadSyncRun {
+  id        String    @id @default(cuid())
+  accountId String
+  startedAt DateTime  @default(now())
+  completedAt DateTime?
+  /// running | completed | failed
+  status    String    @default("running")
+  lookbackDays Int    @default(7)
+  fetchedCount  Int @default(0)
+  importedCount Int @default(0)
+  skippedCount  Int @default(0)
+  dedupedCount    Int @default(0)
+  errorCount      Int @default(0)
+  errorMessage    String? @db.VarChar(2000)
+  rawPayloadSnapshot Json?
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, startedAt(sort: Desc)])
+}
+
+/// Cursor opaco para paginación incremental con la API externa.
+model KitepropLeadSyncCursor {
+  accountId             String    @id
+  lastSuccessfulEndAt DateTime?
+  opaqueCursor        String?   @db.VarChar(4000)
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+}
+
+/// Cola de revisión humana: respuestas sugeridas (sin envío automático en review mode).
+model LeadReplyDraftReview {
+  id        String   @id @default(cuid())
+  accountId String
+  leadId    String   @unique
+  contactId String
+  /// draft_pending_review | manual_review_required | approved_to_send | sent | discarded (imported_real_lead reservado / futuro pipeline async)
+  reviewStatus String
+  sourceChannel String?
+  sourcePortal  String?
+  channelConfidence Float?
+  externalPropertyRef Json?
+  propertyId String?
+  /// whatsapp | email | portal | none
+  draftKind  String?
+  draftPayload Json?
+  editedPayload Json?
+  manualReviewRequired Boolean @default(false)
+  approvedByUserId String?
+  approvedAt DateTime?
+  sentAt     DateTime?
+  discardedAt DateTime?
+  discardedReason String? @db.VarChar(2000)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account  Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  lead     Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact  Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  property Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([accountId, reviewStatus])
+  @@index([contactId])
 }
 
 /// Reporte de laboratorio: 20 escenarios conversacionales + snapshot de seguimiento (tester).
@@ -162,6 +236,9 @@ model Contact {
   conversationalStage String @default("new") // new, answered, identified, profiled_partial, profiled_useful, consent_obtained, followup_active
   commercialStage     String @default("exploratory") // exploratory, prospect, real_lead, blocked, hot, assigned, visit_scheduled, opportunity_active, paused, lost, won
 
+  /// Integración CRM (p. ej. KiteProp API): payload complementario no mapeado a columnas; ver docs/kiteprop-unified-data-model.md
+  metadata Json?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -178,15 +255,90 @@ model Contact {
   recommendations Recommendation[]
   propertyMatches PropertyMatch[]
   followUpSequences FollowUpSequence[]
+  leads           Lead[]
+  channelStates   ChannelState[]
+  leadReplyDraftReviews LeadReplyDraftReview[]
 
   /// Un mismo ID de CRM no puede repetirse por cuenta (varias filas con externalId null sí).
   @@unique([accountId, externalId])
+}
+
+/// Unidad de captación / handoff hacia CRM externo (Prospect ≠ pipeline KiteProp completo).
+model Lead {
+  id        String   @id @default(cuid())
+  accountId String
+  contactId String
+
+  /// open | qualified | handed_off | archived
+  status         String   @default("open")
+  source         String   @default("form")
+  campaignId     String?
+  archivedReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  conversations Conversation[]
+  leadScores    LeadScore[]
+  leadQualifications LeadQualification[]
+  leadReplyDraftReview LeadReplyDraftReview?
+
+  @@index([accountId, contactId])
+  @@index([contactId, status])
+}
+
+/// Estado operativo por canal (ventanas WA, cooldowns, contadores).
+model ChannelState {
+  id        String   @id @default(cuid())
+  accountId String
+  contactId String
+  channel   String
+
+  lastInboundAt  DateTime?
+  lastOutboundAt DateTime?
+  /// Fin de ventana de sesión WA (24h desde último inbound del usuario).
+  waSessionExpiresAt DateTime?
+  lastEmailFollowUpAt DateTime?
+  outboundCount24h    Int       @default(0)
+
+  metadata  Json?
+  updatedAt DateTime @updatedAt
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, contactId, channel])
+  @@index([accountId])
+}
+
+/// Dedup de ingesta (form, webhooks).
+model IngestionIdempotencyKey {
+  id        String   @id @default(cuid())
+  accountId String
+  /// capture | wa_webhook | campaign_mock | kiteprop_rest
+  source    String
+  key       String
+
+  contactId String?
+  leadId    String?
+
+  createdAt DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, source, key])
+  @@index([accountId])
 }
 
 model Conversation {
   id        String   @id @default(cuid())
   accountId String
   contactId String
+  /// Lead activo asociado (captación / seguimiento).
+  leadId    String?
 
   channel   String   // web_widget, landing, whatsapp, form
   channelId String?  // ID externo del canal (ej: wa_id)
@@ -200,7 +352,10 @@ model Conversation {
 
   account   Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
   contact   Contact   @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  lead      Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
   messages  Message[]
+
+  @@index([leadId])
 }
 
 model Message {
@@ -289,6 +444,7 @@ model Property {
   account        Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
   propertyMatches PropertyMatch[]
   recommendations Recommendation[]
+  leadReplyDraftReviews LeadReplyDraftReview[]
 
   @@index([accountId, externalSource])
   @@unique([accountId, externalSource, externalId], name: "property_account_external_key")
@@ -332,6 +488,7 @@ model Recommendation {
 model LeadScore {
   id        String   @id @default(cuid())
   contactId String
+  leadId    String?
 
   // Sub-scores (0-100 cada uno)
   intentScore     Float @default(0)
@@ -345,11 +502,15 @@ model LeadScore {
   createdAt DateTime @default(now())
 
   contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  lead    Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
 }
 
 model LeadQualification {
   id        String   @id @default(cuid())
   contactId String
+  leadId    String?
 
   qualified  Boolean
   reason     String?
@@ -359,6 +520,36 @@ model LeadQualification {
   createdAt DateTime @default(now())
 
   contact Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  lead    Lead?   @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  @@index([leadId])
+}
+
+/// Log de intentos HTTP hacia KiteProp (handoff lead.qualified): trazabilidad e idempotencia operativa.
+model HandoffOutboundAttempt {
+  id                String   @id @default(cuid())
+  accountId         String
+  leadId            String
+  contactId         String
+  dedupeKey         String
+  eventId           String
+  attemptNumber     Int      @default(1)
+  targetUrl         String
+  httpStatus        Int?
+  ok                Boolean  @default(false)
+  latencyMs         Int?
+  requestBodySha256 String?
+  /// JSON truncado del body enviado (operación / replay); sin PII adicional al payload ya estructurado.
+  requestPayloadSnapshot String? @db.VarChar(8000)
+  responseSnippet   String?  @db.VarChar(4000)
+  errorMessage      String?  @db.VarChar(2000)
+
+  createdAt DateTime @default(now())
+
+  account Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, createdAt(sort: Desc)])
+  @@index([leadId, createdAt(sort: Desc)])
 }
 
 // =============================================================================

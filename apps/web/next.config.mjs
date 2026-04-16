@@ -13,6 +13,10 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   transpilePackages: ["@kite-prospect/db"],
+  experimental: {
+    /** Next 14: externals del servidor para BullMQ / Redis. */
+    serverComponentsExternalPackages: ["bullmq", "ioredis", "msgpackr-extract"],
+  },
   async headers() {
     const globalHeaders = [
       {

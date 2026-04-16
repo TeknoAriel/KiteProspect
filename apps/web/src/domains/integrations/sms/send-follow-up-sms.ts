@@ -3,6 +3,7 @@
  * Consentimiento y teléfono compartidos entre proveedores.
  */
 import { prisma } from "@kite-prospect/db";
+import { kitepropImportReviewModeEnabled } from "@/domains/integrations/kiteprop-rest/kiteprop-import-env";
 import { getSmsSendBlockReason } from "./sms-consent";
 import {
   getConfiguredSmsProvider,
@@ -38,6 +39,15 @@ export async function sendFollowUpSmsToContact(params: {
   accountName: string;
   objective?: string | null;
 }): Promise<SendFollowUpSmsResult> {
+  if (kitepropImportReviewModeEnabled()) {
+    return {
+      ok: false,
+      reason: "blocked",
+      error:
+        "KITEPROP_IMPORT_REVIEW_MODE=true: SMS de seguimiento desactivado (fase validación import KiteProp).",
+    };
+  }
+
   const provider = getConfiguredSmsProvider();
   if (provider === "telnyx") {
     if (!isTelnyxSmsEnvConfigured()) {

@@ -30,6 +30,10 @@ Este archivo lista **solo** lo que debe hacer una persona (no el código) cuando
 
 ---
 
+**Handoff hacia KiteProp (`lead.qualified`, HMAC, ACK 2xx/409, operación / replay):** variables y APIs internas → **[kiteprop-integration-runbook.md](./kiteprop-integration-runbook.md)**; contrato HTTP → **[integration-kiteprop-handoff-contract.md](./integration-kiteprop-handoff-contract.md)**.
+
+**Import lectura CRM KiteProp (API REST, borradores, sin envío automático en review mode):** **[kiteprop-import-validation-mode.md](./kiteprop-import-validation-mode.md)**.
+
 ## Ahora (desarrollo local)
 
 ### 1. Tener PostgreSQL disponible

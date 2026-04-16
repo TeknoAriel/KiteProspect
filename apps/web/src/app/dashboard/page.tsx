@@ -22,6 +22,12 @@ export default async function DashboardPage() {
           <p style={{ color: "#666", margin: 0, fontSize: "0.9rem" }}>
             Vista rápida del tenant <strong>{session.user.accountSlug}</strong> — embudo, canales y actividad reciente.
           </p>
+          {session.user.role === "advisor" && (
+            <p style={{ color: "#8a5a00", margin: "0.5rem 0 0", fontSize: "0.82rem", maxWidth: "36rem" }}>
+              Como <strong>asesor</strong> no ves el import KiteProp ni la validación de borradores; usá{" "}
+              <code style={{ fontSize: "0.78rem" }}>admin@demo.local</code> o un usuario coordinator para esas pantallas.
+            </p>
+          )}
         </div>
         <nav style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
           <Link href="/dashboard/inbox" style={{ textDecoration: "none", color: "#0070f3" }}>
@@ -36,6 +42,11 @@ export default async function DashboardPage() {
           <Link href="/dashboard/reportes" style={{ textDecoration: "none", color: "#0070f3" }}>
             Reportes
           </Link>
+          {(session.user.role === "admin" || session.user.role === "coordinator") && (
+            <Link href="/dashboard/validation-inbox" style={{ textDecoration: "none", color: "#0070f3", fontWeight: 600 }}>
+              Validación KiteProp
+            </Link>
+          )}
           <Link href="/dashboard/properties" style={{ textDecoration: "none", color: "#0070f3" }}>
             Propiedades
           </Link>
@@ -152,6 +163,30 @@ export default async function DashboardPage() {
             Disponibles (matching): <strong>{kpis.propertiesAvailable}</strong>
           </p>
         </Link>
+        {(session.user.role === "admin" || session.user.role === "coordinator") && (
+          <Link
+            href="/dashboard/validation-inbox"
+            style={{
+              padding: "1.5rem",
+              border: "2px solid #0070f3",
+              borderRadius: "8px",
+              textDecoration: "none",
+              color: "inherit",
+              display: "block",
+              background: "linear-gradient(135deg, #f0f7ff 0%, #fff 100%)",
+            }}
+          >
+            <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "0.875rem", color: "#0070f3" }}>
+              Import API KiteProp
+            </h3>
+            <p style={{ margin: 0, fontSize: "0.95rem", fontWeight: 600, color: "#0070f3" }}>
+              Validación de borradores →
+            </p>
+            <p style={{ margin: "0.35rem 0 0", fontSize: "0.78rem", color: "#555" }}>
+              Revisar y enviar respuestas sugeridas (sin automatismo global si review mode está activo).
+            </p>
+          </Link>
+        )}
       </div>
 
       <section style={{ marginBottom: "2rem" }}>
@@ -273,6 +308,28 @@ export default async function DashboardPage() {
             </Link>{" "}
             — planes y secuencias; el cron de ejecución es servidor (Vercel).
           </li>
+          {(session.user.role === "admin" || session.user.role === "coordinator") && (
+            <li>
+              <Link href="/dashboard/validation-inbox" style={{ color: "#0070f3" }}>
+                Validación import KiteProp
+              </Link>{" "}
+              — leads desde API, borradores WhatsApp/email, aprobar y enviar uno a uno. Requiere variables{" "}
+              <code style={{ fontSize: "0.8rem" }}>KITEPROP_API_*</code> y corrida{" "}
+              <code style={{ fontSize: "0.8rem" }}>npm run kiteprop:import:last-week</code> o POST interno.
+            </li>
+          )}
+          {(session.user.role === "admin" || session.user.role === "coordinator") && (
+            <li>
+              <Link href="/dashboard/demo-channels" style={{ color: "#0070f3" }}>
+                Demo canales
+              </Link>{" "}
+              y{" "}
+              <Link href="/dashboard/demo-simulation" style={{ color: "#0070f3" }}>
+                Lab 20 escenarios
+              </Link>{" "}
+              — simulación sin Meta (admin/coordinator).
+            </li>
+          )}
           {session.user.role === "admin" && (
             <>
               <li>

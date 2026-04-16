@@ -3,6 +3,8 @@
  */
 import { prisma, Prisma } from "@kite-prospect/db";
 import { recordAuditEvent } from "@/lib/audit";
+import { ensureOpenLeadForConversation } from "@/domains/activation/ensure-open-lead";
+import { dispatchLeadCreated, dispatchScoring } from "@/jobs/dispatch";
 import type { ParsedInboundMessage, ParsedStatus } from "./parse-cloud-api";
 
 const OPT_OUT = new Set(["STOP", "BAJA", "UNSUBSCRIBE", "CANCELAR", "DAR DE BAJA", "QUIT"]);
@@ -147,6 +149,80 @@ export async function ingestInboundWhatsAppMessage(
     });
   } catch (e) {
     console.error("[audit] whatsapp_inbound_received failed", e);
+  }
+
+  if (isOptOutText(msg.text)) {
+    return {
+      skipped: false,
+      contactId: contact.id,
+      conversationId: conv.id,
+      messageId: created.id,
+    };
+  }
+
+  const waConsent = await prisma.consent.findFirst({
+    where: { contactId: contact.id, channel: "whatsapp" },
+    orderBy: { updatedAt: "desc" },
+  });
+  if (!waConsent) {
+    await prisma.consent.create({
+      data: {
+        contactId: contact.id,
+        channel: "whatsapp",
+        granted: true,
+        grantedAt: new Date(),
+        purpose: "session",
+      },
+    });
+  } else if (!waConsent.granted || waConsent.revokedAt) {
+    await prisma.consent.update({
+      where: { id: waConsent.id },
+      data: { granted: true, grantedAt: new Date(), revokedAt: null },
+    });
+  }
+
+  const { leadId, createdNewLead } = await ensureOpenLeadForConversation({
+    accountId,
+    contactId: contact.id,
+    conversationId: conv.id,
+    leadSource: "whatsapp",
+  });
+
+  await prisma.channelState.upsert({
+    where: {
+      accountId_contactId_channel: {
+        accountId,
+        contactId: contact.id,
+        channel: "whatsapp",
+      },
+    },
+    create: {
+      accountId,
+      contactId: contact.id,
+      channel: "whatsapp",
+      lastInboundAt: new Date(),
+      waSessionExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    },
+    update: {
+      lastInboundAt: new Date(),
+      waSessionExpiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    },
+  });
+
+  if (createdNewLead) {
+    void dispatchLeadCreated({
+      accountId,
+      contactId: contact.id,
+      leadId,
+      event: "lead.created",
+    }).catch((e) => console.error("[dispatch] lead.created", e));
+  } else {
+    void dispatchScoring({
+      accountId,
+      contactId: contact.id,
+      leadId,
+      reason: "message.received",
+    }).catch((e) => console.error("[dispatch] scoring", e));
   }
 
   return {

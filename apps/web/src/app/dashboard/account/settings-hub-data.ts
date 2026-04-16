@@ -26,6 +26,11 @@ export const MVP_MODULES: { name: string; done: boolean; where: string }[] = [
   { name: "Seguimiento por SMS (Twilio, canal sms en plan)", done: true, where: "Variables Twilio + planes JSON" },
   { name: "Demo por canal (hilos simulados sin Meta/Resend/Twilio)", done: true, where: "/dashboard/demo-channels" },
   { name: "Laboratorio 20 escenarios (reporte IA + seguimiento)", done: true, where: "/dashboard/demo-simulation" },
+  {
+    name: "Import KiteProp API + bandeja validación (borradores, envío manual)",
+    done: true,
+    where: "/dashboard/validation-inbox — ver docs/kiteprop-import-validation-mode.md",
+  },
   { name: "API pública inventario por API key por tenant", done: false, where: "Fase 3+ (roadmap)" },
 ];
 

@@ -10,6 +10,7 @@ import {
   leadScoreIntentFromProfileIntent,
   leadScoreReadinessFromCommercialStage,
 } from "./lead-score-rules";
+import { ACTIVATION_SCORE_WEIGHTS, combineScores } from "@/domains/activation/scoring-weights";
 
 interface ScoreWeights {
   intent: number;
@@ -18,6 +19,7 @@ interface ScoreWeights {
   engagement: number;
 }
 
+/** Legacy pesos MVP dashboard; activación usa ACTIVATION_SCORE_WEIGHTS. */
 const DEFAULT_WEIGHTS: ScoreWeights = {
   intent: 0.3,
   readiness: 0.25,
@@ -25,11 +27,23 @@ const DEFAULT_WEIGHTS: ScoreWeights = {
   engagement: 0.2,
 };
 
+export type CalculateLeadScoreOptions = {
+  /** Si se informa, persiste `leadId` y usa pesos de activación. */
+  leadId?: string;
+  useActivationWeights?: boolean;
+};
+
 export async function calculateLeadScore(
   contactId: string,
   accountId: string,
-  weights: ScoreWeights = DEFAULT_WEIGHTS,
+  options?: CalculateLeadScoreOptions,
 ) {
+  const opts = options ?? {};
+  const weights: ScoreWeights =
+    opts.useActivationWeights || opts.leadId
+      ? { ...ACTIVATION_SCORE_WEIGHTS }
+      : DEFAULT_WEIGHTS;
+
   const contact = await prisma.contact.findFirst({
     where: { id: contactId, accountId },
     include: {
@@ -43,6 +57,7 @@ export async function calculateLeadScore(
         },
       },
       leadScores: {
+        ...(opts.leadId ? { where: { leadId: opts.leadId } } : {}),
         orderBy: { createdAt: "desc" },
         take: 1,
       },
@@ -62,20 +77,21 @@ export async function calculateLeadScore(
 
   const engagementScore = leadScoreEngagementFromConversations(contact.conversations);
 
-  // Total score (ponderado)
-  const totalScore =
-    intentScore * weights.intent +
-    readinessScore * weights.readiness +
-    fitScore * weights.fit +
-    engagementScore * weights.engagement;
+  const totalScore = combineScores(
+    intentScore,
+    readinessScore,
+    fitScore,
+    engagementScore,
+    weights,
+  );
 
-  // Guardar score
   const latestScore = contact.leadScores[0];
   const version = latestScore ? latestScore.version + 1 : 1;
 
   const score = await prisma.leadScore.create({
     data: {
       contactId,
+      leadId: opts.leadId ?? null,
       intentScore,
       readinessScore,
       fitScore,

@@ -28,7 +28,13 @@
     "db:reset": "dotenv -e .env -- npm run reset -w @kite-prospect/db",
     "postinstall": "npm run db:generate",
     "test:ai": "dotenv -e .env -- npx tsx --tsconfig apps/web/tsconfig.json apps/web/scripts/test-ai-next-action.ts",
-    "git:push:kiteprop": "git push kiteprop main"
+    "kiteprop:import": "dotenv -e .env -- npx tsx --tsconfig apps/web/tsconfig.json apps/web/scripts/kiteprop-import.ts",
+    "kiteprop:import:last-week": "dotenv -e .env -- npx tsx --tsconfig apps/web/tsconfig.json apps/web/scripts/kiteprop-import.ts --days=7",
+    "kiteprop:import:fixture-demo": "dotenv -e .env -e apps/web/fixtures/kiteprop-fixture.env -- npx tsx --tsconfig apps/web/tsconfig.json apps/web/scripts/kiteprop-import.ts --days=7",
+    "kiteprop:check-api": "dotenv -e .env -- npx tsx --tsconfig apps/web/tsconfig.json apps/web/scripts/kiteprop-check-api.ts",
+    "git:push:kiteprop": "git push kiteprop main",
+    "worker": "npm run worker -w @kite-prospect/web",
+    "demo:up": "docker compose -f docker-compose.demo.yml up -d && echo Listo: Redis en 6379. Siguiente: REDIS_URL en .env, npm run db:migrate, npm run db:seed, npm run dev y npm run worker (ver docs/decisions/slice-activation-local-demo.md)"
   },
   "devDependencies": {
     "dotenv-cli": "^7.4.4",

@@ -49,7 +49,7 @@ Account (tenant)
 
 | Entidad | Descripción |
 |---------|-------------|
-| **Contact** | Núcleo del lead. Identificadores (`email`, `phone`, `name`), `declaredProfile` JSON (Fase 1), etapas de funnel; `branchId` opcional (F3-E4). |
+| **Contact** | Núcleo del lead. Identificadores (`email`, `phone`, `name`), `declaredProfile` JSON (Fase 1), etapas de funnel; `branchId` opcional (F3-E4). `metadata` JSON opcional: integración CRM (p. ej. snapshot API KiteProp). Ver [kiteprop-unified-data-model.md](./kiteprop-unified-data-model.md). |
 | **Conversation** | Hilo por canal (`web_widget`, `landing`, `whatsapp`, `form`). Enlaza `Contact` y `Account`. `lastReadAt`: última lectura del hilo por el equipo en inbox (S29). |
 | **Message** | Mensaje entrante/saliente; metadata para WhatsApp (estado, plantilla). |
 | **Task** | Tarea comercial asociada al contacto. |
@@ -66,7 +66,7 @@ Account (tenant)
 
 | Entidad | Descripción |
 |---------|-------------|
-| **Property** | Inmueble del inventario del tenant. **Nunca** inventar fuera de esta tabla. |
+| **Property** | Inmueble del inventario del tenant. **Nunca** inventar fuera de esta tabla. `metadata.kiteprop` puede incluir `rawRecord` del export JSON (campos completos para consulta). Ver [kiteprop-unified-data-model.md](./kiteprop-unified-data-model.md). |
 | **PropertyMatch** | Relación contacto–propiedad con `score`, `reason`, feedback. Única por par (`contactId`, `propertyId`). |
 | **Recommendation** | Envío concreto de una propiedad al contacto por canal. |
 

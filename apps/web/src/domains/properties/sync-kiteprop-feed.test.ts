@@ -23,6 +23,8 @@ function minimalListing(overrides: Partial<FeedListing>): FeedListing {
     longitude: null,
     amenities: {},
     referenceKey: "",
+    availabilityStatus: "available",
+    feedFormat: "proppit",
     ...overrides,
   };
 }

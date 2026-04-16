@@ -47,6 +47,11 @@ export function kitepropListingFingerprint(listing: FeedListing): string {
     longitude: listing.longitude,
     amenities: stableAmenitiesKey(listing),
     referenceKey: listing.referenceKey,
+    availabilityStatus: listing.availabilityStatus,
+    feedFormat: listing.feedFormat,
+    city: listing.city ?? "",
+    province: listing.province ?? "",
+    publicUrl: listing.publicUrl ?? "",
   };
   return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
 }
@@ -100,9 +105,9 @@ function etagPatchFromFetchResults(
   return p;
 }
 
-function mergeMetadata(
+function mergeKitepropMetadata(
   existing: Prisma.JsonValue | null | undefined,
-  referenceKey: string,
+  listing: FeedListing,
 ): Prisma.InputJsonValue {
   const base =
     existing !== null && typeof existing === "object" && !Array.isArray(existing)
@@ -112,9 +117,23 @@ function mergeMetadata(
     typeof base.kiteprop === "object" && base.kiteprop !== null && !Array.isArray(base.kiteprop)
       ? ({ ...(base.kiteprop as Record<string, unknown>) } as Record<string, unknown>)
       : {};
-  if (referenceKey) prevKp.claveReferencia = referenceKey;
-  base.kiteprop = prevKp;
+  const nextKp: Record<string, unknown> = { ...prevKp };
+  if (listing.referenceKey) nextKp.claveReferencia = listing.referenceKey;
+  nextKp.feedFormat = listing.feedFormat;
+  if (listing.publicUrl) nextKp.publicUrl = listing.publicUrl;
+  if (listing.rawRecord && Object.keys(listing.rawRecord).length > 0) {
+    nextKp.rawRecord = listing.rawRecord;
+  }
+  base.kiteprop = nextKp;
   return base as Prisma.InputJsonValue;
+}
+
+function resolveNextPropertyStatus(
+  existingStatus: string | undefined,
+  feedStatus: string,
+): string {
+  if (existingStatus === "sold" || existingStatus === "rented") return existingStatus;
+  return feedStatus;
 }
 
 function areaFromListing(listing: FeedListing): string | null {
@@ -154,10 +173,9 @@ async function upsertOneListing(
     },
   });
 
-  const nextStatus =
-    existing?.status === "sold" || existing?.status === "rented" ? existing.status : "available";
+  const nextStatus = resolveNextPropertyStatus(existing?.status, listing.availabilityStatus);
 
-  const metadata = mergeMetadata(existing?.metadata ?? null, listing.referenceKey);
+  const metadata = mergeKitepropMetadata(existing?.metadata ?? null, listing);
 
   if (existing) {
     if (existing.importFingerprint === fp) {
@@ -193,6 +211,9 @@ async function upsertOneListing(
         rooms: listing.rooms,
         latitude: listing.latitude !== null ? String(listing.latitude) : null,
         longitude: listing.longitude !== null ? String(listing.longitude) : null,
+        city: listing.city ? listing.city.slice(0, 200) : null,
+        province: listing.province ? listing.province.slice(0, 200) : null,
+        country: listing.country?.slice(0, 8) ?? null,
         feedLastSeenAt: now,
         feedRemovedAt: null,
         externalFeedUpdatedAt: extAt,
@@ -216,7 +237,7 @@ async function upsertOneListing(
       bedrooms: listing.bedrooms,
       bathrooms: listing.bathrooms,
       area: areaFromListing(listing),
-      status: "available",
+      status: listing.availabilityStatus,
       externalSource: KITEPROP_EXTERNAL_SOURCE,
       externalId: listing.externalId.slice(0, 120),
       importFingerprint: fp,
@@ -229,6 +250,9 @@ async function upsertOneListing(
       rooms: listing.rooms,
       latitude: listing.latitude !== null ? String(listing.latitude) : null,
       longitude: listing.longitude !== null ? String(listing.longitude) : null,
+      city: listing.city ? listing.city.slice(0, 200) : null,
+      province: listing.province ? listing.province.slice(0, 200) : null,
+      country: listing.country?.slice(0, 8) ?? null,
       feedLastSeenAt: now,
       feedRemovedAt: null,
       externalFeedUpdatedAt: extAt,

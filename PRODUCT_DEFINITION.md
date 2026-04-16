@@ -115,6 +115,7 @@ Quiero una plataforma que transforme consultas dispersas en oportunidades comerc
 ## FASE 3
 
 - CRM externo
+- lectura incremental de leads/consultas desde API CRM (KiteProp) para validación operativa, borradores de respuesta con revisión humana previa al envío (`docs/kiteprop-import-validation-mode.md`)
 - APIs
 - webhooks públicos
 - multi-sucursal más profunda

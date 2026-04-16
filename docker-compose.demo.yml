@@ -1,0 +1,7 @@
+# Redis para BullMQ en local (activación / workers).
+# Uso: docker compose -f docker-compose.demo.yml up -d
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"

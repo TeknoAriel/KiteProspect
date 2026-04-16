@@ -9,11 +9,14 @@
     "lint": "node ../../node_modules/next/dist/bin/next lint",
     "typecheck": "node ../../node_modules/typescript/bin/tsc --noEmit",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "worker": "tsx --tsconfig tsconfig.json src/jobs/worker-entry.ts"
   },
   "dependencies": {
     "@kite-prospect/db": "*",
     "bcryptjs": "^2.4.3",
+    "bullmq": "^5.34.5",
+    "ioredis": "^5.4.2",
     "fast-xml-parser": "^4.5.5",
     "next": "14.2.35",
     "next-auth": "^5.0.0-beta.25",
@@ -27,6 +30,7 @@
     "@types/react-dom": "^18.3.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.35",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^2.1.9"
   }

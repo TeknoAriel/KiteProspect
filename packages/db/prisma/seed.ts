@@ -5,6 +5,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { ensureDemoShowcase } from "./seed-demo-showcase.js";
+import { ensureActivationDemo } from "./seed-activation-demo.js";
 
 const prisma = new PrismaClient();
 
@@ -116,6 +117,8 @@ async function main() {
   }
 
   await ensureDemoShowcase(prisma, account.id, advisor.id);
+
+  await ensureActivationDemo(prisma, account.id);
 
   if (createdNewAccount) {
     await prisma.auditEvent.create({
