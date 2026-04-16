@@ -9,7 +9,8 @@ function resolvePathCandidates(): string[] {
   const extraCandidates = process.env.KITEPROP_API_IMPORT_PATH_CANDIDATES?.split(",")
     .map((s) => s.trim())
     .filter(Boolean);
-  const defaults = ["/api/v1/leads", "/api/leads", "/v1/leads", "/leads"];
+  // Primer intento: usar la base URL exacta tal como viene en env.
+  const defaults = ["", "/api/v1/leads", "/api/leads", "/v1/leads", "/leads"];
   const configured = env.importPath ? [env.importPath] : [];
   return [...new Set([...configured, ...(extraCandidates ?? []), ...defaults])];
 }
@@ -21,8 +22,14 @@ function buildKitepropListUrlForPath(
   until: Date,
 ): URL {
   const base = baseUrl.replace(/\/$/, "");
-  const path = importPath.startsWith("/") ? importPath : `/${importPath}`;
-  const url = new URL(path, `${base}/`);
+  const normalizedPath = importPath.trim();
+  const url =
+    normalizedPath.length === 0
+      ? new URL(base)
+      : new URL(
+          normalizedPath.startsWith("/") ? normalizedPath : `/${normalizedPath}`,
+          `${base}/`,
+        );
   const method = (process.env.KITEPROP_API_HTTP_METHOD?.trim() || "GET").toUpperCase();
   const postLike = method === "POST" || method === "PUT";
   const appendQueryForPost =
