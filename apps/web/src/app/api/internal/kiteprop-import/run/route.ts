@@ -11,7 +11,16 @@ export async function POST(request: NextRequest) {
   const denied = requireInternalOpsAuth(request);
   if (denied) return denied;
 
-  let body: { accountSlug?: string; accountId?: string; lookbackDays?: number };
+  let body: {
+    accountSlug?: string;
+    accountId?: string;
+    lookbackDays?: number;
+    importPath?: string;
+    importPathCandidates?: string[] | string;
+    httpMethod?: "GET" | "POST" | "PUT" | string;
+    responseListKeys?: string[] | string;
+    responseListPaths?: string[] | string;
+  };
   try {
     body = (await request.json()) as {
       accountSlug?: string;
@@ -46,11 +55,65 @@ export async function POST(request: NextRequest) {
       ? body.lookbackDays
       : undefined;
 
+  const toCsv = (value: string[] | string | undefined): string | undefined => {
+    if (!value) return undefined;
+    if (Array.isArray(value)) {
+      return value.map((v) => v.trim()).filter(Boolean).join(",");
+    }
+    return value
+      .split(",")
+      .map((v) => v.trim())
+      .filter(Boolean)
+      .join(",");
+  };
+
+  const envBackup = {
+    importPath: process.env.KITEPROP_API_IMPORT_PATH,
+    importPathCandidates: process.env.KITEPROP_API_IMPORT_PATH_CANDIDATES,
+    httpMethod: process.env.KITEPROP_API_HTTP_METHOD,
+    responseListKeys: process.env.KITEPROP_API_RESPONSE_LIST_KEYS,
+    responseListPaths: process.env.KITEPROP_API_RESPONSE_LIST_PATHS,
+  };
+
+  const requestOverrides = {
+    importPath: body.importPath?.trim(),
+    importPathCandidates: toCsv(body.importPathCandidates),
+    httpMethod: body.httpMethod?.trim().toUpperCase(),
+    responseListKeys: toCsv(body.responseListKeys),
+    responseListPaths: toCsv(body.responseListPaths),
+  };
+
+  if (requestOverrides.importPath !== undefined) {
+    process.env.KITEPROP_API_IMPORT_PATH = requestOverrides.importPath;
+  }
+  if (requestOverrides.importPathCandidates !== undefined) {
+    process.env.KITEPROP_API_IMPORT_PATH_CANDIDATES = requestOverrides.importPathCandidates;
+  }
+  if (requestOverrides.httpMethod !== undefined) {
+    process.env.KITEPROP_API_HTTP_METHOD = requestOverrides.httpMethod;
+  }
+  if (requestOverrides.responseListKeys !== undefined) {
+    process.env.KITEPROP_API_RESPONSE_LIST_KEYS = requestOverrides.responseListKeys;
+  }
+  if (requestOverrides.responseListPaths !== undefined) {
+    process.env.KITEPROP_API_RESPONSE_LIST_PATHS = requestOverrides.responseListPaths;
+  }
+
   try {
     const result = await runKitepropLeadSync(accountId, { lookbackDays });
-    return NextResponse.json({ ok: true, ...result });
+    return NextResponse.json({
+      ok: true,
+      ...result,
+      appliedOverrides: requestOverrides,
+    });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     return NextResponse.json({ ok: false, error: msg }, { status: 500 });
+  } finally {
+    process.env.KITEPROP_API_IMPORT_PATH = envBackup.importPath;
+    process.env.KITEPROP_API_IMPORT_PATH_CANDIDATES = envBackup.importPathCandidates;
+    process.env.KITEPROP_API_HTTP_METHOD = envBackup.httpMethod;
+    process.env.KITEPROP_API_RESPONSE_LIST_KEYS = envBackup.responseListKeys;
+    process.env.KITEPROP_API_RESPONSE_LIST_PATHS = envBackup.responseListPaths;
   }
 }
