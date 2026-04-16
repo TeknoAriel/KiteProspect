@@ -7,6 +7,7 @@
  * - KITEPROP_FEED_JSON_URL — si se omite, usa el feed externalsite de referencia del proyecto.
  */
 import { prisma } from "@kite-prospect/db";
+import type { Prisma } from "@kite-prospect/db";
 import {
   applyKitepropFeedSyncStatePatch,
   extractKitepropFeedFromConfig,
@@ -42,7 +43,7 @@ async function main() {
     data: { config: merged },
   });
 
-  const cfg = extractKitepropFeedFromConfig(merged);
+  const cfg = extractKitepropFeedFromConfig(merged as Prisma.JsonValue);
   const outcome = await syncKitepropFeedForAccount({
     accountId: account.id,
     proppitJsonUrl: cfg.proppitJsonUrl,
